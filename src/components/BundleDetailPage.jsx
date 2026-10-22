@@ -875,12 +875,6 @@ export default function BundleDetailPage({
             >
               Refund Policy
             </button>
-            <button 
-              onClick={onOpenAdmin}
-              className="hover:text-red-500 bg-transparent border-none p-0 text-inherit cursor-pointer"
-            >
-              এডমিন প্যানেল
-            </button>
           </div>
         </div>
       </footer>

@@ -431,12 +431,6 @@ export default function LegalPoliciesPage({
               >
                 Refund Policy
               </button>
-              <button 
-                onClick={onOpenAdmin} 
-                className="hover:underline bg-transparent border-none p-0 text-inherit cursor-pointer text-xs text-white/50 hover:text-white"
-              >
-                Admin Panel
-              </button>
             </div>
           </div>
         </div>

@@ -1624,15 +1624,6 @@ export default function HomePage({
               >
                 Refund Policy
               </button>
-              <button 
-                onClick={onOpenAdmin} 
-                className={`transition-colors bg-transparent border-none text-xs cursor-pointer ${
-                  isDark ? 'text-white/30 hover:text-white' : 'text-white/70 hover:text-white'
-                }`}
-                title="Admin Portal"
-              >
-                Admin
-              </button>
             </div>
           </div>
         </div>
