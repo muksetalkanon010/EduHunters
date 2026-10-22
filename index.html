@@ -55,15 +55,13 @@
     </style>
     <script>
       try {
-        const savedTheme = localStorage.getItem('eduhunters_theme') || 'dark';
-        if (savedTheme === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
-          document.documentElement.setAttribute('data-theme', 'light');
+        const savedTheme = localStorage.getItem('eduhunters_theme');
+        if (savedTheme !== 'dark') {
+          localStorage.setItem('eduhunters_theme', 'dark');
         }
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.documentElement.setAttribute('data-theme', 'dark');
       } catch (e) {
         document.documentElement.classList.add('dark');
       }

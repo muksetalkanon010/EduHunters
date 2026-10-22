@@ -7,11 +7,12 @@ export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(() => {
     try {
       const saved = localStorage.getItem('eduhunters_theme');
-      if (saved === 'light' || saved === 'dark') return saved;
+      if (saved === 'dark') return 'dark';
+      localStorage.setItem('eduhunters_theme', 'dark');
     } catch (e) {
       // ignore
     }
-    return 'dark'; // default to dark red wine theme
+    return 'dark'; // always default to dark red wine theme
   });
 
   const applyThemeToDOM = (nextTheme) => {

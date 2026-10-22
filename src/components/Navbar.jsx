@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import ThemeToggleSwitch from './ThemeToggleSwitch';
 
 export default function Navbar({
   activePage = 'home', // 'home' | 'courses' | 'exams' | 'store' | 'about' | 'devices' | 'orders'
@@ -23,7 +22,7 @@ export default function Navbar({
   onOpenProfile
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { theme, isDark, toggleTheme, setTheme } = useTheme();
+  const { theme, isDark } = useTheme();
   const { currentUser, logout } = useAuth();
 
   // Close drawer on ESC key
@@ -414,50 +413,26 @@ export default function Navbar({
 
           {/* Top Section */}
           <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pr-1 relative z-10">
-            {/* Top Bar with Notch, Quick Logout and Close Button */}
+            {/* Top Bar with Notch and Close Button */}
             <div className="flex items-center justify-between pb-2">
               <span className={`w-8 h-1 rounded-full ${isDark ? 'bg-white/20' : 'bg-gray-300'}`}></span>
-              <div className="flex items-center gap-1.5">
-                {currentUser && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setIsDrawerOpen(false);
-                      await logout();
-                    }}
-                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer active:scale-95 ${
-                      isDark 
-                        ? 'bg-rose-950/40 hover:bg-rose-900/70 text-rose-300 border-rose-500/40 shadow-xs' 
-                        : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200 shadow-xs'
-                    }`}
-                    title="Sign Out"
-                  >
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                      <polyline points="16 17 21 12 16 7"></polyline>
-                      <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Logout</span>
-                  </button>
-                )}
-                <button
-                  onClick={() => setIsDrawerOpen(false)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all border-none cursor-pointer ${
-                    isDark 
-                      ? 'bg-white/10 hover:bg-[#e11438]/20 text-gray-300 hover:text-white' 
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900'
-                  }`}
-                  title="Close"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              </div>
+              <button
+                onClick={() => setIsDrawerOpen(false)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all border-none cursor-pointer ${
+                  isDark 
+                    ? 'bg-white/10 hover:bg-[#e11438]/20 text-gray-300 hover:text-white' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+                }`}
+                title="Close"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
 
-            {/* Profile Avatar, Student Info & Theme Toggle Switch */}
+            {/* Profile Avatar & Student Info */}
             <div className="flex items-center justify-between gap-3 pt-2 pb-1">
               <button
                 type="button"
@@ -470,7 +445,7 @@ export default function Navbar({
                     if (onLoginClick) onLoginClick();
                   }
                 }}
-                className="flex items-center gap-3.5 min-w-0 text-left bg-transparent border-none p-1.5 -m-1.5 rounded-2xl transition-all duration-200 hover:bg-white/[0.06] active:scale-[0.98] cursor-pointer group"
+                className="flex items-center gap-3.5 min-w-0 text-left bg-transparent border-none p-1.5 -m-1.5 rounded-2xl transition-all duration-200 hover:bg-white/[0.06] active:scale-[0.98] cursor-pointer group flex-1"
                 title={currentUser ? "Click to edit profile" : "Click to sign in"}
               >
                 <div className={`relative w-12 h-12 rounded-full overflow-hidden shrink-0 transition-transform duration-200 group-hover:scale-105 ${
@@ -496,7 +471,7 @@ export default function Navbar({
                   )}
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h2 className={`text-[17px] font-bold tracking-tight leading-tight truncate hover:text-[#ff4d6d] transition-colors ${
                     isDark ? 'text-white' : 'text-gray-900'
                   }`}>
@@ -511,9 +486,6 @@ export default function Navbar({
                   </p>
                 </div>
               </button>
-
-              {/* Toggle switch directly at the very right side */}
-              <ThemeToggleSwitch id="drawer-theme-toggle" className="shrink-0" />
             </div>
 
             {/* Sleek Divider Line */}
