@@ -801,9 +801,9 @@ export function isItemEnrolled(itemOrId, currentUser = null, data = null, option
 
   // 7. Check if user is enrolled in a Bundle that contains this item
   const allBundles = data?.bundles || initialData.bundles || [];
+  const userEnrolledList = Array.isArray(currentUser?.enrolledCourses) ? currentUser.enrolledCourses : [];
   for (const b of allBundles) {
-    const isBundleEnrolled = storedCourses.some(sc => sc === b.id || normalizeStr(sc) === normalizeStr(b.title)) ||
-                             (currentUser?.enrolledCourses && currentUser.enrolledCourses.some(uc => uc === b.id || normalizeStr(uc) === normalizeStr(b.title)));
+    const isBundleEnrolled = userEnrolledList.some(uc => uc === b.id || normalizeStr(uc) === normalizeStr(b.title));
     if (isBundleEnrolled && Array.isArray(b.courseIds)) {
       if (matchesList(b.courseIds)) return true;
     }
@@ -863,4 +863,126 @@ export function useEnrollmentStatus(itemOrId, currentUser = null, data = null) {
   return useMemo(() => {
     return isItemEnrolled(itemOrId, currentUser, data);
   }, [itemOrId, currentUser, data, version]);
+}
+
+/**
+ * Checks if current user has an active pending enrollment request for this item.
+ * Returns the matching pending order object if found, or null.
+ */
+export function getItemPendingOrder(itemOrId, currentUser) {
+  if (!itemOrId || !currentUser) return null;
+
+  // 1. If user is already actively enrolled, it's not pending
+  if (isItemEnrolled(itemOrId, currentUser)) return null;
+
+  try {
+    const rawOrders = localStorage.getItem('eh_user_orders_v3');
+    if (!rawOrders) return null;
+    const orders = JSON.parse(rawOrders);
+    if (!Array.isArray(orders) || orders.length === 0) return null;
+
+    const userEmail = (currentUser.email || '').trim().toLowerCase();
+    const userPhoneClean = (currentUser.whatsapp || currentUser.phone || currentUser.phoneNumber || '').replace(/[^0-9]/g, '');
+    const userUid = currentUser.uid || currentUser.id;
+
+    // Collect candidate strings
+    const candidates = new Set();
+    if (typeof itemOrId === 'string') {
+      const s = itemOrId.trim();
+      if (s) {
+        candidates.add(s.toLowerCase());
+        candidates.add(normalizeStr(s));
+      }
+    } else if (typeof itemOrId === 'object' && itemOrId !== null) {
+      ['id', 'slug', 'title', 'name', 'key'].forEach(field => {
+        if (itemOrId[field]) {
+          const val = String(itemOrId[field]).trim();
+          if (val) {
+            candidates.add(val.toLowerCase());
+            candidates.add(normalizeStr(val));
+          }
+        }
+      });
+    }
+
+    const isPhysicsFinishing = Array.from(candidates).some(c => {
+      const low = String(c).toLowerCase();
+      return low.includes('1791887161017') || 
+             low.includes('physics-finishing-touch-series') || 
+             (low.includes('physics') && low.includes('finishing'));
+    });
+
+    if (isPhysicsFinishing) {
+      candidates.add('physics finishing touch series');
+      candidates.add('physicsfinishingtouchseries');
+      candidates.add('physics 1st paper finishing touch series');
+      candidates.add('course-1791887161017');
+      candidates.add('physics-finishing-touch-series');
+    }
+
+    const cleanCand = Array.from(candidates).filter(Boolean);
+    if (cleanCand.length === 0) return null;
+
+    return orders.find(ord => {
+      const st = (ord.status || '').toUpperCase();
+      const isPending = (st === 'PENDING' || ord.transactionId === 'PENDING_VERIFICATION') && !ord.isApproved && !ord.is_approved;
+      if (!isPending) return false;
+
+      // Match user
+      const ordEmail = (ord.customer?.email || ord.customer_email || '').trim().toLowerCase();
+      const ordPhoneClean = (ord.customer?.phone || ord.customer_phone || '').replace(/[^0-9]/g, '');
+      const ordUid = ord.userId || ord.customer?.uid;
+
+      const emailMatch = Boolean(userEmail && ordEmail && userEmail === ordEmail);
+      const phoneMatch = Boolean(userPhoneClean.length >= 8 && ordPhoneClean.length >= 8 && isPhoneMatch(userPhoneClean, ordPhoneClean));
+      const uidMatch = Boolean(userUid && ordUid && userUid === ordUid);
+
+      if (!emailMatch && !phoneMatch && !uidMatch) return false;
+
+      // Match course
+      const ordTitle = (ord.course?.name || ord.course_name || ord.items?.[0]?.title || '').trim().toLowerCase();
+      const ordSlug = (ord.course?.slug || ord.course_slug || ord.items?.[0]?.slug || '').trim().toLowerCase();
+      const normOrdTitle = normalizeStr(ordTitle);
+
+      return cleanCand.some(c => 
+        (ordTitle && (ordTitle === c || ordTitle.includes(c) || c.includes(ordTitle))) ||
+        (normOrdTitle && (normOrdTitle === c || normOrdTitle.includes(c) || c.includes(normOrdTitle))) ||
+        (ordSlug && (ordSlug === c || ordSlug.replace(/[-_]/g, '') === c.replace(/[-_]/g, ''))) ||
+        (isPhysicsFinishing && (ordTitle.includes('physics') && ordTitle.includes('finishing')))
+      );
+    }) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Reactive React hook to track if an item has a pending order
+ */
+export function useItemPending(itemOrId, currentUser) {
+  const [version, setVersion] = useState(0);
+
+  useEffect(() => {
+    const handleUpdate = () => setVersion(v => v + 1);
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('eh:enrollment_approved', handleUpdate);
+      window.addEventListener('eh:enrollment_updated', handleUpdate);
+      window.addEventListener('eh:orders_updated', handleUpdate);
+      window.addEventListener('storage', handleUpdate);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('eh:enrollment_approved', handleUpdate);
+        window.removeEventListener('eh:enrollment_updated', handleUpdate);
+        window.removeEventListener('eh:orders_updated', handleUpdate);
+        window.removeEventListener('storage', handleUpdate);
+      }
+    };
+  }, []);
+
+  return useMemo(() => {
+    return getItemPendingOrder(itemOrId, currentUser);
+  }, [itemOrId, currentUser, version]);
 }

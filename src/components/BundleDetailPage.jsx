@@ -28,11 +28,13 @@ import {
 } from 'lucide-react';
 import Navbar from './Navbar';
 import CheckoutModal from './CheckoutModal';
+import PendingEnrollmentModal from './PendingEnrollmentModal';
 import { initialData } from '../data/mockData';
 import { EXAM_CATEGORIES_METADATA, mapExamBatchToCourse } from '../data/examCategoriesData';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { useEnrollmentStatus } from '../utils/enrollmentService';
+import { useEnrollmentStatus, useItemPending, getItemPendingOrder } from '../utils/enrollmentService';
+import { isStudentProfileComplete } from '../utils/studentProfile';
 
 // Helper to convert Bengali / English number strings to valid JavaScript numbers
 const parsePrice = (val, defaultVal = 0) => {
@@ -60,25 +62,15 @@ export default function BundleDetailPage({
   onNavigatePolicies,
   onOpenAdmin,
   onLoginClick,
+  onOpenProfile,
   onEnrollSuccess
 }) {
   const { isDark } = useTheme();
   const { currentUser } = useAuth();
   const siteSettings = data.siteSettings || initialData.siteSettings || {};
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
   const [openFaqIdx, setOpenFaqIdx] = useState(0);
-
-  const handleOpenCheckout = () => {
-    if (!currentUser) {
-      if (onLoginClick) {
-        onLoginClick(() => {
-          setShowCheckout(true);
-        });
-      }
-      return;
-    }
-    setShowCheckout(true);
-  };
 
   // Scroll to top on mount
   useEffect(() => {
@@ -131,6 +123,65 @@ export default function BundleDetailPage({
   }, [allBundles, selectedBundleId]);
 
   const isBundleEnrolled = useEnrollmentStatus(bundle, currentUser, data);
+  const pendingOrder = useItemPending(bundle, currentUser);
+
+  const handleOpenCheckout = () => {
+    // 0. If user already has an active pending request for this bundle
+    const existingPending = pendingOrder || getItemPendingOrder(bundle, currentUser);
+    if (existingPending) {
+      setShowPendingModal(true);
+      return;
+    }
+
+    // 1. If not authenticated: must log in or sign up first
+    if (!currentUser) {
+      if (onLoginClick) {
+        onLoginClick((loggedInUser) => {
+          const targetUser = loggedInUser || currentUser;
+          const userPending = getItemPendingOrder(bundle, targetUser);
+          if (userPending) {
+            setShowPendingModal(true);
+            return;
+          }
+          if (!isStudentProfileComplete(targetUser)) {
+            if (onOpenProfile) {
+              onOpenProfile({
+                hintNotice: 'বান্ডেল এনরোল করতে আপনার নাম, এইচএসসি ব্যাচ, কলেজ এবং কন্ট্যাক্ট নম্বর দিয়ে প্রোফাইল সম্পন্ন করুন।',
+                requireCompletion: true,
+                onComplete: () => {
+                  setShowCheckout(true);
+                }
+              });
+            } else {
+              setShowCheckout(true);
+            }
+          } else {
+            setShowCheckout(true);
+          }
+        });
+      }
+      return;
+    }
+
+    // 2. If authenticated: check if profile is complete (Name, WhatsApp, College, HSC Batch)
+    if (!isStudentProfileComplete(currentUser)) {
+      if (onOpenProfile) {
+        onOpenProfile({
+          hintNotice: 'বান্ডেল এনরোল করতে আপনার নাম, এইচএসসি ব্যাচ, কলেজ এবং কন্ট্যাক্ট নম্বর দিয়ে প্রোফাইল সম্পন্ন করুন।',
+          requireCompletion: true,
+          onComplete: () => {
+            setShowCheckout(true);
+          }
+        });
+      } else {
+        setShowCheckout(true);
+      }
+      return;
+    }
+
+    // 3. Open Checkout
+    setShowCheckout(true);
+  };
 
   // Resolve included courses / batches
   const includedCourses = useMemo(() => {
@@ -425,6 +476,15 @@ export default function BundleDetailPage({
                       <span>আপনি এনরোল্ড আছেন ✓ (কোর্সগুলো শুরু করুন)</span>
                       <ArrowRight className="w-5 h-5" />
                     </button>
+                  ) : (pendingOrder || getItemPendingOrder(bundle, currentUser)) ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowPendingModal(true)}
+                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-base font-extrabold shadow-[0_0_25px_rgba(245,158,11,0.45)] hover:shadow-[0_0_35px_rgba(245,158,11,0.65)] transition-all cursor-pointer border-none flex items-center justify-center gap-2.5 hover:scale-[1.01] active:scale-[0.99]"
+                    >
+                      <Clock className="w-5 h-5 text-white animate-spin" style={{ animationDuration: '4s' }} />
+                      <span>রিকোয়েস্ট পেন্ডিং · ভেরিফিকেশন চলছে</span>
+                    </button>
                   ) : (
                     <button
                       type="button"
@@ -671,6 +731,15 @@ export default function BundleDetailPage({
                     <CheckCircle2 size={18} />
                     <span>ড্যাশবোর্ডে যান</span>
                   </button>
+                ) : (pendingOrder || getItemPendingOrder(bundle, currentUser)) ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowPendingModal(true)}
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-xl shadow-amber-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border-none"
+                  >
+                    <Clock size={18} className="animate-spin" style={{ animationDuration: '4s' }} />
+                    <span>রিকোয়েস্ট পেন্ডিং · ভেরিফিকেশন চলছে</span>
+                  </button>
                 ) : (
                   <button
                     type="button"
@@ -759,14 +828,25 @@ export default function BundleDetailPage({
               )}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleOpenCheckout}
-            className="px-6 py-2.5 rounded-xl bg-[#dc2626] hover:bg-red-700 text-white text-xs font-bold shadow-[0_0_20px_rgba(220,38,38,0.45)] hover:shadow-[0_0_30px_rgba(220,38,38,0.65)] flex items-center gap-1.5 border-none cursor-pointer transition-all"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            <span>এনরোল করুন</span>
-          </button>
+          {(pendingOrder || getItemPendingOrder(bundle, currentUser)) ? (
+            <button
+              type="button"
+              onClick={() => setShowPendingModal(true)}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-[0_0_20px_rgba(245,158,11,0.45)] flex items-center gap-1.5 border-none cursor-pointer transition-all"
+            >
+              <Clock className="w-4 h-4 animate-spin" style={{ animationDuration: '4s' }} />
+              <span>পেন্ডিং রিকোয়েস্ট</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleOpenCheckout}
+              className="px-6 py-2.5 rounded-xl bg-[#dc2626] hover:bg-red-700 text-white text-xs font-bold shadow-[0_0_20px_rgba(220,38,38,0.45)] hover:shadow-[0_0_30px_rgba(220,38,38,0.65)] flex items-center gap-1.5 border-none cursor-pointer transition-all"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>এনরোল করুন</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -828,6 +908,20 @@ export default function BundleDetailPage({
             if (onEnrollSuccess) onEnrollSuccess(trxData);
           }}
           onClose={() => setShowCheckout(false)} 
+        />
+      )}
+
+      {/* 9. Pending Verification Modal */}
+      {showPendingModal && (
+        <PendingEnrollmentModal
+          isOpen={showPendingModal}
+          onClose={() => setShowPendingModal(false)}
+          order={pendingOrder || getItemPendingOrder(bundle, currentUser)}
+          itemTitle={bundle?.title || "বান্ডেল কোর্স"}
+          onEditPayment={() => {
+            setShowPendingModal(false);
+            setShowCheckout(true);
+          }}
         />
       )}
     </div>

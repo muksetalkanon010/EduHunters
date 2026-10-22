@@ -11,7 +11,7 @@ import TermsModal from './TermsModal';
 
 export default function CheckoutModal({ bundle, course, onClose, onSuccess, siteSettings }) {
   const { isDark } = useTheme();
-  const { currentUser } = useAuth();
+  const { currentUser, updateUserProfile } = useAuth();
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsModalTab, setTermsModalTab] = useState('terms');
 
@@ -27,6 +27,8 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
 
   const [studentName, setStudentName] = useState(() => currentUser?.displayName || currentUser?.name || '');
   const [phoneNumber, setPhoneNumber] = useState(() => currentUser?.whatsapp || currentUser?.phone || currentUser?.phoneNumber || '');
+  const [college, setCollege] = useState(() => currentUser?.college || currentUser?.institution || '');
+  const [hscBatch, setHscBatch] = useState(() => currentUser?.hscBatch || currentUser?.batch || 'HSC 26');
   const [trxId, setTrxId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('bkash');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -136,7 +138,7 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
     }
   }, [currentUser, item, cloudPendingOrder]);
 
-  // Synchronize student name and phone whenever currentUser updates
+  // Synchronize student profile info whenever currentUser updates
   useEffect(() => {
     if (currentUser) {
       if (!studentName) {
@@ -144,6 +146,12 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
       }
       if (!phoneNumber && (currentUser.whatsapp || currentUser.phone || currentUser.phoneNumber)) {
         setPhoneNumber(currentUser.whatsapp || currentUser.phone || currentUser.phoneNumber);
+      }
+      if (!college && (currentUser.college || currentUser.institution)) {
+        setCollege(currentUser.college || currentUser.institution);
+      }
+      if (!hscBatch && (currentUser.hscBatch || currentUser.batch)) {
+        setHscBatch(currentUser.hscBatch || currentUser.batch);
       }
     }
   }, [currentUser]);
@@ -197,31 +205,68 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
     if (isProcessing) return;
 
     if (existingPendingOrder && !showEditPayment) {
-      alert("Your enrollment request has already been received and is under review. Please wait, verification is typically completed within 5-15 minutes.");
+      alert("অলরেডি রিকোয়েস্ট পাঠানো হয়েছে এবং কিছুক্ষণের মধ্যে (৫-১৫ মিনিট) এডমিন প্যানেল থেকে এপ্রুভ করা হবে। অনুগ্রহ করে অপেক্ষা করুন।");
+      return;
+    }
+
+    if (!studentName || studentName.trim().length < 2) {
+      alert("অনুগ্রহ করে আপনার পুরো নাম লিখুন।");
       return;
     }
 
     const cleanPhone = (phoneNumber || '').replace(/[^0-9]/g, '');
-    if (!cleanPhone || cleanPhone.length < 11) {
-      alert("Please enter a valid 11-digit mobile number");
+    if (!cleanPhone || cleanPhone.length < 10) {
+      alert("অনুগ্রহ করে একটি সঠিক ১০/১১ ডিজিটের মোবাইল বা হোয়াটসঅ্যাপ নম্বর লিখুন।");
+      return;
+    }
+
+    if (!college || college.trim().length < 2) {
+      alert("অনুগ্রহ করে আপনার কলেজ বা শিক্ষা প্রতিষ্ঠানের নাম লিখুন।");
+      return;
+    }
+
+    if (!hscBatch) {
+      alert("অনুগ্রহ করে আপনার এইচএসসি ব্যাচ নির্বাচন করুন।");
       return;
     }
 
     setIsProcessing(true);
     (async () => {
       try {
-        // Automatically persist order & invoice in Order History & Cloud Firestore
-        const finalStudentName = studentName || currentUser?.displayName || currentUser?.name || 'Enrolled Student';
-        const finalPhone = phoneNumber || currentUser?.whatsapp || currentUser?.phone || 'N/A';
+        const finalStudentName = studentName.trim() || currentUser?.displayName || currentUser?.name || 'Enrolled Student';
+        const finalPhone = cleanPhone;
+        const finalCollege = college.trim();
+        const finalBatch = hscBatch.trim();
         const finalEmail = currentUser?.email || 'student@eduhunters.com.bd';
         const finalTrxId = trxId ? trxId.trim().toUpperCase() : 'PENDING_VERIFICATION';
-        
+
+        // Persist complete student profile so that subsequent free classes & enrollments are completely unlocked
+        try {
+          if (updateUserProfile) {
+            await updateUserProfile({
+              displayName: finalStudentName,
+              name: finalStudentName,
+              phone: finalPhone,
+              whatsapp: finalPhone,
+              phoneNumber: finalPhone,
+              college: finalCollege,
+              institution: finalCollege,
+              hscBatch: finalBatch,
+              batch: finalBatch
+            });
+          }
+        } catch (profErr) {
+          console.warn('[CheckoutModal] Profile auto-save notice:', profErr);
+        }
+
         const newOrder = await saveNewOrder({
           item,
           studentName: finalStudentName,
           studentPhone: finalPhone,
           studentEmail: finalEmail,
           studentUid: currentUser?.uid || currentUser?.id,
+          college: finalCollege,
+          batch: finalBatch,
           paymentMethod: paymentMethod === 'bkash' ? 'bKash' : 'Nagad',
           trxId: finalTrxId,
           amount: price,
@@ -484,13 +529,13 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                 <div>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-                    Request Pending Verification
+                    রিকোয়েস্ট পেন্ডিং · ভেরিফিকেশন চলছে
                   </span>
                   <h4 className={`text-base sm:text-lg font-black mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Your Enrollment Request is Under Review
+                    আপনার এনরোলমেন্ট রিকোয়েস্টটি অলরেডি পাঠানো হয়েছে
                   </h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                    Our team is verifying your payment details. Course access is typically approved within <strong>5 to 15 minutes</strong>.
+                    আমাদের টিম আপনার পেমেন্ট তথ্য ভেরিফাই করছে। সাধারণত <strong>৫ থেকে ১৫ মিনিটের মধ্যে</strong> এডমিন প্যানেল থেকে এপ্রুভ করা হবে।
                   </p>
                 </div>
               </div>
@@ -500,7 +545,7 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                 isDark ? 'bg-white/[0.02] border-white/10 text-gray-300' : 'bg-gray-50 border-gray-100 text-gray-700'
               }`}>
                 <div className="flex justify-between items-center pb-2 border-b border-gray-100 dark:border-white/5">
-                  <span className="text-gray-400">Course Name:</span>
+                  <span className="text-gray-400">কোর্সের নাম:</span>
                   <span className="font-bold text-right ml-2 max-w-[200px] truncate">{existingPendingOrder.course?.name || item.title}</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -508,19 +553,19 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                   <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{existingPendingOrder.transactionId || 'PENDING'}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Payment Number:</span>
+                  <span className="text-gray-400">পেমেন্ট নম্বর:</span>
                   <span className="font-mono font-semibold">{existingPendingOrder.customer?.phone || phoneNumber}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Payment Method:</span>
+                  <span className="text-gray-400">পেমেন্ট মেথড:</span>
                   <span className="font-semibold capitalize">{existingPendingOrder.paymentGateway || paymentMethod}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Submitted At:</span>
+                  <span className="text-gray-400">রিকোয়েস্টের সময়:</span>
                   <span className="font-medium text-gray-500">
                     {existingPendingOrder.createdAt 
-                      ? new Date(existingPendingOrder.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) 
-                      : 'Recently'}
+                      ? new Date(existingPendingOrder.createdAt).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) 
+                      : 'কিছুক্ষণ আগে'}
                   </span>
                 </div>
               </div>
@@ -531,7 +576,7 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
               }`}>
                 <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-blue-500" />
                 <div>
-                  <strong>Please wait:</strong> You do not need to send money or submit another request for this course. The course page will automatically unlock once approved.
+                  <strong>অনুগ্রহ করে অপেক্ষা করুন:</strong> এই কোর্সের জন্য আপনার রিকোয়েস্টটি সফলভাবে জমা হয়েছে। আর কোনো পেমেন্ট বা নতুন রিকোয়েস্ট পাঠানোর প্রয়োজন নেই। এডমিন অনুমোদন দিলে কোর্সটি স্বয়ংক্রিয়ভাবে আনলক হয়ে যাবে।
                 </div>
               </div>
 
@@ -550,17 +595,17 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                   }`}
                 >
                   <FileText size={15} />
-                  <span>View Invoice</span>
+                  <span>অফিশিয়াল ইনভয়েস দেখুন</span>
                 </button>
 
                 <a
-                  href={`https://wa.me/8801342227935?text=${encodeURIComponent(`Hello, I have submitted an enrollment request for "${existingPendingOrder.course?.name || item.title}" on EduHunters. My TrxID is: ${existingPendingOrder.transactionId}. Could you please verify?`)}`}
+                  href={`https://wa.me/8801342227935?text=${encodeURIComponent(`আসসালামু আলাইকুম, আমি EduHunters-এ "${existingPendingOrder.course?.name || item.title}" কোর্সের জন্য এনরোলমেন্ট রিকোয়েস্ট পাঠিয়েছি। আমার TrxID: ${existingPendingOrder.transactionId}। একটু ভেরিফাই করে এপ্রুভ করে দিলে উপকৃত হতাম।`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-3 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white rounded-xl font-bold text-xs border-none cursor-pointer shadow-md transition-all flex items-center justify-center gap-1.5 no-underline"
                 >
                   <MessageCircle size={15} />
-                  <span>WhatsApp Helpline</span>
+                  <span>WhatsApp হেল্পলাইন</span>
                 </a>
               </div>
 
@@ -574,7 +619,7 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                     : 'bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 border-gray-200'
                 }`}
               >
-                Got it, Close
+                ঠিক আছে, বন্ধ করুন
               </button>
 
               {/* Discreet Edit Option */}
@@ -587,7 +632,7 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                   }}
                   className="text-[11px] text-gray-400 hover:text-rose-500 transition-colors underline cursor-pointer bg-transparent border-none"
                 >
-                  Entered wrong Transaction ID? Click here to update details
+                  ভুল Transaction ID বা তথ্য দিয়েছেন? পরিবর্তন করতে এখানে ক্লিক করুন
                 </button>
               </div>
             </div>
@@ -702,11 +747,11 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
               <form onSubmit={handleConfirmPayment} className="space-y-3.5 pt-1">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    Full Name
+                    শিক্ষার্থীর পুরো নাম <span className="text-[#dc2626]">*</span>
                   </label>
                   <input 
                     type="text" 
-                    placeholder="e.g. Sabbir Ahmed"
+                    placeholder="যেমন: সাব্বির আহমেদ"
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border transition-all outline-none ${
                       isDark 
                         ? 'bg-white/[0.03] border-white/10 text-white placeholder-gray-500 focus:border-[#e11438] focus:bg-white/[0.05]' 
@@ -714,12 +759,54 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                     }`}
                     value={studentName}
                     onChange={(e) => setStudentName(e.target.value)}
+                    required
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      এইচএসসি ব্যাচ <span className="text-[#dc2626]">*</span>
+                    </label>
+                    <select
+                      value={hscBatch}
+                      onChange={(e) => setHscBatch(e.target.value)}
+                      className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border transition-all outline-none ${
+                        isDark 
+                          ? 'bg-[#150409] border-white/10 text-white focus:border-[#e11438]' 
+                          : 'bg-white border-gray-200 text-gray-900 focus:border-[#dc2626]'
+                      }`}
+                      required
+                    >
+                      <option value="HSC 25">HSC 25</option>
+                      <option value="HSC 26">HSC 26</option>
+                      <option value="HSC 27">HSC 27</option>
+                      <option value="HSC 28">HSC 28</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300">
+                      কলেজ / শিক্ষা প্রতিষ্ঠান <span className="text-[#dc2626]">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="যেমন: ঢাকা কলেজ"
+                      className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border transition-all outline-none ${
+                        isDark 
+                          ? 'bg-white/[0.03] border-white/10 text-white placeholder-gray-500 focus:border-[#e11438] focus:bg-white/[0.05]' 
+                          : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#dc2626]'
+                      }`}
+                      value={college}
+                      onChange={(e) => setCollege(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300">
-                    {paymentMethod === 'bkash' ? 'Your bKash Number' : 'Your Nagad Number'} <span className="text-[#dc2626]">*</span>
+                    {paymentMethod === 'bkash' ? 'আপনার বিকাশ নম্বর' : 'আপনার নগদ নম্বর'} <span className="text-[#dc2626]">*</span>
                   </label>
                   <input 
                     type="tel" 
@@ -741,7 +828,7 @@ export default function CheckoutModal({ bundle, course, onClose, onSuccess, site
                   </label>
                   <input 
                     type="text" 
-                    placeholder="e.g. 9J7A5KL0"
+                    placeholder="যেমন: 9J7A5KL0 (না থাকলে খালি রাখুন)"
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border transition-all outline-none font-mono uppercase tracking-wider ${
                       isDark 
                         ? 'bg-white/[0.03] border-white/10 text-white placeholder-gray-500 focus:border-[#e11438] focus:bg-white/[0.05]' 

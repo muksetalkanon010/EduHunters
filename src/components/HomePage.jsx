@@ -13,11 +13,13 @@ import {
 import ProtectedPdfViewer from './ProtectedPdfViewer';
 import ExamEngine from './ExamEngine';
 import CheckoutModal from './CheckoutModal';
+import PendingEnrollmentModal from './PendingEnrollmentModal';
 import BundleDetailModal from './BundleDetailModal';
 import Navbar from './Navbar';
 import { initialData, isZenithCopiedCourse } from '../data/mockData';
 import { EXAM_CATEGORIES_METADATA } from '../data/examCategoriesData';
 import { isStudentProfileComplete } from '../utils/studentProfile';
+import { getItemPendingOrder } from '../utils/enrollmentService';
 import { 
   X, 
   Play, 
@@ -192,6 +194,8 @@ export default function HomePage({
   const isAdmin = currentUser?.role === 'admin' || currentUser?.email?.toLowerCase() === 'admin@eduhunters.com';
   const [selectedCategory, setSelectedCategory] = useState("সকল");
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const [pendingOrderToShow, setPendingOrderToShow] = useState(null);
   const [selectedCourseForCheckout, setSelectedCourseForCheckout] = useState(null);
   const [selectedBundleForDetails, setSelectedBundleForDetails] = useState(null);
   const [activePlayingId, setActivePlayingId] = useState(null);
@@ -432,60 +436,103 @@ export default function HomePage({
   };
 
   const handleEnrollClick = (course, e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
+
+    // 1. If not authenticated: must log in or sign up first (both free & paid)
+    if (!currentUser) {
+      if (onLoginClick) {
+        onLoginClick((loggedInUser) => {
+          const targetUser = loggedInUser || currentUser;
+          // Check pending order first
+          const userPending = getItemPendingOrder(course, targetUser);
+          if (userPending) {
+            setPendingOrderToShow(userPending);
+            setShowPendingModal(true);
+            return;
+          }
+          // Check profile completeness (Name, WhatsApp, College, HSC Batch)
+          if (!isStudentProfileComplete(targetUser)) {
+            if (onOpenProfile) {
+              onOpenProfile({
+                hintNotice: 'কোর্সে প্রবেশ করতে আপনার নাম, এইচএসসি ব্যাচ, কলেজ এবং কন্ট্যাক্ট নম্বর দিয়ে প্রোফাইল সম্পন্ন করুন।',
+                requireCompletion: true,
+                onComplete: () => {
+                  if (course.isFree || Number(course.salePrice) === 0) {
+                    handleCourseClick(course.id || course.slug);
+                  } else {
+                    setSelectedCourseForCheckout(course);
+                    setShowCheckout(true);
+                  }
+                }
+              });
+            } else {
+              if (course.isFree || Number(course.salePrice) === 0) {
+                handleCourseClick(course.id || course.slug);
+              } else {
+                setSelectedCourseForCheckout(course);
+                setShowCheckout(true);
+              }
+            }
+          } else {
+            if (course.isFree || Number(course.salePrice) === 0) {
+              handleCourseClick(course.id || course.slug);
+            } else {
+              setSelectedCourseForCheckout(course);
+              setShowCheckout(true);
+            }
+          }
+        });
+      }
+      return;
+    }
+
+    // 2. Check if user already submitted a pending enrollment request for this course!
+    const existingPending = getItemPendingOrder(course, currentUser);
+    if (existingPending) {
+      setPendingOrderToShow(existingPending);
+      setShowPendingModal(true);
+      return;
+    }
+
+    // 3. If authenticated: check if profile is complete (Name, WhatsApp, College, HSC Batch)
+    if (!isStudentProfileComplete(currentUser)) {
+      if (onOpenProfile) {
+        onOpenProfile({
+          hintNotice: 'কোর্সে প্রবেশ করতে আপনার নাম, এইচএসসি ব্যাচ, কলেজ এবং কন্ট্যাক্ট নম্বর দিয়ে প্রোফাইল সম্পন্ন করুন।',
+          requireCompletion: true,
+          onComplete: () => {
+            if (course.isFree || Number(course.salePrice) === 0) {
+              handleCourseClick(course.id || course.slug);
+            } else {
+              const pending = getItemPendingOrder(course, currentUser);
+              if (pending) {
+                setPendingOrderToShow(pending);
+                setShowPendingModal(true);
+              } else {
+                setSelectedCourseForCheckout(course);
+                setShowCheckout(true);
+              }
+            }
+          }
+        });
+      } else {
+        if (course.isFree || Number(course.salePrice) === 0) {
+          handleCourseClick(course.id || course.slug);
+        } else {
+          setSelectedCourseForCheckout(course);
+          setShowCheckout(true);
+        }
+      }
+      return;
+    }
+
+    // 4. Free course -> access directly now that user is logged in & profile is verified complete
     if (course.isFree || Number(course.salePrice) === 0) {
       handleCourseClick(course.id || course.slug);
       return;
     }
 
-    // 1. If not authenticated: must log in or sign up first
-    if (!currentUser) {
-      if (onLoginClick) {
-        onLoginClick((loggedInUser) => {
-          const targetUser = loggedInUser || currentUser;
-          // Check profile completeness after login
-          if (!isStudentProfileComplete(targetUser)) {
-            if (onOpenProfile) {
-              onOpenProfile({
-                hintNotice: 'Please complete your profile with your name, college, and WhatsApp number to finish enrolling.',
-                requireCompletion: true,
-                onComplete: () => {
-                  setSelectedCourseForCheckout(course);
-                  setShowCheckout(true);
-                }
-              });
-            } else {
-              setSelectedCourseForCheckout(course);
-              setShowCheckout(true);
-            }
-          } else {
-            setSelectedCourseForCheckout(course);
-            setShowCheckout(true);
-          }
-        });
-      }
-      return;
-    }
-
-    // 2. If authenticated: check if profile is complete
-    if (!isStudentProfileComplete(currentUser)) {
-      if (onOpenProfile) {
-        onOpenProfile({
-          hintNotice: 'Please complete your profile with your name, college, and WhatsApp number to finish enrolling.',
-          requireCompletion: true,
-          onComplete: () => {
-            setSelectedCourseForCheckout(course);
-            setShowCheckout(true);
-          }
-        });
-      } else {
-        setSelectedCourseForCheckout(course);
-        setShowCheckout(true);
-      }
-      return;
-    }
-
-    // 3. Profile is complete -> open checkout
+    // 5. Profile is complete & not pending -> open checkout
     setSelectedCourseForCheckout(course);
     setShowCheckout(true);
   };
@@ -1602,17 +1649,7 @@ export default function HomePage({
           onClose={() => setSelectedBundleForDetails(null)}
           onEnroll={(bundle) => {
             setSelectedBundleForDetails(null);
-            if (!currentUser) {
-              if (onLoginClick) {
-                onLoginClick(() => {
-                  setSelectedCourseForCheckout(bundle);
-                  setShowCheckout(true);
-                });
-              }
-              return;
-            }
-            setSelectedCourseForCheckout(bundle);
-            setShowCheckout(true);
+            handleEnrollClick(bundle);
           }}
           onNavigateCourse={onNavigateCourse}
         />
@@ -1628,6 +1665,23 @@ export default function HomePage({
             if (onEnrollSuccess) onEnrollSuccess(trxData);
           }}
           onClose={() => setShowCheckout(false)} 
+        />
+      )}
+
+      {/* PENDING ENROLLMENT MODAL */}
+      {showPendingModal && (
+        <PendingEnrollmentModal
+          isOpen={showPendingModal}
+          onClose={() => {
+            setShowPendingModal(false);
+            setPendingOrderToShow(null);
+          }}
+          order={pendingOrderToShow}
+          itemTitle={pendingOrderToShow?.course?.name || pendingOrderToShow?.items?.[0]?.title || selectedCourseForCheckout?.title || "কোর্স"}
+          onEditPayment={() => {
+            setShowPendingModal(false);
+            setShowCheckout(true);
+          }}
         />
       )}
     </div>

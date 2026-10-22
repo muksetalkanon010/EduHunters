@@ -36,12 +36,13 @@ import { syncCourseWithYouTube, DEFAULT_YT_API_KEY } from '../utils/youtubeSync'
 import ProtectedPdfViewer from './ProtectedPdfViewer';
 import ExamEngine from './ExamEngine';
 import CheckoutModal from './CheckoutModal';
+import PendingEnrollmentModal from './PendingEnrollmentModal';
 import ProfileModal from './ProfileModal';
 import Navbar from './Navbar';
 import { initialData } from '../data/mockData';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { useEnrollmentStatus } from '../utils/enrollmentService';
+import { useEnrollmentStatus, useItemPending, getItemPendingOrder } from '../utils/enrollmentService';
 import { getAdminSession } from '../services/adminAuthService';
 
 function getEmbedUrl(url) {
@@ -670,6 +671,8 @@ export default function BiologyCoursePage({
   const [expandedSections, setExpandedSections] = useState({ 0: true });
   const [expandedChapters, setExpandedChapters] = useState({ '0-0': true, '1-0': true });
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const pendingOrder = useItemPending(course, currentUser);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [showExamEngine, setShowExamEngine] = useState(false);
   const [activePdfLesson, setActivePdfLesson] = useState(null);
@@ -783,16 +786,29 @@ export default function BiologyCoursePage({
       alert('দুঃখিত, এই কোর্সটি বর্তমানে সাময়িকভাবে বন্ধ রাখা হয়েছে। নতুন ভর্তি কার্যক্রম স্থগিত রয়েছে।');
       return;
     }
-    // 1. If not authenticated: must log in or sign up first
+
+    // 1. Check if student already has a pending enrollment request for this course!
+    const existingPending = pendingOrder || getItemPendingOrder(course, currentUser);
+    if (existingPending) {
+      setShowPendingModal(true);
+      return;
+    }
+
+    // 2. If not authenticated: must log in or sign up first
     if (!currentUser) {
       if (onLoginClick) {
         onLoginClick((loggedInUser) => {
           const targetUser = loggedInUser || currentUser;
-          // After auth, verify profile completeness (Name, WhatsApp, College)
+          const userPending = getItemPendingOrder(course, targetUser);
+          if (userPending) {
+            setShowPendingModal(true);
+            return;
+          }
+          // After auth, verify profile completeness (Name, WhatsApp, College, HSC Batch)
           if (!isStudentProfileComplete(targetUser)) {
             if (onOpenProfile) {
               onOpenProfile({
-                hintNotice: 'Please complete your profile with your name, college, and WhatsApp number to finish enrolling.',
+                hintNotice: 'কোর্সে এনরোল করতে আপনার নাম, এইচএসসি ব্যাচ, কলেজ এবং কন্ট্যাক্ট নম্বর দিয়ে প্রোফাইল সম্পন্ন করুন।',
                 requireCompletion: true,
                 onComplete: () => {
                   setShowCheckout(true);
@@ -809,11 +825,11 @@ export default function BiologyCoursePage({
       return;
     }
 
-    // 2. If authenticated: verify profile completeness (Name, WhatsApp, College)
+    // 3. If authenticated: verify profile completeness (Name, WhatsApp, College, HSC Batch)
     if (!isStudentProfileComplete(currentUser)) {
       if (onOpenProfile) {
         onOpenProfile({
-          hintNotice: 'Please complete your profile with your name, college, and WhatsApp number to finish enrolling.',
+          hintNotice: 'কোর্সে এনরোল করতে আপনার নাম, এইচএসসি ব্যাচ, কলেজ এবং কন্ট্যাক্ট নম্বর দিয়ে প্রোফাইল সম্পন্ন করুন।',
           requireCompletion: true,
           onComplete: () => {
             setShowCheckout(true);
@@ -825,7 +841,7 @@ export default function BiologyCoursePage({
       return;
     }
 
-    // 3. Authenticated and profile is complete -> proceed to payment/checkout
+    // 4. Authenticated and profile is complete -> proceed to payment/checkout
     setShowCheckout(true);
   };
 
@@ -1462,6 +1478,14 @@ export default function BiologyCoursePage({
                         <Play className="w-5 h-5 fill-white group-hover:scale-110 transition-transform" />
                         ক্লাস শুরু করুন
                       </button>
+                    ) : (pendingOrder || getItemPendingOrder(course, currentUser)) ? (
+                      <button 
+                        onClick={() => setShowPendingModal(true)}
+                        className="flex w-full items-center justify-center gap-2 px-4 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-base rounded-xl transition-all border-none cursor-pointer shadow-[0_0_25px_rgba(245,158,11,0.45)] hover:shadow-[0_0_35px_rgba(245,158,11,0.65)] hover:scale-[1.01] active:scale-[0.99]"
+                      >
+                        <Clock className="w-5 h-5 text-white animate-spin" style={{ animationDuration: '4s' }} />
+                        রিকোয়েস্ট পেন্ডিং · ভেরিফিকেশন চলছে
+                      </button>
                     ) : (course.isFree || Number(course.salePrice) === 0) ? (
                       <button 
                         onClick={() => {
@@ -1643,6 +1667,20 @@ export default function BiologyCoursePage({
             setEnrollmentTick(t => t + 1);
           }}
           onClose={() => setShowCheckout(false)}
+        />
+      )}
+
+      {/* Pending Enrollment Verification Modal */}
+      {showPendingModal && (
+        <PendingEnrollmentModal 
+          isOpen={showPendingModal}
+          onClose={() => setShowPendingModal(false)}
+          order={pendingOrder || getItemPendingOrder(course, currentUser)}
+          itemTitle={course.name || course.title || "কোর্স"}
+          onEditPayment={() => {
+            setShowPendingModal(false);
+            setShowCheckout(true);
+          }}
         />
       )}
 
