@@ -112,7 +112,7 @@ const applyTrxOverride = (trx, overrides) => {
   return (overrideAmount !== undefined && !isNaN(Number(overrideAmount))) ? { ...trx, amount: Number(overrideAmount) } : trx;
 };
 
-const ACCOUNTING_RESET_DATE = '2026-10-22T09:35:00.000Z';
+const ACCOUNTING_RESET_DATE = '2026-10-22T10:15:00.000Z';
 
 const getAccountingResetInfo = () => {
   try {

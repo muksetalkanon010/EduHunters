@@ -174,7 +174,7 @@ export const applyAmountOverride = (tx, overrides) => {
   return tx;
 };
 
-export const DEFAULT_ACCOUNTING_RESET_AT = '2026-10-22T09:35:00.000Z';
+export const DEFAULT_ACCOUNTING_RESET_AT = '2026-10-22T10:15:00.000Z';
 
 export const getAccountingResetConfig = () => {
   try {
