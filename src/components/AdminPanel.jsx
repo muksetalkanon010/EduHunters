@@ -820,6 +820,103 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     });
   }, []);
 
+  // High-performance Batch Upsert Handler for User Management & Cloud Sync (Zero UI Freezing)
+  const upsertUsersBatch = useCallback((incomingUsers) => {
+    if (!Array.isArray(incomingUsers) || incomingUsers.length === 0) return;
+
+    setUsersList(prev => {
+      const emailMap = new Map();
+      const idMap = new Map();
+      const list = [...prev];
+
+      list.forEach((u, idx) => {
+        const email = (u.email || '').toLowerCase().trim();
+        const id = u.uid || u.id;
+        if (id) idMap.set(String(id), idx);
+        if (email) emailMap.set(email, idx);
+      });
+
+      let changed = false;
+
+      incomingUsers.forEach(u => {
+        if (!u) return;
+        const targetEmail = (u.email || '').toLowerCase().trim();
+        const targetId = u.uid || u.id ? String(u.uid || u.id) : null;
+        let matchIdx = -1;
+        if (targetId && idMap.has(targetId)) {
+          matchIdx = idMap.get(targetId);
+        } else if (targetEmail && emailMap.has(targetEmail)) {
+          matchIdx = emailMap.get(targetEmail);
+        }
+
+        if (matchIdx !== -1) {
+          const existing = list[matchIdx];
+          const userCreated = u.createdAt || u.created_at || existing.createdAt || existing.created_at;
+          list[matchIdx] = {
+            ...existing,
+            name: u.displayName || u.name || existing.name,
+            displayName: u.displayName || u.name || existing.displayName,
+            email: u.email || existing.email,
+            phone: u.whatsapp || u.phone || u.phoneNumber || existing.phone,
+            whatsapp: u.whatsapp || u.phone || u.phoneNumber || existing.whatsapp,
+            college: u.college || u.institution || existing.college,
+            institution: u.college || u.institution || existing.institution,
+            batch: u.hscBatch || u.batch || existing.batch,
+            hscBatch: u.hscBatch || u.batch || existing.hscBatch,
+            avatar: u.photoURL || u.avatar || existing.avatar,
+            photoURL: u.photoURL || u.avatar || existing.photoURL,
+            enrolledCourses: Array.isArray(u.enrolledCourses)
+              ? Array.from(new Set([...(existing.enrolledCourses || []), ...u.enrolledCourses]))
+              : existing.enrolledCourses,
+            totalSpent: u.totalSpent !== undefined ? Math.max(existing.totalSpent || 0, Number(u.totalSpent) || 0) : existing.totalSpent,
+            lastActive: 'Active now',
+            ...(userCreated ? { createdAt: userCreated, created_at: userCreated } : {})
+          };
+          changed = true;
+        } else {
+          const userIsoCreated = u.createdAt || u.created_at || new Date().toISOString();
+          const newUserRecord = {
+            id: targetId || `usr-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            name: u.displayName || u.name || (targetEmail ? targetEmail.split('@')[0] : 'New Student'),
+            displayName: u.displayName || u.name || (targetEmail ? targetEmail.split('@')[0] : 'New Student'),
+            email: u.email || 'student@eduhunters.com',
+            phone: u.whatsapp || u.phone || u.phoneNumber || '',
+            whatsapp: u.whatsapp || u.phone || u.phoneNumber || '',
+            college: u.college || u.institution || '',
+            institution: u.college || u.institution || '',
+            role: u.role === 'admin' ? 'Admin' : 'Student',
+            status: 'Active',
+            batch: u.hscBatch || u.batch || '',
+            hscBatch: u.hscBatch || u.batch || '',
+            authProvider: u.authProvider || (targetEmail?.endsWith('@gmail.com') ? 'google.com' : 'password'),
+            enrolledCourses: Array.isArray(u.enrolledCourses) ? u.enrolledCourses : [],
+            totalSpent: Number(u.totalSpent) || 0,
+            joinedDate: 'Just now',
+            lastActive: 'Active now',
+            createdAt: userIsoCreated,
+            created_at: userIsoCreated,
+            device: 'Web Client',
+            avatar: u.photoURL || u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(targetEmail || 'student')}`,
+            photoURL: u.photoURL || u.avatar || '/avatar.svg'
+          };
+          list.push(newUserRecord);
+          const newIdx = list.length - 1;
+          if (newUserRecord.id) idMap.set(String(newUserRecord.id), newIdx);
+          if (targetEmail) emailMap.set(targetEmail, newIdx);
+          changed = true;
+        }
+      });
+
+      if (!changed) return prev;
+
+      try {
+        localStorage.setItem('eh_registered_users', JSON.stringify(list));
+      } catch (e) {}
+
+      return list;
+    });
+  }, []);
+
   // Central Handler for incoming course enrollments (Card filled out / checkout placed)
   const handleIncomingEnrollment = useCallback(({ order, transaction, student }, { silent = false } = {}) => {
     if (!transaction && !order) return;
@@ -1035,7 +1132,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
               return mergedSt;
             });
 
-            // Sync student profiles from orders into User Management
+            // Sync student profiles from orders into User Management in high-speed batch
+            const orderUsers = [];
             activeOrders.forEach(o => {
               const email = (o.customer_email || o.customer?.email || '').trim().toLowerCase();
               const phone = (o.customer_phone || o.customer?.phone || '').trim();
@@ -1043,7 +1141,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
               if (email || phone || name) {
                 const orderCreated = o.created_at || o.createdAt || new Date().toISOString();
                 const isApprovedOrder = (o.status === 'PAID' || Boolean(o.is_approved) || Boolean(o.isApproved));
-                upsertUserInList({
+                orderUsers.push({
                   id: o.customer?.uid || o.userId || `usr-${o.id}`,
                   email: email || `${(name || 'student').toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
                   name: name || 'Student',
@@ -1057,9 +1155,12 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
                   createdAt: orderCreated,
                   created_at: orderCreated,
                   joinedDate: new Date(orderCreated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                }, false);
+                });
               }
             });
+            if (orderUsers.length > 0) {
+              upsertUsersBatch(orderUsers);
+            }
 
             // Sync to local orders cache so refreshing the page immediately has all orders
             try {
@@ -1078,8 +1179,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
               users.forEach(u => {
                 const key = (u.email || u.id || u.uid || '').toLowerCase().trim();
                 if (key) notifiedUserKeysRef.current.add(key);
-                upsertUserInList(u, false);
               });
+              upsertUsersBatch(users);
             }
           }).catch((err) => {
             console.warn('[AdminPanel] Supabase user fetch note:', err);
@@ -1175,7 +1276,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
           }).catch(() => {});
 
           refreshSupabaseUsers();
-        }, 15000);
+        }, 90000); // 90-second fallback sync (Supabase WebSocket handles real-time instantly)
 
         unsubscribeSupabaseHeartbeat = () => clearInterval(supabaseHeartbeat);
       } catch (err) {
@@ -1229,7 +1330,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
         try {
           const list = JSON.parse(e.newValue);
           if (Array.isArray(list)) {
-            list.forEach(u => upsertUserInList(u));
+            upsertUsersBatch(list);
           }
         } catch (err) {}
       }
@@ -1269,7 +1370,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       window.removeEventListener('eh:new_enrollment', handleNewEnrollmentEvent);
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [upsertUserInList, handleIncomingEnrollment]);
+  }, [upsertUserInList, upsertUsersBatch, handleIncomingEnrollment]);
 
   // Synchronize AdminPanel state with live updates from App.jsx or cross-tab synchronization
   useEffect(() => {
@@ -2626,7 +2727,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       setIsRefreshingUsers(true);
       const users = await fetchSupabaseUsers();
       if (Array.isArray(users) && users.length > 0) {
-        users.forEach(u => upsertUserInList(u, false));
+        upsertUsersBatch(users);
         triggerToast(`✓ Users synced (${users.length} profiles from cloud)`);
       } else {
         triggerToast('Users up to date.');

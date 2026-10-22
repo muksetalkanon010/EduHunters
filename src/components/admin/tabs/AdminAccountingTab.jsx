@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   RotateCcw,
   Plus,
@@ -10,7 +10,9 @@ import {
   Copy,
   MessageCircle,
   Trash2,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { formatOrderDateTime, getTransactionTimestamp } from '../adminHelpers';
 
@@ -36,16 +38,9 @@ export default function AdminAccountingTab({
   const [internalEditingVal, setInternalEditingVal] = useState('');
 
   // Chronological transaction & enrollment serial number mapping:
-  // The very first transaction (earliest timestamp) gets #1.
-  // Each subsequent transaction gets an incremented serial (#2, #3, ... #N).
-  // The table is sorted newest-first (with pending requests at the top),
-  // so the latest request displays the highest serial at the top,
-  // while the oldest transaction displays #1 at the bottom.
+  // Decoupled from filteredTransactions so typing in search does NOT re-run O(N log N) sorting
   const txSerialMap = useMemo(() => {
-    const allSource = [
-      ...(Array.isArray(accounting?.transactions) ? accounting.transactions : []),
-      ...(Array.isArray(filteredTransactions) ? filteredTransactions : [])
-    ];
+    const allSource = Array.isArray(accounting?.transactions) ? accounting.transactions : [];
     const seen = new Set();
     const unique = [];
 
@@ -81,7 +76,31 @@ export default function AdminAccountingTab({
     });
 
     return map;
-  }, [accounting?.transactions, filteredTransactions]);
+  }, [accounting?.transactions]);
+
+  // Client-side 60fps Smooth Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  // Automatically reset to Page 1 when search query or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTrx, trxFilter]);
+
+  const totalTransactions = filteredTransactions.length;
+  const isAll = pageSize === 'ALL';
+  const effectivePageSize = isAll ? Math.max(1, totalTransactions) : Number(pageSize);
+  const totalPages = isAll ? 1 : Math.max(1, Math.ceil(totalTransactions / effectivePageSize));
+  const validPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedTransactions = useMemo(() => {
+    if (isAll) return filteredTransactions;
+    const start = (validPage - 1) * effectivePageSize;
+    return filteredTransactions.slice(start, start + effectivePageSize);
+  }, [filteredTransactions, validPage, effectivePageSize, isAll]);
+
+  const startIndex = totalTransactions === 0 ? 0 : (validPage - 1) * effectivePageSize + 1;
+  const endIndex = isAll ? totalTransactions : Math.min(validPage * effectivePageSize, totalTransactions);
 
   const getTxSerial = (tx, fallbackIdx) => {
     if (!tx) return fallbackIdx + 1;
@@ -274,7 +293,8 @@ export default function AdminAccountingTab({
           <>
             {/* MOBILE VIEW (< md): Clean Touch-Friendly Cards */}
             <div className="md:hidden p-3 space-y-3">
-              {filteredTransactions.map((tx, idx) => {
+              {paginatedTransactions.map((tx, idx) => {
+                const txIdx = startIndex - 1 + idx;
                 const isIncome = tx.type === 'INCOME';
                 const isPending = tx.status === 'Pending';
                 const isCompleted = tx.status === 'Completed';
@@ -452,9 +472,11 @@ export default function AdminAccountingTab({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {filteredTransactions.map((tx, txIdx) => (
-                    <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-slate-400">#{getTxSerial(tx, txIdx)}</td>
+                  {paginatedTransactions.map((tx, idx) => {
+                    const txIdx = startIndex - 1 + idx;
+                    return (
+                      <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-slate-400">#{getTxSerial(tx, txIdx)}</td>
                       <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
                         {(() => {
                           const dt = formatOrderDateTime(tx.createdAt || tx.date);
@@ -618,12 +640,96 @@ export default function AdminAccountingTab({
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
           </>
         )}
+
+        {/* Footer Pagination Toolbar */}
+        <div className="p-3.5 sm:p-4 bg-[#f8fafc] border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>
+              Showing <strong className="text-slate-900 font-bold">{startIndex}–{endIndex}</strong> of <strong className="text-slate-900 font-bold">{totalTransactions}</strong> {searchTrx ? 'filtered' : 'ledger'} transactions
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Rows Per Page Selector */}
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span className="hidden xs:inline">Rows:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 text-xs focus:outline-none focus:border-[#5d5bf6] cursor-pointer shadow-2xs"
+              >
+                <option value={25}>25 / page</option>
+                <option value={50}>50 / page</option>
+                <option value={100}>100 / page</option>
+                <option value="ALL">Show All</option>
+              </select>
+            </div>
+
+            {/* Page Buttons */}
+            {!isAll && totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={validPage <= 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-2xs"
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - validPage) <= 1)
+                  .reduce((acc, p, idx, arr) => {
+                    if (idx > 0 && p - arr[idx - 1] > 1) {
+                      acc.push('ellipsis-' + p);
+                    }
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map(item => {
+                    if (typeof item === 'string') {
+                      return <span key={item} className="px-1 text-slate-400 font-bold">…</span>;
+                    }
+                    const isActive = item === validPage;
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setCurrentPage(item)}
+                        className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-[#5d5bf6] text-white shadow-xs'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-2xs'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={validPage >= totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-2xs"
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

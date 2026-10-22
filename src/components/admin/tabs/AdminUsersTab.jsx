@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Users,
   Search,
@@ -11,7 +11,9 @@ import {
   GraduationCap,
   Edit2,
   Trash2,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { formatOrderDateTime, getUserTimestamp } from '../adminHelpers';
 import { getCanonicalCourses } from '../../../utils/enrollmentService';
@@ -49,12 +51,9 @@ export default function AdminUsersTab({
   setUserForm
 }) {
   // Chronological registration serial number mapping:
-  // The very first registered user (earliest timestamp) gets #1.
-  // Each subsequent registered user gets an incremented serial (#2, #3, ... #N).
-  // The table is sorted newest-first, so the newest user displays the highest serial at the top,
-  // while the oldest user displays #1 at the bottom.
+  // Decoupled from filteredUsers so typing in search does NOT re-run O(N log N) sorting
   const userSerialMap = useMemo(() => {
-    const allSource = [...(usersList || []), ...(filteredUsers || [])];
+    const allSource = Array.isArray(usersList) ? usersList : [];
     const seen = new Set();
     const unique = [];
 
@@ -89,7 +88,31 @@ export default function AdminUsersTab({
     });
 
     return map;
-  }, [usersList, filteredUsers]);
+  }, [usersList]);
+
+  // Client-side 60fps Smooth Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  // Automatically reset to Page 1 when search query or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [userSearchQuery, userRoleFilter, userStatusFilter, userBatchFilter, userSortBy]);
+
+  const totalUsers = filteredUsers.length;
+  const isAll = pageSize === 'ALL';
+  const effectivePageSize = isAll ? Math.max(1, totalUsers) : Number(pageSize);
+  const totalPages = isAll ? 1 : Math.max(1, Math.ceil(totalUsers / effectivePageSize));
+  const validPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedUsers = useMemo(() => {
+    if (isAll) return filteredUsers;
+    const start = (validPage - 1) * effectivePageSize;
+    return filteredUsers.slice(start, start + effectivePageSize);
+  }, [filteredUsers, validPage, effectivePageSize, isAll]);
+
+  const startIndex = totalUsers === 0 ? 0 : (validPage - 1) * effectivePageSize + 1;
+  const endIndex = isAll ? totalUsers : Math.min(validPage * effectivePageSize, totalUsers);
 
   const getUserSerial = (user, fallbackIdx) => {
     if (!user) return fallbackIdx + 1;
@@ -327,7 +350,8 @@ export default function AdminUsersTab({
           <>
             {/* MOBILE VIEW (< md): Clean Touch-Friendly Cards */}
             <div className="md:hidden p-3 space-y-3">
-              {filteredUsers.map((user, userIdx) => {
+              {paginatedUsers.map((user, idx) => {
+                const userIdx = startIndex - 1 + idx;
                 const isActive = user.status === 'Active';
                 const isPending = user.status === 'Pending';
                 const contactNum = user.whatsapp || user.phone || '';
@@ -483,7 +507,8 @@ export default function AdminUsersTab({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                  {filteredUsers.map((user, userIdx) => {
+                  {paginatedUsers.map((user, idx) => {
+                    const userIdx = startIndex - 1 + idx;
                     const isActive = user.status === 'Active';
                     const isPending = user.status === 'Pending';
                     const contactNum = user.whatsapp || user.phone || '';
@@ -707,10 +732,88 @@ export default function AdminUsersTab({
           </>
         )}
 
-        {/* Footer Count Bar */}
-        <div className="p-3.5 bg-[#f8fafc] border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-500">
-          <span>Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of <strong className="text-slate-800">{usersList.length}</strong> total registered accounts</span>
-          <span className="text-[11px] text-slate-400">All user roles & status changes update in real time.</span>
+        {/* Footer Pagination Toolbar */}
+        <div className="p-3.5 sm:p-4 bg-[#f8fafc] border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>
+              Showing <strong className="text-slate-900 font-bold">{startIndex}–{endIndex}</strong> of <strong className="text-slate-900 font-bold">{totalUsers}</strong> {userSearchQuery ? 'filtered' : 'registered'} users
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Rows Per Page Selector */}
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span className="hidden xs:inline">Rows:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="bg-white border border-slate-200 rounded-lg px-2 py-1 font-semibold text-slate-700 text-xs focus:outline-none focus:border-[#5d5bf6] cursor-pointer shadow-2xs"
+              >
+                <option value={25}>25 / page</option>
+                <option value={50}>50 / page</option>
+                <option value={100}>100 / page</option>
+                <option value="ALL">Show All</option>
+              </select>
+            </div>
+
+            {/* Page Buttons */}
+            {!isAll && totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={validPage <= 1}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-2xs"
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - validPage) <= 1)
+                  .reduce((acc, p, idx, arr) => {
+                    if (idx > 0 && p - arr[idx - 1] > 1) {
+                      acc.push('ellipsis-' + p);
+                    }
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map(item => {
+                    if (typeof item === 'string') {
+                      return <span key={item} className="px-1 text-slate-400 font-bold">…</span>;
+                    }
+                    const isActive = item === validPage;
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setCurrentPage(item)}
+                        className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-[#5d5bf6] text-white shadow-xs'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-2xs'
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={validPage >= totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-2xs"
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
