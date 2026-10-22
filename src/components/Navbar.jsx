@@ -414,23 +414,47 @@ export default function Navbar({
 
           {/* Top Section */}
           <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pr-1 relative z-10">
-            {/* Top Close Button & Notch */}
+            {/* Top Bar with Notch, Quick Logout and Close Button */}
             <div className="flex items-center justify-between pb-2">
               <span className={`w-8 h-1 rounded-full ${isDark ? 'bg-white/20' : 'bg-gray-300'}`}></span>
-              <button
-                onClick={() => setIsDrawerOpen(false)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all border-none cursor-pointer ${
-                  isDark 
-                    ? 'bg-white/10 hover:bg-[#e11438]/20 text-gray-300 hover:text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900'
-                }`}
-                title="Close"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
+              <div className="flex items-center gap-1.5">
+                {currentUser && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsDrawerOpen(false);
+                      await logout();
+                    }}
+                    className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer active:scale-95 ${
+                      isDark 
+                        ? 'bg-rose-950/40 hover:bg-rose-900/70 text-rose-300 border-rose-500/40 shadow-xs' 
+                        : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200 shadow-xs'
+                    }`}
+                    title="Sign Out"
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsDrawerOpen(false)}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all border-none cursor-pointer ${
+                    isDark 
+                      ? 'bg-white/10 hover:bg-[#e11438]/20 text-gray-300 hover:text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+                  }`}
+                  title="Close"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Profile Avatar, Student Info & Theme Toggle Switch */}
@@ -814,17 +838,15 @@ export default function Navbar({
                   type="button"
                   onClick={async () => {
                     setIsDrawerOpen(false);
-                    if (window.confirm('Are you sure you want to sign out from your account?')) {
-                      await logout();
-                    }
+                    await logout();
                   }}
-                  className={`w-full py-3 px-6 active:scale-[0.98] font-semibold text-sm rounded-full text-center transition-all cursor-pointer border tracking-wide flex items-center justify-center gap-2 ${
+                  className={`w-full py-3.5 px-6 active:scale-[0.98] font-bold text-sm rounded-full text-center transition-all cursor-pointer border tracking-wide flex items-center justify-center gap-2 shadow-sm ${
                     isDark 
-                      ? 'bg-red-950/40 hover:bg-red-900/60 text-red-300 border-red-500/30' 
-                      : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
+                      ? 'bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 border-rose-500/40' 
+                      : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200'
                   }`}
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
                     <line x1="21" y1="12" x2="9" y2="12"></line>

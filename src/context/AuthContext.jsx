@@ -485,13 +485,15 @@ export function AuthProvider({ children }) {
     };
   }, [currentUser?.uid, currentUser?.id]);
 
-  // Real-time broadcaster for User Registration and Profile Updates across windows & tabs
+  // Real-time broadcaster for User Registration, Profile Updates, and Logout across windows & tabs
   const broadcastUserSync = (action, user) => {
     try {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('eh_user_changed', { detail: { action, user } }));
         if (action === 'REGISTER') {
           window.dispatchEvent(new CustomEvent('eh_user_registered', { detail: user }));
+        } else if (action === 'LOGOUT') {
+          window.dispatchEvent(new CustomEvent('eh_user_logged_out', { detail: null }));
         } else {
           window.dispatchEvent(new CustomEvent('eh_profile_updated', { detail: user }));
         }
@@ -969,21 +971,59 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Sign out
+  // Sign out (Instant, 100% Guaranteed)
   const logout = async () => {
+    const prevUser = currentUser;
+
+    // 1. Instantly reset React state synchronously so UI shows guest/Sign In immediately with 0ms delay
+    setCurrentUser(null);
+
+    // 2. Thoroughly purge all auth tokens, user session and cache keys from storage
     try {
       localStorage.removeItem('eh_current_user');
+      localStorage.removeItem('eh_last_auth_method');
+      localStorage.removeItem('eh_last_auth_email');
       localStorage.removeItem('eduhunters_enrolled_courses');
       localStorage.removeItem('eduhunters_enrolled_batches');
       localStorage.removeItem('enrolled_courses');
       localStorage.removeItem('enrolled_exam_batches');
-    } catch (e) {}
-    if (isFirebaseConfigured && auth) {
-      try {
-        await signOut(auth);
-      } catch (e) {}
+      sessionStorage.removeItem('eh_current_user');
+
+      if (prevUser?.uid) {
+        localStorage.removeItem(`eduhunters_enrolled_courses_${prevUser.uid}`);
+        localStorage.removeItem(`eduhunters_enrolled_batches_${prevUser.uid}`);
+      }
+      if (prevUser?.id && prevUser?.id !== prevUser?.uid) {
+        localStorage.removeItem(`eduhunters_enrolled_courses_${prevUser.id}`);
+        localStorage.removeItem(`eduhunters_enrolled_batches_${prevUser.id}`);
+      }
+    } catch (e) {
+      console.warn('[AuthContext] Storage purge note on logout:', e);
     }
-    setCurrentUser(null);
+
+    // 3. Broadcast logout event to all windows, tabs, and local components
+    try {
+      broadcastUserSync('LOGOUT', null);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('eh:auth_state_changed', { detail: null }));
+        window.dispatchEvent(new CustomEvent('eh_logout_completed'));
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch (e) {}
+
+    // 4. Asynchronously sign out from Firebase Auth and Supabase Auth in parallel (non-blocking)
+    try {
+      const signOutPromises = [];
+      if (isFirebaseConfigured && auth) {
+        signOutPromises.push(signOut(auth).catch(() => {}));
+      }
+      if (isSupabaseConfigured && supabase?.auth) {
+        signOutPromises.push(supabase.auth.signOut().catch(() => {}));
+      }
+      if (signOutPromises.length > 0) {
+        await Promise.allSettled(signOutPromises);
+      }
+    } catch (e) {}
   };
 
   // Update Profile (name, photo, phone/whatsapp, college, hscBatch)

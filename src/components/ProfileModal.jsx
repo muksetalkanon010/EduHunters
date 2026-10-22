@@ -15,7 +15,7 @@ export default function ProfileModal({
   subtitle,
   submitText
 }) {
-  const { currentUser, updateUserProfile } = useAuth();
+  const { currentUser, updateUserProfile, logout } = useAuth();
 
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isVisible, setIsVisible] = useState(false);
@@ -493,6 +493,25 @@ export default function ProfileModal({
               )}
             </button>
           </div>
+          {currentUser && !requireCompletion && (
+            <div className="pt-2 border-t border-white/10 text-center">
+              <button
+                type="button"
+                onClick={async () => {
+                  handleClose();
+                  await logout();
+                }}
+                className="inline-flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 font-medium py-1.5 px-3.5 rounded-xl hover:bg-rose-950/40 transition-all cursor-pointer border border-rose-500/20 bg-rose-950/20"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Sign Out from this account</span>
+              </button>
+            </div>
+          )}
 
         </form>
       </div>
