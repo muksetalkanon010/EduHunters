@@ -685,7 +685,48 @@ export function AuthProvider({ children }) {
 
         return res.user;
       } catch (err) {
-        // Smart Check: Check if user registered via Google
+        // 1. Priority Check: Check if user has an updated / verified password in registered store (e.g. from OTP reset)
+        const mockUsers = JSON.parse(localStorage.getItem('eh_registered_users') || '[]');
+        const found = mockUsers.find(
+          (u) => u.email.toLowerCase() === cleanEmail && u.password === cleanPass
+        );
+        if (found) {
+          const safeUser = {
+            uid: found.uid || 'user_' + Date.now(),
+            id: found.id || found.uid || 'user_' + Date.now(),
+            email: found.email,
+            displayName: found.displayName || found.name || found.email.split('@')[0],
+            name: found.name || found.displayName || found.email.split('@')[0],
+            photoURL: found.photoURL || '/avatar.svg',
+            role: found.role || 'student',
+            authProvider: 'password'
+          };
+          localStorage.setItem('eh_current_user', JSON.stringify(safeUser));
+          localStorage.setItem('eh_last_auth_method', 'password');
+          localStorage.setItem('eh_last_auth_email', cleanEmail);
+          setCurrentUser(safeUser);
+
+          // Proactively fetch their approved courses from Supabase
+          fetchUserApprovedEnrollments(cleanEmail, '', safeUser.uid).then(({ courses = [] }) => {
+            if (courses.length > 0) {
+              setCurrentUser(prev => {
+                if (!prev) return prev;
+                const prevCourses = Array.isArray(prev.enrolledCourses) ? prev.enrolledCourses : [];
+                const merged = Array.from(new Set([...prevCourses, ...courses]));
+                const updated = { ...prev, enrolledCourses: merged };
+                try {
+                  localStorage.setItem('eh_current_user', JSON.stringify(updated));
+                  localStorage.setItem(`eduhunters_enrolled_courses_${safeUser.uid}`, JSON.stringify(merged));
+                } catch (e) {}
+                return updated;
+              });
+            }
+          }).catch(() => {});
+
+          return safeUser;
+        }
+
+        // 2. Smart Check: Check if user was registered strictly via Google and hasn't set a password
         let isGoogleAccount = false;
         try {
           const googleEmails = JSON.parse(localStorage.getItem('eh_google_registered_emails') || '[]');
@@ -712,27 +753,6 @@ export function AuthProvider({ children }) {
           googleErr.code = 'auth/use-google-signin';
           googleErr.suggestGoogleSignIn = true;
           throw googleErr;
-        }
-
-        // Fallback: Check local registered store
-        const mockUsers = JSON.parse(localStorage.getItem('eh_registered_users') || '[]');
-        const found = mockUsers.find(
-          (u) => u.email.toLowerCase() === cleanEmail && u.password === cleanPass
-        );
-        if (found) {
-          const safeUser = {
-            uid: found.uid || 'user_' + Date.now(),
-            email: found.email,
-            displayName: found.displayName || found.email.split('@')[0],
-            photoURL: found.photoURL || '/avatar.svg',
-            role: found.role || 'student',
-            authProvider: 'password'
-          };
-          localStorage.setItem('eh_current_user', JSON.stringify(safeUser));
-          localStorage.setItem('eh_last_auth_method', 'password');
-          localStorage.setItem('eh_last_auth_email', cleanEmail);
-          setCurrentUser(safeUser);
-          return safeUser;
         }
 
         // Fallback for master administrator login
@@ -1074,6 +1094,11 @@ export function AuthProvider({ children }) {
         });
         localStorage.setItem('eh_registered_users', JSON.stringify(mockUsers));
       }
+
+      // Clear pure-google flag since the user explicitly set a password
+      const googleEmails = JSON.parse(localStorage.getItem('eh_google_registered_emails') || '[]');
+      const filtered = googleEmails.filter(e => e.toLowerCase() !== cleanEmail);
+      localStorage.setItem('eh_google_registered_emails', JSON.stringify(filtered));
     } catch (e) {}
 
     // 2. If Firebase user is currently logged in, update password directly

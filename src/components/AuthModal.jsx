@@ -455,17 +455,22 @@ export default function AuthModal({
     try {
       setLoading(true);
       await updateUserPassword(cleanEmail, password);
-      const authUser = await login(cleanEmail, password);
+      let authUser = null;
+      try {
+        authUser = await login(cleanEmail, password);
+      } catch (loginErr) {
+        console.warn('[AuthModal] Auto-login fallback note after OTP reset:', loginErr);
+      }
 
       setStatusMsg({
         type: 'success',
-        text: 'Password updated successfully! Welcome back to Edu Hunters.'
+        text: 'পাসওয়ার্ড সফলভাবে সেট হয়েছে! Edu Hunters-এ স্বাগতম।'
       });
 
       setTimeout(() => {
         if (onSuccess) onSuccess(authUser);
         handleClose();
-      }, 200);
+      }, 500);
     } catch (err) {
       setStatusMsg({ type: 'error', text: formatAuthError(err) });
     } finally {
