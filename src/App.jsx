@@ -558,7 +558,6 @@ export default function App() {
       console.error('Error saving data to localStorage:', e);
     }
     broadcastDataUpdate(updated);
-    saveCloudData(updated);
     saveSupabaseSiteData(updated);
   };
 
@@ -604,29 +603,19 @@ export default function App() {
     return merged;
   };
 
-  // Real-time Cloud Site Data Sync Subscription
+  // Real-time Cloud Site Data Sync Subscription (Single Source of Truth: Supabase)
   useEffect(() => {
-    // 1. Proactive fetch on mount from Supabase & fallback Firestore
+    // 1. Proactive fetch on mount from Supabase
     fetchSupabaseSiteData().then(cloudData => {
       if (cloudData) {
         setData(prev => mergeSiteData(prev, cloudData));
-      } else {
-        fetchCloudData().then(fData => {
-          if (fData) setData(prev => mergeSiteData(prev, fData));
-        }).catch(() => {});
       }
     }).catch(err => {
       console.warn('[App] Proactive Supabase fetch note:', err);
-      fetchCloudData().then(fData => {
-        if (fData) setData(prev => mergeSiteData(prev, fData));
-      }).catch(() => {});
     });
 
-    // 2. Real-time listeners
+    // 2. Real-time Supabase CDC listener
     const unsubSupabase = subscribeToSupabaseSiteData(cloudData => {
-      if (cloudData) setData(prev => mergeSiteData(prev, cloudData));
-    });
-    const unsubFirestore = subscribeToCloudData(cloudData => {
       if (cloudData) setData(prev => mergeSiteData(prev, cloudData));
     });
 
@@ -660,7 +649,6 @@ export default function App() {
 
     return () => {
       if (typeof unsubSupabase === 'function') unsubSupabase();
-      if (typeof unsubFirestore === 'function') unsubFirestore();
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('eduhunters_data_updated', handleCustomUpdate);
       if (bc) bc.close();
