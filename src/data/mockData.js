@@ -7,11 +7,11 @@ import {
   freeVideosData, 
   whyChooseUsData,
   storeProductsData 
-} from './homeData';
-import { masterEnglishCourseData } from './masterEnglishCourseData';
-import { freeCoursesData } from './freeCoursesData';
-import { physicsFinishingTouchCourseData } from './physicsFinishingTouchData';
-import { EXAM_CATEGORIES_METADATA } from './examCategoriesData';
+} from './homeData.js';
+import { masterEnglishCourseData } from './masterEnglishCourseData.js';
+import { freeCoursesData } from './freeCoursesData.js';
+import { physicsFinishingTouchCourseData } from './physicsFinishingTouchData.js';
+import { EXAM_CATEGORIES_METADATA } from './examCategoriesData.js';
 
 // Helper to reliably detect and purge only legacy Zenith Crew / Codervai copied dummy courses
 export const isZenithCopiedCourse = (course) => {

@@ -21,9 +21,9 @@ export const homeStatsData = [
   { value: "800+", label: "Exams" }
 ];
 
-import { freeCoursesData } from './freeCoursesData';
-import { physicsFinishingTouchCourseData } from './physicsFinishingTouchData';
-import { EXAM_BATCHES_AS_COURSES } from './examCategoriesData';
+import { freeCoursesData } from './freeCoursesData.js';
+import { physicsFinishingTouchCourseData } from './physicsFinishingTouchData.js';
+import { EXAM_BATCHES_AS_COURSES } from './examCategoriesData.js';
 
 export const categoriesList = [
   "সকল",
