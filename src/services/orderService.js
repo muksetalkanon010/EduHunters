@@ -120,8 +120,11 @@ export async function saveNewOrder({
     status: 'PENDING',
     isApproved: false,
     course: {
+      id: item?.id || item?.slug || null,
       name: title,
-      slug: item?.slug || 'program',
+      title: title,
+      slug: item?.slug || item?.id || 'program',
+      image: item?.image || item?.thumbnailUrl || item?.thumbnail || null,
       targetType: type === 'exam' ? 'exam' : 'course',
       categoryKey: item?.categoryKey || 'sureshot',
       fb_group: item?.fb_group || 'https://www.facebook.com/groups/eduhunters'
