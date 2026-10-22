@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="bn" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/png" href="/logo-crimson.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <title>EduHunters | সেরা এডটেক লার্নিং ও এক্সাম প্ল্যাটফর্ম</title>
+    <!-- Google Fonts: Hind Siliguri & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS with class-based dark mode -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'primary-charcoal': '#111827',
+              'neutral-text': '#4b5563',
+              'neutral-warm': '#f3f4f6',
+              'neutral-border': '#e5e7eb',
+              'primary-orange': '#ea580c',
+              'eh-crimson': '#dc2626',
+              'eh-darkred': '#991b1b',
+            },
+            fontFamily: {
+              sans: ['Hind Siliguri', 'Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <meta name="theme-color" content="#050102" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: 'Hind Siliguri', 'Inter', sans-serif;
+      }
+      html.dark, html.dark body {
+        background-color: #050102 !important;
+        color: #ffffff;
+      }
+      #root {
+        background-color: transparent !important;
+        min-height: 100vh;
+      }
+    </style>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem('eduhunters_theme') || 'dark';
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body class="antialiased selection:bg-red-600 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

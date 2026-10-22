@@ -1,0 +1,630 @@
+import { db, isFirebaseConfigured } from '../firebase/config';
+import { doc, setDoc, getDoc, getDocs, collection, query, where, limit } from 'firebase/firestore';
+import { saveSupabaseOrder, updateSupabaseOrderStatus, saveSupabaseUser } from './supabaseService';
+
+const ORDERS_STORAGE_KEY = 'eh_user_orders_v3';
+
+export const INITIAL_ORDERS = [];
+
+function sanitizeForFirestore(obj) {
+  return JSON.parse(JSON.stringify(obj, (key, value) => {
+    if (value === undefined) return null;
+    return value;
+  }));
+}
+
+export function isPhoneMatch(p1, p2) {
+  if (!p1 || !p2) return false;
+  const c1 = String(p1).replace(/[^0-9]/g, '');
+  const c2 = String(p2).replace(/[^0-9]/g, '');
+  if (c1.length < 6 || c2.length < 6) return false;
+  if (c1 === c2) return true;
+  if (c1.endsWith(c2) || c2.endsWith(c1)) return true;
+  if (c1.length >= 10 && c2.length >= 10 && c1.slice(-10) === c2.slice(-10)) return true;
+  return false;
+}
+
+/**
+ * Retrieves all stored user orders, initializing clean for production.
+ */
+export function getUserOrders() {
+  try {
+    const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
+    if (!raw) {
+      return [];
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      const cleaned = parsed.filter(o => !['ord_exam_2026_9842', 'ord_course_2026_8421', 'ord_store_2026_6105'].includes(o.id));
+      
+      let changed = false;
+      const seenDrafts = new Set();
+      const nextList = [];
+
+      for (const ord of cleaned) {
+        const p = String(ord.customer?.phone || ord.studentPhone || '').replace(/[^0-9]/g, '').slice(-10);
+        const e = String(ord.customer?.email || ord.studentEmail || '').trim().toLowerCase();
+        const c = String(ord.course?.name || ord.items?.[0]?.title || '').trim().toLowerCase();
+        const isDraft = ord.transactionId === 'PENDING_VERIFICATION' || (ord.status || '').toUpperCase() === 'PENDING';
+
+        if (isDraft) {
+          const draftKey = `${p || e}_${c}`;
+          if (seenDrafts.has(draftKey)) {
+            changed = true;
+            continue;
+          }
+          seenDrafts.add(draftKey);
+        }
+        nextList.push(ord);
+      }
+
+      if (changed || nextList.length !== parsed.length) {
+        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(nextList));
+      }
+      return nextList;
+    }
+    return [];
+  } catch (err) {
+    console.error('[orderService] Failed to load orders from localStorage:', err);
+    return [];
+  }
+}
+
+/**
+ * Generates an official, sequence-style invoice number
+ */
+export function generateInvoiceNumber() {
+  const currentYear = new Date().getFullYear();
+  const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+  return `INV-${currentYear}-EH-${randomSuffix}`;
+}
+
+/**
+ * Automatically creates and persists a new order and invoice upon purchase.
+ * Also synchronizes in real time with AdminPanel ledger, enrolled students, and Cloud Firestore.
+ */
+export async function saveNewOrder({
+  item,
+  studentName,
+  studentPhone,
+  studentEmail,
+  studentUid,
+  paymentMethod = 'bkash',
+  trxId,
+  amount,
+  originalPrice,
+  discount,
+  existingOrderId = null
+}) {
+  const orderId = `ord_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+  const invoiceNumber = generateInvoiceNumber();
+
+  const finalAmount = Number(amount) || 0;
+  const initialSubtotal = Number(originalPrice) || (finalAmount > 0 ? finalAmount : 1000);
+  const calculatedDiscount = Number(discount) !== undefined && !isNaN(Number(discount)) 
+    ? Number(discount) 
+    : Math.max(0, initialSubtotal - finalAmount);
+
+  const title = item?.title || item?.name || 'Edu Hunters Premium Program';
+  const type = item?.targetType === 'exam' || item?.categoryKey === 'sureshot' ? 'exam' : (item?.type || 'course');
+  const badge = type === 'exam' ? 'Exam Batch' : (type === 'bundle' ? 'Bundle Combo' : (type === 'store' ? 'Store Item' : 'Course Access'));
+
+  const newOrder = {
+    id: orderId,
+    invoiceNumber,
+    type: type === 'exam' ? 'course' : type, // Keep consistent for router checks
+    targetType: type === 'exam' ? 'exam' : 'course',
+    badge,
+    status: 'PENDING',
+    isApproved: false,
+    course: {
+      name: title,
+      slug: item?.slug || 'program',
+      targetType: type === 'exam' ? 'exam' : 'course',
+      categoryKey: item?.categoryKey || 'sureshot',
+      fb_group: item?.fb_group || 'https://www.facebook.com/groups/eduhunters'
+    },
+    customer: {
+      name: studentName || 'Online Student',
+      email: studentEmail || 'student@eduhunters.com.bd',
+      phone: studentPhone || 'N/A',
+      studentId: `EH-STU-${Math.floor(1000 + Math.random() * 9000)}`,
+      address: 'Dhaka, Bangladesh',
+      district: 'Dhaka',
+      country: 'Bangladesh'
+    },
+    paymentGateway: (paymentMethod || 'bkash').toLowerCase(),
+    paymentMethodName: (paymentMethod || '').toLowerCase().includes('nagad')
+      ? 'Nagad Mobile Financial Services'
+      : (paymentMethod || '').toLowerCase().includes('card')
+        ? 'Debit / Credit Card (Online Gateway)'
+        : 'bKash Mobile Financial Services',
+    totalPaid: finalAmount,
+    subtotal: initialSubtotal,
+    discount: calculatedDiscount,
+    vat: 0,
+    transactionId: trxId || `TXN${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+    createdAt: new Date().toISOString(),
+    items: [
+      {
+        id: `item_${Date.now()}`,
+        title: title,
+        subtitle: item?.subtitle || 'Complete digital learning access, masterclass video lectures, model tests & digital course syllabus',
+        type: type === 'exam' ? 'Digital Exam Batch Access' : (type === 'store' ? 'Printed Academic Material' : 'Online Course Program'),
+        quantity: 1,
+        unitPrice: initialSubtotal,
+        amount: initialSubtotal
+      }
+    ]
+  };
+
+  // 1. Transaction representation for accounting ledger & admin verification hub
+  const newTx = {
+    id: `TRX-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
+    orderId: newOrder.id,
+    invoiceNumber: newOrder.invoiceNumber,
+    type: 'INCOME',
+    category: type === 'store' ? 'Store Product' : 'Course Enrollment',
+    itemTitle: title,
+    amount: finalAmount,
+    method: newOrder.paymentMethodName.includes('Nagad') ? 'Nagad' : (newOrder.paymentMethodName.includes('Card') ? 'Card' : 'bKash'),
+    trxId: newOrder.transactionId,
+    studentName: newOrder.customer.name,
+    studentPhone: newOrder.customer.phone,
+    studentEmail: newOrder.customer.email,
+    date: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString(),
+    status: 'Pending',
+    notes: `Enrollment Form Submitted (${paymentMethod.toUpperCase()})`
+  };
+
+  // 2. Student record for enrolled students directory (Pending verification)
+  const newStudent = {
+    id: `st-${Date.now()}`,
+    name: newOrder.customer.name,
+    phone: newOrder.customer.phone,
+    email: newOrder.customer.email,
+    batch: 'HSC 26',
+    courseName: title,
+    status: 'Pending',
+    joinedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    amount: finalAmount,
+    trxId: newOrder.transactionId,
+    paymentMethod: paymentMethod
+  };
+
+  try {
+    // 3. Persist order in local user orders (Deduplicate: reuse existing pending order if present)
+    const existingOrders = getUserOrders();
+    const cleanStudentEmail = (studentEmail || '').trim().toLowerCase();
+    const cleanCourseTitle = title.trim().toLowerCase();
+
+    // CRITICAL SAFETY GUARD: If student already has an approved/paid order for this course, NEVER downgrade them!
+    const existingApprovedOrder = existingOrders.find(o => {
+      const isPaid = (o.status || '').toUpperCase() === 'PAID' || (o.status || '').toLowerCase() === 'completed' || Boolean(o.isApproved);
+      const isSameCourse = (o.course?.name || o.items?.[0]?.title || '').trim().toLowerCase() === cleanCourseTitle;
+      const ordEmail = (o.customer?.email || '').trim().toLowerCase();
+      const isSameEmail = cleanStudentEmail && ordEmail && cleanStudentEmail === ordEmail;
+      const isSamePhone = isPhoneMatch(o.customer?.phone, newOrder.customer?.phone);
+      return isPaid && isSameCourse && (isSameEmail || isSamePhone);
+    });
+    if (existingApprovedOrder) {
+      return existingApprovedOrder;
+    }
+
+    const existingPendingOrderIdx = existingOrders.findIndex(o => {
+      const isPending = (o.status || '').toUpperCase() === 'PENDING' && !o.isApproved;
+      if (!isPending) return false;
+      if (existingOrderId && o.id === existingOrderId) return true;
+      const isSameCourse = (o.course?.name || o.items?.[0]?.title || '').trim().toLowerCase() === cleanCourseTitle;
+      const ordEmail = (o.customer?.email || '').trim().toLowerCase();
+      const isSameEmail = cleanStudentEmail && ordEmail && cleanStudentEmail === ordEmail;
+      const isSamePhone = isPhoneMatch(o.customer?.phone, newOrder.customer?.phone);
+      const isSameUid = studentUid && (o.userId === studentUid || o.customer?.uid === studentUid);
+      return isSameCourse && (isSameEmail || isSamePhone || isSameUid);
+    });
+
+    let updatedOrders;
+    if (existingPendingOrderIdx !== -1) {
+      updatedOrders = [...existingOrders];
+      const prevOrd = updatedOrders[existingPendingOrderIdx];
+      updatedOrders[existingPendingOrderIdx] = {
+        ...prevOrd,
+        transactionId: newOrder.transactionId,
+        paymentGateway: newOrder.paymentGateway,
+        paymentMethodName: newOrder.paymentMethodName,
+        totalPaid: newOrder.totalPaid,
+        updatedAt: new Date().toISOString()
+      };
+      newOrder.id = prevOrd.id;
+      newOrder.invoiceNumber = prevOrd.invoiceNumber;
+      newTx.orderId = prevOrd.id;
+      newTx.invoiceNumber = prevOrd.invoiceNumber;
+    } else {
+      updatedOrders = [newOrder, ...existingOrders];
+    }
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updatedOrders));
+
+    // 4. Update accounting in eduhunters_data so AdminPanel immediately has the transaction (Deduplicated)
+    const rawSiteData = localStorage.getItem('eduhunters_data');
+    if (rawSiteData) {
+      try {
+        const parsedSite = JSON.parse(rawSiteData);
+        const prevAcc = parsedSite.accounting || { totalRevenue: 0, totalExpenses: 0, netProfit: 0, totalOrders: 0, transactions: [] };
+        const prevTxs = Array.isArray(prevAcc.transactions) ? prevAcc.transactions : [];
+
+        const existingPendingTxIndex = prevTxs.findIndex(t => {
+          const isPending = (t.status || '').toLowerCase() === 'pending';
+          if (!isPending) return false;
+          if (existingOrderId && (t.orderId === existingOrderId || t.id === existingOrderId)) return true;
+          const isSameCourse = (t.itemTitle || '').trim().toLowerCase() === cleanCourseTitle;
+          const tEmail = (t.studentEmail || '').trim().toLowerCase();
+          const isSameEmail = cleanStudentEmail && tEmail && cleanStudentEmail === tEmail;
+          const isSamePhone = isPhoneMatch(t.studentPhone, newTx.studentPhone);
+          return isSameCourse && (isSameEmail || isSamePhone);
+        });
+
+        let nextTxs;
+        if (existingPendingTxIndex !== -1) {
+          nextTxs = [...prevTxs];
+          const prevTargetTx = nextTxs[existingPendingTxIndex];
+          nextTxs[existingPendingTxIndex] = {
+            ...prevTargetTx,
+            trxId: newTx.trxId,
+            amount: newTx.amount,
+            method: newTx.method,
+            updatedAt: new Date().toISOString()
+          };
+          newTx.id = prevTargetTx.id;
+        } else {
+          nextTxs = [newTx, ...prevTxs.filter(t => t.id !== newTx.id)];
+        }
+
+        const nextOrdersCount = (Number(prevAcc.totalOrders) || prevTxs.length) + (existingPendingTxIndex !== -1 ? 0 : 1);
+
+        parsedSite.accounting = {
+          ...prevAcc,
+          totalOrders: nextOrdersCount,
+          transactions: nextTxs
+        };
+        parsedSite._lastUpdated = new Date().toISOString();
+        localStorage.setItem('eduhunters_data', JSON.stringify(parsedSite));
+      } catch (e) {}
+    }
+
+    // 5. Update eh_enrolled_students with Pending status (Safeguard Active students)
+    try {
+      const rawStudents = localStorage.getItem('eh_enrolled_students');
+      const prevStudents = rawStudents ? JSON.parse(rawStudents) : [];
+      const existingActive = prevStudents.find(s => 
+        isPhoneMatch(s.phone, newStudent.phone) && 
+        s.courseName === newStudent.courseName && 
+        (s.status || '').toLowerCase() === 'active'
+      );
+      // CRITICAL: If student is already Active, NEVER downgrade them to Pending!
+      if (!existingActive) {
+        const nextStudents = [newStudent, ...prevStudents.filter(s => !(isPhoneMatch(s.phone, newStudent.phone) && s.courseName === newStudent.courseName))];
+        localStorage.setItem('eh_enrolled_students', JSON.stringify(nextStudents));
+      }
+    } catch (e) {}
+
+    // Note: Course is NOT unlocked yet. It unlocks only when Admin clicks "Approve".
+
+    // 6. Dispatch real-time events across windows & listeners immediately
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new CustomEvent('eh:orders_updated', { detail: newOrder }));
+        window.dispatchEvent(new CustomEvent('eh:new_enrollment', {
+          detail: { order: newOrder, transaction: newTx, student: newStudent }
+        }));
+        window.dispatchEvent(new Event('storage'));
+
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('eduhunters_sync_channel');
+          bc.postMessage({
+            type: 'NEW_ENROLLMENT_ORDER',
+            payload: { order: newOrder, transaction: newTx, student: newStudent }
+          });
+          bc.close();
+        }
+      } catch (e) {}
+    }
+
+    // 7. Persist order in Supabase asynchronously (No daily request limit, 100% free)
+    saveSupabaseOrder({
+      ...newOrder,
+      transaction: newTx,
+      student: newStudent
+    }).catch(e => console.warn('[orderService] Supabase save note:', e));
+
+    // 8. Back-propagate contact info directly to student's user profile in Supabase (100% Centralized Cloud)
+    const cleanPhone = (studentPhone || '').trim();
+    if ((cleanPhone && cleanPhone !== 'N/A') || studentEmail) {
+      saveSupabaseUser({
+        id: studentUid,
+        email: studentEmail,
+        phone: cleanPhone,
+        name: studentName
+      }).catch(e => console.warn('[orderService] Supabase profile sync note:', e));
+    }
+
+    // 9. Back-sync contact number to active local user session if not already populated
+    try {
+      const rawCur = localStorage.getItem('eh_current_user');
+      if (rawCur) {
+        const cur = JSON.parse(rawCur);
+        const cleanPhone = (studentPhone || '').trim();
+        const hasNoPhone = !cur.phone || cur.phone === 'N/A' || cur.phone === '01700-000000';
+        if (hasNoPhone && cleanPhone && cleanPhone !== 'N/A') {
+          cur.phone = cleanPhone;
+          cur.whatsapp = cleanPhone;
+          if (studentName && (!cur.displayName || cur.displayName === 'Student')) {
+            cur.displayName = studentName;
+            cur.name = studentName;
+          }
+          localStorage.setItem('eh_current_user', JSON.stringify(cur));
+        }
+      }
+    } catch (e) {}
+  } catch (err) {
+    console.error('[orderService] Failed to save new order:', err);
+  }
+
+  return newOrder;
+}
+
+/**
+ * Approves a pending enrollment order, unlocks the course, and broadcasts real-time activation
+ */
+export function approveOrder(identifier, { courseTitle, studentPhone, studentEmail, studentName, amount, userId, ...extra } = {}) {
+  try {
+    const orders = getUserOrders();
+    const cleanPhone = (studentPhone || '').replace(/[^0-9]/g, '');
+    const cleanEmail = (studentEmail || '').toLowerCase().trim();
+    let approvedOrder = null;
+
+    const nextOrders = orders.map(ord => {
+      const ordPhone = (ord.customer?.phone || '').replace(/[^0-9]/g, '');
+      const ordEmail = (ord.customer?.email || '').toLowerCase().trim();
+      const ordTitle = ord.course?.name || ord.items?.[0]?.title || '';
+      const matchId = identifier && (ord.id === identifier || ord.invoiceNumber === identifier || ord.transactionId === identifier);
+      const matchDetails = (courseTitle && ordTitle === courseTitle) && ((cleanPhone && ordPhone === cleanPhone) || (cleanEmail && ordEmail === cleanEmail));
+
+      if (matchId || matchDetails) {
+        approvedOrder = {
+          ...ord,
+          status: 'PAID',
+          isApproved: true,
+          approvedAt: new Date().toISOString()
+        };
+        return approvedOrder;
+      }
+      return ord;
+    });
+
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(nextOrders));
+
+    const finalTitle = courseTitle || approvedOrder?.course?.name || approvedOrder?.items?.[0]?.title || 'Course Enrollment';
+    const finalAmount = Number(amount) || Number(approvedOrder?.totalPaid) || 0;
+
+    // 1. Unlock course in local user storage (eh_current_user)
+    try {
+      const rawCur = localStorage.getItem('eh_current_user');
+      if (rawCur) {
+        const cur = JSON.parse(rawCur);
+        const curPhone = (cur.whatsapp || cur.phone || '').replace(/[^0-9]/g, '');
+        const curEmail = (cur.email || '').toLowerCase().trim();
+        const isCurrentTarget = isPhoneMatch(curPhone, cleanPhone) || (cleanEmail && curEmail === cleanEmail) || (!cleanPhone && !cleanEmail);
+
+        if (isCurrentTarget) {
+          const enrolled = Array.isArray(cur.enrolledCourses) ? cur.enrolledCourses : [];
+          if (!enrolled.includes(finalTitle)) {
+            cur.enrolledCourses = [finalTitle, ...enrolled];
+            cur.totalSpent = (Number(cur.totalSpent) || 0) + finalAmount;
+            localStorage.setItem('eh_current_user', JSON.stringify(cur));
+          }
+
+          // Also update global and user-scoped storage immediately
+          const localC = JSON.parse(localStorage.getItem('eduhunters_enrolled_courses') || '[]');
+          localStorage.setItem('eduhunters_enrolled_courses', JSON.stringify(Array.from(new Set([...localC, finalTitle]))));
+
+          if (cur.uid) {
+            const scopedC = JSON.parse(localStorage.getItem(`eduhunters_enrolled_courses_${cur.uid}`) || '[]');
+            localStorage.setItem(`eduhunters_enrolled_courses_${cur.uid}`, JSON.stringify(Array.from(new Set([...scopedC, finalTitle]))));
+          }
+        }
+      }
+
+      // 2. Unlock in eh_registered_users
+      const rawReg = localStorage.getItem('eh_registered_users');
+      if (rawReg) {
+        const regList = JSON.parse(rawReg);
+        if (Array.isArray(regList)) {
+          const updatedReg = regList.map(u => {
+            const uPhone = (u.whatsapp || u.phone || '').replace(/[^0-9]/g, '');
+            const uEmail = (u.email || '').toLowerCase().trim();
+            if ((cleanEmail && uEmail === cleanEmail) || isPhoneMatch(uPhone, cleanPhone)) {
+              const uEnrolled = Array.isArray(u.enrolledCourses) ? u.enrolledCourses : [];
+              return {
+                ...u,
+                status: 'Active',
+                enrolledCourses: uEnrolled.includes(finalTitle) ? uEnrolled : [finalTitle, ...uEnrolled],
+                totalSpent: (Number(u.totalSpent) || 0) + finalAmount
+              };
+            }
+            return u;
+          });
+          localStorage.setItem('eh_registered_users', JSON.stringify(updatedReg));
+        }
+      }
+    } catch (e) {}
+
+    // 3. Update eh_enrolled_students to Active
+    try {
+      const rawStudents = localStorage.getItem('eh_enrolled_students');
+      if (rawStudents) {
+        const stList = JSON.parse(rawStudents);
+        if (Array.isArray(stList)) {
+          const nextStudents = stList.map(st => {
+            const stPhone = (st.phone || '').replace(/[^0-9]/g, '');
+            const stEmail = (st.email || '').toLowerCase().trim();
+            if (isPhoneMatch(stPhone, cleanPhone) || (cleanEmail && stEmail === cleanEmail) || (st.courseName === finalTitle && isPhoneMatch(stPhone, cleanPhone))) {
+              return { ...st, status: 'Active' };
+            }
+            return st;
+          });
+          localStorage.setItem('eh_enrolled_students', JSON.stringify(nextStudents));
+        }
+      }
+    } catch (e) {}
+
+    // 4. Update Supabase if configured (supports any order ID format, TrxID, phone & course)
+    const targetOrderId = approvedOrder?.id || identifier;
+    if (targetOrderId || cleanPhone || identifier) {
+      updateSupabaseOrderStatus(targetOrderId || identifier, {
+        status: 'PAID',
+        isApproved: true,
+        raw_data: approvedOrder
+      }, {
+        id: identifier,
+        orderId: approvedOrder?.id || identifier,
+        trxId: approvedOrder?.transactionId || (typeof identifier === 'string' && identifier.length > 5 ? identifier : null),
+        phone: cleanPhone,
+        email: cleanEmail,
+        courseTitle: finalTitle,
+        studentName: studentName || approvedOrder?.customer?.name,
+        amount: finalAmount
+      }).catch(e => console.warn('[orderService] Supabase update note:', e));
+    }
+
+    // Sync student profile with unlocked course in Supabase users table
+    const targetUserId = userId || extra?.userId || approvedOrder?.customer?.uid || approvedOrder?.userId;
+    if (cleanEmail || cleanPhone || targetUserId) {
+      let uUid = targetUserId;
+      if (!uUid && cleanEmail) {
+        try {
+          const rawReg = localStorage.getItem('eh_registered_users');
+          if (rawReg) {
+            const list = JSON.parse(rawReg);
+            const foundU = list.find(u => (u.email || '').toLowerCase().trim() === cleanEmail);
+            if (foundU) uUid = foundU.uid || foundU.id;
+          }
+        } catch (e) {}
+      }
+      if (!uUid && cleanPhone) {
+        try {
+          const rawReg = localStorage.getItem('eh_registered_users');
+          if (rawReg) {
+            const list = JSON.parse(rawReg);
+            const foundU = list.find(u => isPhoneMatch((u.phone || u.whatsapp || '').replace(/[^0-9]/g, ''), cleanPhone));
+            if (foundU) uUid = foundU.uid || foundU.id;
+          }
+        } catch (e) {}
+      }
+
+      saveSupabaseUser({
+        uid: uUid,
+        id: uUid,
+        email: cleanEmail,
+        displayName: studentName || approvedOrder?.customer?.name || 'Student',
+        phone: cleanPhone,
+        role: 'Student'
+      }, {
+        enrolledCourses: [finalTitle]
+      }).catch(e => console.warn('[orderService] Supabase user enrollment update note:', e));
+    }
+
+    // 5. Course enrollment is already updated in Supabase (100% Centralized Cloud)
+
+    // 5. Dispatch real-time unlock broadcast across tabs and windows
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('eh:enrollment_approved', {
+        detail: {
+          orderId: approvedOrder?.id || identifier,
+          courseTitle: finalTitle,
+          studentPhone: cleanPhone,
+          studentEmail: cleanEmail,
+          studentName: studentName || approvedOrder?.customer?.name
+        }
+      }));
+      window.dispatchEvent(new CustomEvent('eh:orders_updated'));
+      window.dispatchEvent(new Event('storage'));
+
+      if (typeof BroadcastChannel !== 'undefined') {
+        try {
+          const bc = new BroadcastChannel('eduhunters_sync_channel');
+          bc.postMessage({
+            type: 'ENROLLMENT_APPROVED',
+            payload: {
+              orderId: approvedOrder?.id || identifier,
+              courseTitle: finalTitle,
+              studentPhone: cleanPhone,
+              studentEmail: cleanEmail,
+              studentName: studentName || approvedOrder?.customer?.name
+            }
+          });
+          bc.close();
+        } catch (e) {}
+      }
+    }
+
+    return approvedOrder;
+  } catch (err) {
+    console.error('[orderService] Failed to approve order:', err);
+    return null;
+  }
+}
+
+/**
+ * Revokes an approval for an order, relocks course access, and syncs status across Supabase and local storage
+ */
+export function revokeOrder(identifier, { courseTitle, studentPhone, studentEmail } = {}) {
+  try {
+    const orders = getUserOrders();
+    const cleanPhone = (studentPhone || '').replace(/[^0-9]/g, '');
+    const cleanEmail = (studentEmail || '').toLowerCase().trim();
+    let targetOrdId = identifier;
+
+    const nextOrders = orders.map(ord => {
+      const ordPhone = (ord.customer?.phone || '').replace(/[^0-9]/g, '');
+      const ordEmail = (ord.customer?.email || '').toLowerCase().trim();
+      const ordTitle = ord.course?.name || ord.items?.[0]?.title || '';
+      const matchId = identifier && (ord.id === identifier || ord.invoiceNumber === identifier || ord.transactionId === identifier);
+      const matchDetails = (courseTitle && ordTitle === courseTitle) && ((cleanPhone && ordPhone === cleanPhone) || (cleanEmail && ordEmail === cleanEmail));
+
+      if (matchId || matchDetails) {
+        targetOrdId = ord.id;
+        return {
+          ...ord,
+          status: 'PENDING',
+          isApproved: false,
+          approvedAt: null
+        };
+      }
+      return ord;
+    });
+
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(nextOrders));
+
+    // Update Supabase
+    updateSupabaseOrderStatus(targetOrdId || identifier, {
+      status: 'PENDING',
+      isApproved: false
+    }, {
+      id: identifier,
+      orderId: targetOrdId,
+      phone: cleanPhone,
+      email: cleanEmail,
+      courseTitle
+    }).catch(e => console.warn('[orderService] Supabase revoke note:', e));
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('eh:orders_updated'));
+      window.dispatchEvent(new Event('storage'));
+    }
+    return true;
+  } catch (err) {
+    console.warn('[orderService] Failed to revoke order:', err);
+    return false;
+  }
+}
