@@ -357,11 +357,20 @@ export async function fetchLessonLeaderboard(courseId, lessonId) {
     if (s.is_first_attempt === false || (s.attempt_number && Number(s.attempt_number) > 1)) return false;
 
     const sLesson = String(s.lesson_id || '').trim().toLowerCase();
-    const matchLesson = !cleanLesson || cleanLesson === 'all' || cleanLesson === 'overall' || sLesson === cleanLesson;
+    const cleanLessonStripped = cleanLesson.replace(/^lesson-exam-/, '');
+    const sLessonStripped = sLesson.replace(/^lesson-exam-/, '');
+    const matchLesson = !cleanLesson || cleanLesson === 'all' || cleanLesson === 'overall' || 
+      sLesson === cleanLesson ||
+      sLessonStripped === cleanLessonStripped ||
+      sLesson.includes(cleanLesson) || cleanLesson.includes(sLesson);
 
     const sCId = String(s.course_id || '').trim().toLowerCase().replace(/[-_\s]/g, '');
     const sCSlug = String(s.course_slug || '').trim().toLowerCase().replace(/[-_\s]/g, '');
-    const matchCourse = !cleanCourse || cleanCourse === 'all' || sCId === cleanCourse || sCSlug === cleanCourse || sCId.includes(cleanCourse) || cleanCourse.includes(sCId);
+    const sCName = String(s.course_name || '').trim().toLowerCase().replace(/[-_\s]/g, '');
+    const matchCourse = !cleanCourse || cleanCourse === 'all' || 
+      sCId === cleanCourse || sCSlug === cleanCourse || 
+      sCId.includes(cleanCourse) || cleanCourse.includes(sCId) ||
+      (sCName && cleanCourse && (sCName.includes(cleanCourse) || cleanCourse.includes(sCName)));
 
     return matchLesson && matchCourse;
   });

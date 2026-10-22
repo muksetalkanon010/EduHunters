@@ -572,12 +572,17 @@ export default function CoursePlayerPage({
       };
     });
 
+    const canonicalLessonId = String(currentLesson.id || currentLesson.quiz?.id || currentLesson.examId || 'les-01');
     const examPayload = {
-      id: currentLesson.quiz?.id || currentLesson.examId || `lesson-exam-${currentLesson.id}`,
-      exam_id: currentLesson.quiz?.id || currentLesson.examId || `lesson-exam-${currentLesson.id}`,
+      id: canonicalLessonId,
+      exam_id: canonicalLessonId,
+      lesson_id: canonicalLessonId,
       title: examTitle,
-      category: 'course_lesson',
-      categoryName: course.title || course.name || 'Master English',
+      category: String(course.id || course.slug || 'physics-finishing-touch-series'),
+      categoryName: course.title || course.name || 'Physics Finishing Touch Series',
+      course_id: String(course.id || course.slug || 'physics-finishing-touch-series'),
+      course_slug: String(course.slug || course.id || 'physics-finishing-touch-series'),
+      course_name: course.title || course.name || 'Physics Finishing Touch Series',
       subCategory: null,
       subject: course.subject || 'Physics',
       durationMinutes: durMins,
@@ -640,6 +645,12 @@ export default function CoursePlayerPage({
             isCourseQuiz={true}
             onBackToLesson={() => setActiveLessonExam(null)}
             onBackToCourses={() => setActiveLessonExam(null)}
+            onSwitchToBoard={() => {
+              setActiveLessonExam(null);
+              if (onNavigateLeaderboard) {
+                onNavigateLeaderboard(course?.id || course?.slug, currentLesson?.id);
+              }
+            }}
             onExamComplete={async (result) => {
               const totalPossible = activeLessonExam.totalMarks || activeLessonExam.totalQuestions || result.totalQuestions;
               const resultObj = {
