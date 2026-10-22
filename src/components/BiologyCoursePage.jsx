@@ -612,6 +612,13 @@ export default function BiologyCoursePage({
   }, [course?.curriculum]);
 
   const { currentUser } = useAuth();
+  const isAdmin = React.useMemo(() => {
+    return Boolean(getAdminSession()) || 
+      currentUser?.role === 'admin' || 
+      currentUser?.email?.toLowerCase() === 'admin@eduhunters.com' || 
+      currentUser?.email?.toLowerCase() === 'admin@eduhunters.com.bd' ||
+      currentUser?.name === 'EduHunters Admin';
+  }, [currentUser]);
   const isCourseEnrolled = useEnrollmentStatus(course, currentUser, data);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
