@@ -227,7 +227,7 @@ export const mapOrderDocToTx = (docId, order) => {
   // Check persistent status override
   const sMap = getStatusOverridesMap();
   const cleanDocId = typeof docId === 'string' ? docId.replace(/^(TRX-|st-|ord_)/, '') : '';
-  const overrideStatus = sMap[docId] ?? sMap[cleanDocId] ?? sMap[t.id] ?? sMap[t.trxId] ?? sMap[order.transactionId] ?? sMap[order.invoiceNumber];
+  const overrideStatus = sMap[docId] ?? sMap[cleanDocId] ?? sMap[t.id] ?? sMap[t.trxId] ?? sMap[order.transactionId] ?? sMap[order.trx_id] ?? sMap[order.invoiceNumber] ?? sMap[order.invoice_number];
   if (overrideStatus) {
     isPaid = (overrideStatus || '').toLowerCase() === 'completed';
   }
@@ -238,21 +238,21 @@ export const mapOrderDocToTx = (docId, order) => {
   const baseTx = {
     id: t.id || `TRX-${docId}`,
     orderId: docId,
-    invoiceNumber: order.invoiceNumber || t.invoiceNumber || 'INV-EH',
+    invoiceNumber: order.invoiceNumber || order.invoice_number || t.invoiceNumber || 'INV-EH',
     type: 'INCOME',
     category: t.category || (order.type === 'store' ? 'Store Product' : (order.targetType === 'exam' ? 'Exam Batch Enrollment' : 'Course Enrollment')),
-    itemTitle: t.itemTitle || order.course?.name || order.items?.[0]?.title || 'Course Access',
-    amount: Number(t.amount !== undefined ? t.amount : (order.totalPaid || 0)),
-    method: t.method || (order.paymentMethodName?.toLowerCase().includes('nagad') ? 'Nagad' : (order.paymentMethodName?.toLowerCase().includes('card') ? 'Card' : 'bKash')),
-    trxId: t.trxId || order.transactionId || 'PENDING',
-    studentName: t.studentName || order.customer?.name || 'Online Student',
-    studentPhone: t.studentPhone || order.customer?.phone || 'N/A',
-    studentEmail: t.studentEmail || order.customer?.email || '',
-    date: t.date || (order.createdAt ? order.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]),
-    createdAt: t.createdAt || order.createdAt || new Date().toISOString(),
+    itemTitle: t.itemTitle || order.course?.name || order.items?.[0]?.title || order.course_name || 'Course Access',
+    amount: Number(t.amount !== undefined ? t.amount : (order.totalPaid !== undefined ? order.totalPaid : (order.amount || 0))),
+    method: t.method || (order.paymentMethodName?.toLowerCase().includes('nagad') || order.payment_method?.toLowerCase().includes('nagad') ? 'Nagad' : (order.paymentMethodName?.toLowerCase().includes('card') ? 'Card' : 'bKash')),
+    trxId: t.trxId || order.transactionId || order.trx_id || 'PENDING',
+    studentName: t.studentName || order.customer?.name || order.customer_name || 'Online Student',
+    studentPhone: t.studentPhone || order.customer?.phone || order.customer_phone || 'N/A',
+    studentEmail: t.studentEmail || order.customer?.email || order.customer_email || '',
+    date: t.date || (order.createdAt ? order.createdAt.split('T')[0] : (order.created_at ? order.created_at.split('T')[0] : new Date().toISOString().split('T')[0])),
+    createdAt: t.createdAt || order.createdAt || order.created_at || new Date().toISOString(),
     status: status,
     isApproved: isPaid,
-    notes: t.notes || (order.paymentMethodName ? `Paid via ${order.paymentMethodName}` : 'Submitted via Web Checkout')
+    notes: t.notes || (order.paymentMethodName || order.payment_method ? `Paid via ${order.paymentMethodName || order.payment_method}` : 'Submitted via Web Checkout')
   };
   return applyAmountOverride(baseTx);
 };
@@ -265,7 +265,7 @@ export const mapOrderDocToStudent = (docId, order) => {
   
   const sMap = getStatusOverridesMap();
   const cleanDocId = typeof docId === 'string' ? docId.replace(/^(TRX-|st-|ord_)/, '') : '';
-  const overrideStatus = sMap[docId] ?? sMap[cleanDocId] ?? sMap[s.id] ?? sMap[t.id] ?? sMap[s.trxId] ?? sMap[t.trxId] ?? sMap[order.transactionId];
+  const overrideStatus = sMap[docId] ?? sMap[cleanDocId] ?? sMap[s.id] ?? sMap[t.id] ?? sMap[s.trxId] ?? sMap[t.trxId] ?? sMap[order.transactionId] ?? sMap[order.trx_id];
   if (overrideStatus) {
     isPaid = (overrideStatus || '').toLowerCase() === 'completed';
   }
@@ -273,16 +273,16 @@ export const mapOrderDocToStudent = (docId, order) => {
   const baseStudent = {
     id: s.id || `st-${docId}`,
     orderId: docId,
-    name: s.name || order.customer?.name || t.studentName || 'Online Student',
-    phone: s.phone || order.customer?.phone || t.studentPhone || 'N/A',
-    email: s.email || order.customer?.email || t.studentEmail || '',
+    name: s.name || order.customer?.name || order.customer_name || t.studentName || 'Online Student',
+    phone: s.phone || order.customer?.phone || order.customer_phone || t.studentPhone || 'N/A',
+    email: s.email || order.customer?.email || order.customer_email || t.studentEmail || '',
     batch: s.batch || 'HSC 26',
-    courseName: s.courseName || order.course?.name || order.items?.[0]?.title || 'Course Access',
+    courseName: s.courseName || order.course?.name || order.items?.[0]?.title || order.course_name || 'Course Access',
     status: isPaid ? 'Active' : 'Pending',
-    joinedDate: s.joinedDate || (order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Recently'),
-    amount: Number(s.amount !== undefined ? s.amount : (order.totalPaid || 0)),
-    trxId: s.trxId || order.transactionId || t.trxId || 'PENDING',
-    paymentMethod: s.paymentMethod || t.method || (order.paymentMethodName?.toLowerCase().includes('nagad') ? 'Nagad' : 'bKash')
+    joinedDate: s.joinedDate || (order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : (order.created_at ? new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Recently')),
+    amount: Number(s.amount !== undefined ? s.amount : (order.totalPaid !== undefined ? order.totalPaid : (order.amount || 0))),
+    trxId: s.trxId || order.transactionId || order.trx_id || t.trxId || 'PENDING',
+    paymentMethod: s.paymentMethod || t.method || (order.paymentMethodName?.toLowerCase().includes('nagad') || order.payment_method?.toLowerCase().includes('nagad') ? 'Nagad' : 'bKash')
   };
   const oMap = getAmountOverridesMap();
   const cleanId = typeof baseStudent.id === 'string' ? baseStudent.id.replace(/^(TRX-|st-)/, '') : '';

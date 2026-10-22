@@ -67,17 +67,13 @@ import {
   Flame,
   BarChart3
 } from 'lucide-react';
-import { collection, getDocs, onSnapshot, doc, deleteDoc, setDoc } from 'firebase/firestore';
-import { db, isFirebaseConfigured } from '../firebase/config';
 import { initialData, isZenithCopiedCourse } from '../data/mockData';
-import { masterEnglishCourseData } from '../data/masterEnglishCourseData';
 const CourseStudioPage = React.lazy(() => import('./CourseStudioPage'));
 const BundleStudioPage = React.lazy(() => import('./BundleStudioPage'));
 import { EXAM_CATEGORIES_METADATA } from '../data/examCategoriesData';
 import { grantCourseAccess, revokeCourseAccess, getCanonicalCourses, isPhoneMatch } from '../utils/enrollmentService';
 import CourseSearchSelect from './CourseSearchSelect';
 import { approveOrder, revokeOrder, getUserOrders } from '../services/orderService';
-import { saveCloudData } from '../services/firestoreSyncService';
 import { uploadImageFile, processHighQualityImage } from '../services/cloudStorageService';
 import { isSupabaseConfigured } from '../supabase/config';
 import { 
@@ -970,149 +966,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     }
   }, []);
 
-  // Multi-tier Real-time Synchronizer: Firestore Live + BroadcastChannel + Window Events + LocalStorage
+  // Multi-tier Real-time Synchronizer: Supabase Realtime (CDC + Bus) + BroadcastChannel + Window Events + LocalStorage
   useEffect(() => {
-    let unsubscribeUsers = null;
-    let unsubscribeOrders = null;
-
-    // Helper: Map a Cloud Firestore document into standard User object
-    const mapFirestoreUserDoc = (docId, data) => ({
-      uid: docId,
-      id: docId,
-      name: data.displayName || data.name || data.email?.split('@')[0] || 'Student',
-      displayName: data.displayName || data.name || data.email?.split('@')[0] || 'Student',
-      email: data.email,
-      phone: data.whatsapp || data.phone || '',
-      whatsapp: data.whatsapp || data.phone || '',
-      college: data.college || data.institution || '',
-      institution: data.college || data.institution || '',
-      role: data.role === 'admin' ? 'Admin' : (data.role ? (data.role.charAt(0).toUpperCase() + data.role.slice(1)) : 'Student'),
-      status: data.status || 'Active',
-      batch: data.hscBatch || data.batch || '',
-      hscBatch: data.hscBatch || data.batch || '',
-      authProvider: data.authProvider || (data.email?.endsWith('@gmail.com') ? 'google.com' : 'password'),
-      enrolledCourses: Array.isArray(data.enrolledCourses) ? data.enrolledCourses : [],
-      totalSpent: Number(data.totalSpent) || 0,
-      joinedDate: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : (data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Recently'),
-      lastActive: 'Active now',
-      device: (Array.isArray(data.registeredDevices) && data.registeredDevices[0]?.name) || 'Web Client',
-      avatar: data.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(data.email || 'user')}`
-    });
-
-    // 1. Live Cloud Firestore Listeners
-    if (isFirebaseConfigured && db) {
-      try {
-        let isInitialUsersSnapshot = true;
-
-        // Users collection real-time listener (all registered & Google sign-in accounts)
-        unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
-          const cloudUsers = snapshot.docs.map(docSnap => mapFirestoreUserDoc(docSnap.id, docSnap.data()));
-
-          cloudUsers.forEach(u => {
-            const key = (u.email || u.id || '').toLowerCase().trim();
-            if (key) notifiedUserKeysRef.current.add(key);
-          });
-          setUsersList(prev => deduplicateUsers([...prev, ...cloudUsers]));
-
-          // Trigger toast only for newly registered users after initial snapshot
-          if (!isInitialUsersSnapshot) {
-            snapshot.docChanges().forEach(change => {
-              if (change.type === 'added') {
-                const d = change.doc.data();
-                notifyNewUserRegistration({ ...d, id: change.doc.id });
-              }
-            });
-          }
-          isInitialUsersSnapshot = false;
-        }, (err) => {
-          console.warn('[AdminPanel] Firestore users listener note:', err);
-        });
-
-        let isInitialOrdersSnapshot = true;
-
-        // Orders collection real-time listener (all course purchases across all devices & live site)
-        unsubscribeOrders = onSnapshot(collection(db, 'orders'), (snapshot) => {
-          const deletedIds = getDeletedIdsSet();
-          const overrides = getAmountOverridesMap();
-          const cloudOrders = snapshot.docs
-            .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
-            .filter(o => !isDeletedItem(o, deletedIds));
-
-          const mappedTxs = cloudOrders.map(o => mapOrderDocToTx(o.id, o)).filter(t => !isDeletedItem(t, deletedIds));
-          const mappedStudents = cloudOrders.map(o => mapOrderDocToStudent(o.id, o)).filter(st => !isDeletedItem(st, deletedIds));
-
-          // Atomically update accounting.transactions
-          setAccounting(prev => {
-            const prevTxs = Array.isArray(prev?.transactions) ? prev.transactions : [];
-            const txMap = new Map();
-            // Retain any manual/offline transactions that are not deleted
-            prevTxs.filter(tx => !isDeletedItem(tx, deletedIds)).forEach(tx => {
-              const key = tx.orderId || tx.id || tx.trxId;
-              if (key) txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
-            });
-            // Cloud orders take precedence and reflect live Firestore state
-            mappedTxs.forEach(tx => {
-              const key = tx.orderId || tx.id || tx.trxId;
-              if (key) txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
-            });
-
-            const resetConfig = getAccountingResetConfig();
-            const allTxs = deduplicateTransactions(Array.from(txMap.values()));
-            const completedRev = allTxs
-              .filter(t => (t.status || '').toLowerCase() === 'completed' && !isHistoricalTx(t, resetConfig))
-              .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-            const totalExpenses = allTxs
-              .filter(t => (t.type || '').toUpperCase() === 'EXPENSE' && !isHistoricalTx(t, resetConfig))
-              .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-
-            return {
-              ...prev,
-              totalRevenue: completedRev,
-              totalExpenses: totalExpenses,
-              netProfit: completedRev - totalExpenses,
-              totalOrders: allTxs.filter(t => (t.type || '').toUpperCase() === 'INCOME' || !t.type).length,
-              transactions: allTxs
-            };
-          });
-
-          // Atomically update enrolled students list
-          setEnrolledStudents(prev => {
-            const stMap = new Map();
-            prev.filter(st => !isDeletedItem(st, deletedIds)).forEach(st => {
-              const key = st.id || `${st.phone}_${st.courseName}`;
-              stMap.set(key, st);
-            });
-            mappedStudents.forEach(st => {
-              const key = st.id || `${st.phone}_${st.courseName}`;
-              stMap.set(key, st);
-            });
-            const mergedSt = Array.from(stMap.values());
-            try {
-              localStorage.setItem('eh_enrolled_students', JSON.stringify(mergedSt));
-            } catch (e) {}
-            return mergedSt;
-          });
-
-          // Trigger audio chime and toast for live incoming orders after initial snapshot
-          if (!isInitialOrdersSnapshot) {
-            snapshot.docChanges().forEach(change => {
-              if (change.type === 'added') {
-                const d = change.doc.data();
-                const tx = mapOrderDocToTx(change.doc.id, d);
-                playNotificationChime();
-                triggerToast(`🔔 নতুন কোর্স এনরোলমেন্ট রিকোয়েস্ট! ${tx.studentName} — "${tx.itemTitle}" (৳${tx.amount})`);
-              }
-            });
-          }
-          isInitialOrdersSnapshot = false;
-        }, (err) => {
-          console.warn('[AdminPanel] Firestore orders listener note:', err);
-        });
-
-      } catch (err) {
-        console.warn('[AdminPanel] Real-time Firestore initialization note:', err);
-      }
-    }
 
     // 1.1 Supabase Real-time Listeners & Initial Fetch (Unlimited Free Realtime)
     let unsubscribeSupabaseOrders = null;
@@ -1408,8 +1263,6 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       if (typeof unsubscribeSupabaseHeartbeat === 'function') unsubscribeSupabaseHeartbeat();
       if (typeof unsubscribeSupabaseOrders === 'function') unsubscribeSupabaseOrders();
       if (typeof unsubscribeSupabaseUsers === 'function') unsubscribeSupabaseUsers();
-      if (typeof unsubscribeUsers === 'function') unsubscribeUsers();
-      if (typeof unsubscribeOrders === 'function') unsubscribeOrders();
       if (bc) bc.close();
       window.removeEventListener('eh_profile_updated', handleProfileUpdate);
       window.removeEventListener('eh_user_registered', handleUserRegistered);

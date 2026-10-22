@@ -566,16 +566,34 @@ export function subscribeToSupabaseOrders(onOrderChange) {
   // 1. Instant WebSocket Broadcast listener
   const unsubscribeBroadcast = subscribeToSupabaseMessage('NEW_ORDER', (payload) => {
     if (!payload) return;
+    const raw = payload.raw_data || payload;
     const mappedOrder = {
-      ...(payload.raw_data || payload),
-      id: payload.id,
-      invoiceNumber: payload.invoice_number || payload.invoiceNumber,
-      status: payload.status,
-      isApproved: payload.is_approved !== undefined ? payload.is_approved : payload.isApproved,
-      transactionId: payload.trx_id || payload.transactionId,
-      paymentMethodName: payload.payment_method || payload.paymentMethodName,
-      totalPaid: payload.amount !== undefined ? payload.amount : payload.totalPaid,
-      createdAt: payload.created_at || payload.createdAt
+      ...raw,
+      id: payload.id || raw.id,
+      invoiceNumber: payload.invoice_number || payload.invoiceNumber || raw.invoiceNumber,
+      status: payload.status || raw.status,
+      isApproved: payload.is_approved !== undefined ? payload.is_approved : (payload.isApproved !== undefined ? payload.isApproved : raw.isApproved),
+      transactionId: payload.trx_id || payload.transactionId || raw.transactionId,
+      paymentMethodName: payload.payment_method || payload.paymentMethodName || raw.paymentMethodName,
+      totalPaid: payload.amount !== undefined ? payload.amount : (payload.totalPaid !== undefined ? payload.totalPaid : raw.totalPaid),
+      createdAt: payload.created_at || payload.createdAt || raw.createdAt,
+      customer_name: payload.customer_name || raw.customer_name || raw.customer?.name,
+      customer_phone: payload.customer_phone || raw.customer_phone || raw.customer?.phone,
+      customer_email: payload.customer_email || raw.customer_email || raw.customer?.email,
+      course_name: payload.course_name || raw.course_name || raw.course?.name,
+      course_slug: payload.course_slug || raw.course_slug || raw.course?.slug,
+      customer: {
+        ...(raw.customer || {}),
+        name: payload.customer_name || raw.customer?.name || raw.studentName,
+        email: payload.customer_email || raw.customer?.email || raw.studentEmail,
+        phone: payload.customer_phone || raw.customer?.phone || raw.studentPhone
+      },
+      course: {
+        ...(raw.course || {}),
+        name: payload.course_name || raw.course?.name || raw.itemTitle,
+        title: payload.course_name || raw.course?.title || raw.itemTitle,
+        slug: payload.course_slug || raw.course?.slug
+      }
     };
     notifyOnce('INSERT', mappedOrder);
   });
@@ -590,16 +608,34 @@ export function subscribeToSupabaseOrders(onOrderChange) {
       (payload) => {
         const row = payload.new || payload.old;
         if (!row) return;
+        const raw = row.raw_data || {};
         const mappedOrder = {
-          ...(row.raw_data || {}),
+          ...raw,
           id: row.id,
-          invoiceNumber: row.invoice_number,
+          invoiceNumber: row.invoice_number || raw.invoiceNumber,
           status: row.status,
-          isApproved: row.is_approved,
-          transactionId: row.trx_id,
-          paymentMethodName: row.payment_method,
-          totalPaid: row.amount,
-          createdAt: row.created_at
+          isApproved: row.is_approved !== undefined ? row.is_approved : raw.isApproved,
+          transactionId: row.trx_id || raw.transactionId,
+          paymentMethodName: row.payment_method || raw.paymentMethodName,
+          totalPaid: row.amount !== undefined ? row.amount : raw.totalPaid,
+          createdAt: row.created_at || raw.createdAt,
+          customer_name: row.customer_name || raw.customer_name,
+          customer_phone: row.customer_phone || raw.customer_phone,
+          customer_email: row.customer_email || raw.customer_email,
+          course_name: row.course_name || raw.course_name,
+          course_slug: row.course_slug || raw.course_slug,
+          customer: {
+            ...(raw.customer || {}),
+            name: row.customer_name || raw.customer?.name || raw.studentName,
+            email: row.customer_email || raw.customer?.email || raw.studentEmail,
+            phone: row.customer_phone || raw.customer?.phone || raw.studentPhone
+          },
+          course: {
+            ...(raw.course || {}),
+            name: row.course_name || raw.course?.name || raw.itemTitle,
+            title: row.course_name || raw.course?.title || raw.itemTitle,
+            slug: row.course_slug || raw.course?.slug
+          }
         };
         notifyOnce(payload.eventType, mappedOrder);
       }
