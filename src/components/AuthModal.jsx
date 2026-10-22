@@ -628,7 +628,7 @@ export default function AuthModal({
                 {mode === 'signin' && 'Enter your details to access your courses and exams.'}
                 {mode === 'signup' && 'Sign up to enroll in live classes and take interactive exams.'}
                 {mode === 'verify-signup' && 'Verify your email address to complete registration.'}
-                {mode === 'forgot-password' && 'Choose your preferred method to reset your account password.'}
+                {mode === 'forgot-password' && 'Enter your registered email to receive an instant 6-digit verification code.'}
                 {mode === 'verify-reset' && 'Enter the 6-digit code sent to your email and your new password.'}
               </p>
             </div>
@@ -928,9 +928,9 @@ export default function AuthModal({
               </form>
             )}
 
-            {/* ================= VIEW: FORGOT PASSWORD (EMAIL INPUT & OPTIONS) ================= */}
+            {/* ================= VIEW: FORGOT PASSWORD (DIRECT 6-DIGIT OTP) ================= */}
             {mode === 'forgot-password' && (
-              <div>
+              <form onSubmit={handleForgotPasswordInitiate}>
                 <div className="mb-4">
                   <label className="block text-xs font-semibold text-gray-300 mb-1.5">Registered Email Address</label>
                   <input
@@ -942,30 +942,18 @@ export default function AuthModal({
                     className="w-full px-4 py-3 rounded-2xl bg-[#140609] border border-white/10 text-white placeholder-gray-500 text-base sm:text-sm focus:outline-none focus:border-[#e11438] transition-colors"
                   />
                   <p className="text-[11px] text-gray-400 mt-1.5">
-                    Works for both Email/Password accounts and Google-registered accounts.
+                    আপনার নিবন্ধিত ইমেইলে একটি ৬-সংখ্যার তাৎক্ষণিক OTP কোড পাঠানো হবে।
                   </p>
                 </div>
 
                 <div className="space-y-2.5">
-                  {/* Primary Method: Official Reset Link */}
                   <button
-                    type="button"
-                    onClick={handleSendResetEmail}
+                    type="submit"
                     disabled={loading || !email}
                     className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#e11438] via-[#e50914] to-[#ff2a55] hover:opacity-95 text-white font-bold text-sm shadow-[0_10px_35px_rgba(225,20,56,0.65)] active:scale-[0.98] transition-all cursor-pointer border-none flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     {loading && <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>}
-                    <span>{loading ? 'Sending link...' : 'Send Password Reset Link'}</span>
-                  </button>
-
-                  {/* Alternative Method: 6-Digit OTP */}
-                  <button
-                    type="button"
-                    onClick={handleForgotPasswordInitiate}
-                    disabled={loading || !email}
-                    className="w-full py-3 px-4 rounded-full bg-[#18090d] hover:bg-[#250e15] border border-white/10 text-gray-300 hover:text-white font-medium text-xs transition-all cursor-pointer"
-                  >
-                    Or Verify with 6-Digit Code (Instant OTP)
+                    <span>{loading ? 'Sending code...' : 'Send 6-Digit OTP Code (ওটিপি পাঠান)'}</span>
                   </button>
                 </div>
 
@@ -978,7 +966,7 @@ export default function AuthModal({
                     Back to Sign In
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {/* ================= VIEW: VERIFY OTP & RESET PASSWORD ================= */}
