@@ -174,12 +174,12 @@ export const applyAmountOverride = (tx, overrides) => {
   return tx;
 };
 
-export const DEFAULT_ACCOUNTING_RESET_AT = '2026-10-16T17:05:00.000Z';
+export const DEFAULT_ACCOUNTING_RESET_AT = '2026-10-22T09:35:00.000Z';
 
 export const getAccountingResetConfig = () => {
   try {
     let resetAt = localStorage.getItem('eh_accounting_reset_at');
-    if (!resetAt) {
+    if (!resetAt || new Date(resetAt).getTime() < new Date(DEFAULT_ACCOUNTING_RESET_AT).getTime()) {
       resetAt = DEFAULT_ACCOUNTING_RESET_AT;
       localStorage.setItem('eh_accounting_reset_at', resetAt);
     }

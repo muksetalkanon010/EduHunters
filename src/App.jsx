@@ -112,12 +112,12 @@ const applyTrxOverride = (trx, overrides) => {
   return (overrideAmount !== undefined && !isNaN(Number(overrideAmount))) ? { ...trx, amount: Number(overrideAmount) } : trx;
 };
 
-const ACCOUNTING_RESET_DATE = '2026-10-16T17:05:00.000Z';
+const ACCOUNTING_RESET_DATE = '2026-10-22T09:35:00.000Z';
 
 const getAccountingResetInfo = () => {
   try {
     let resetAt = localStorage.getItem('eh_accounting_reset_at');
-    if (!resetAt) {
+    if (!resetAt || new Date(resetAt).getTime() < new Date(ACCOUNTING_RESET_DATE).getTime()) {
       resetAt = ACCOUNTING_RESET_DATE;
       localStorage.setItem('eh_accounting_reset_at', resetAt);
     }

@@ -5041,14 +5041,21 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
 
+    const resetConfig = getAccountingResetConfig();
+    const resetTime = resetConfig.resetAt ? new Date(resetConfig.resetAt).getTime() : 0;
+    const effectiveTodayStart = Math.max(todayStart, resetTime);
+    const effective7DaysStart = Math.max(sevenDaysAgo, resetTime);
+    const effective30DaysStart = Math.max(thirtyDaysAgo, resetTime);
+
     const uniqueUsers = deduplicateUsers(usersList);
     const joinedTodayCount = uniqueUsers.filter(u => {
       const ts = getUserTimestamp(u);
-      return ts >= todayStart;
+      return ts >= effectiveTodayStart;
     }).length;
 
     const txs = deduplicateTransactions(accounting?.transactions || []);
     const completedTxs = txs.filter(t => {
+      if (isHistoricalTx(t, resetConfig)) return false;
       const s = (t.status || '').toLowerCase();
       return (s === 'completed' || s === 'paid' || Boolean(t.isApproved)) && (t.type || '').toUpperCase() !== 'EXPENSE';
     });
@@ -5064,14 +5071,14 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       allTimeRevenue += amt;
       const tTime = new Date(t.createdAt || t.date || 0).getTime();
       if (!isNaN(tTime) && tTime > 0) {
-        if (tTime >= todayStart) {
+        if (tTime >= effectiveTodayStart) {
           enrollmentsTodayCount += 1;
           todayRevenue += amt;
         }
-        if (tTime >= sevenDaysAgo) {
+        if (tTime >= effective7DaysStart) {
           revenue7Days += amt;
         }
-        if (tTime >= thirtyDaysAgo) {
+        if (tTime >= effective30DaysStart) {
           revenue30Days += amt;
         }
       }
@@ -5086,12 +5093,14 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       allTimeRevenue,
       totalActiveStudents: uniqueUsers.filter(u => (u.role || '').toLowerCase() !== 'admin' && ((u.status || '').toLowerCase() === 'active' || (Array.isArray(u.enrolledCourses) && u.enrolledCourses.length > 0))).length
     };
-  }, [usersList, accounting?.transactions]);
+  }, [usersList, accounting?.transactions, accounting?.resetAt, accounting?.legacyTxIds]);
 
   // Memoized Pending Requests (Chronologically Sorted - Newest First)
   const pendingRequests = useMemo(() => {
     const txs = deduplicateTransactions(accounting?.transactions || []);
+    const resetConfig = getAccountingResetConfig();
     return txs.filter(tx => {
+      if (isHistoricalTx(tx, resetConfig)) return false;
       const s = (tx.status || '').toLowerCase();
       return s === 'pending' || (s !== 'completed' && s !== 'paid' && s !== 'rejected');
     }).sort((a, b) => {
@@ -5099,7 +5108,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       const timeB = new Date(b.createdAt || b.date || 0).getTime();
       return timeB - timeA;
     });
-  }, [accounting?.transactions]);
+  }, [accounting?.transactions, accounting?.resetAt, accounting?.legacyTxIds]);
 
   // Memoized Pending Count
   const pendingCount = useMemo(() => {
