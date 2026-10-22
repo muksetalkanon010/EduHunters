@@ -21,7 +21,6 @@ import { freeCoursesData } from '../data/freeCoursesData';
 import { initialData } from '../data/mockData';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { getAdminSession } from '../services/adminAuthService';
 import { loadExamQuestions, getQuestionCorrectIndex, cleanExplanation } from '../utils/examBatchStorage';
 import { useEnrollmentStatus } from '../utils/enrollmentService';
 import Navbar from './Navbar';
@@ -231,7 +230,14 @@ export default function CoursePlayerPage({
   }, [courseId, data]);
 
   const _isCourseEnrolled = useEnrollmentStatus(course, currentUser, data);
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.email?.toLowerCase() === 'admin@eduhunters.com' || Boolean(getAdminSession());
+  const isAdmin = Boolean(
+    currentUser && (
+      currentUser.role === 'admin' || 
+      currentUser.email?.toLowerCase() === 'admin@eduhunters.com' ||
+      currentUser.email?.toLowerCase() === 'admin@eduhunters.com.bd' ||
+      currentUser.name === 'EduHunters Admin'
+    )
+  );
   const isFreeCourse = Boolean(course?.isFree) || (course?.salePrice !== undefined && Number(course?.salePrice) === 0 && Number(course?.price || 0) === 0);
   // If student is genuinely enrolled, user is admin, or course is free, everything is unlocked
   const isEnrolled = _isCourseEnrolled || isAdmin || isFreeCourse;
@@ -518,6 +524,11 @@ export default function CoursePlayerPage({
   }, [activeLessonExam]);
 
   const handleStartQuiz = async () => {
+    if (!isEnrolled) {
+      setShowCheckoutModal(true);
+      return;
+    }
+
     // Strictly prevent starting upcoming scheduled exams before start date
     if (currentLesson.quiz) {
       const sched = getQuizScheduleState(currentLesson.quiz, clockTime);
@@ -912,7 +923,7 @@ export default function CoursePlayerPage({
                 >
                   <div className="overflow-hidden">
                     <div className="pt-1 space-y-4">
-                      {!isCurrentLessonUnlocked ? (
+                      {!isEnrolled ? (
                         /* Locked PDF State for unenrolled students */
                         <div className={`p-6 sm:p-7 rounded-2xl border text-center flex flex-col items-center justify-center space-y-3 ${
                           isDark ? 'border-red-500/25 bg-[#170408]/70' : 'border-red-200 bg-red-50/50'
@@ -1022,9 +1033,9 @@ export default function CoursePlayerPage({
               </div>
 
               {/* Class Exam & Quiz Section (Always Directly Visible / Expanded) */}
-              {(!isCurrentLessonUnlocked || currentLesson.quiz || currentLesson.examId) && (
+              {(!isEnrolled || currentLesson.quiz || currentLesson.examId) && (
                 <div className="mt-4 pt-4 border-t border-gray-500/15 space-y-4">
-                  {!isCurrentLessonUnlocked ? (
+                  {!isEnrolled ? (
                         /* Locked Quiz State for unenrolled students */
                         <div className={`p-6 sm:p-7 rounded-2xl border text-center flex flex-col items-center justify-center space-y-3 ${
                           isDark ? 'border-purple-500/25 bg-[#17040a]/70' : 'border-purple-200 bg-purple-50/50'

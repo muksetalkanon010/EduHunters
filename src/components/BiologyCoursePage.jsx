@@ -44,7 +44,6 @@ import { initialData } from '../data/mockData';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useEnrollmentStatus, useItemPending, getItemPendingOrder } from '../utils/enrollmentService';
-import { getAdminSession } from '../services/adminAuthService';
 
 function getEmbedUrl(url) {
   if (!url) return '';
@@ -614,11 +613,14 @@ export default function BiologyCoursePage({
 
   const { currentUser } = useAuth();
   const isAdmin = React.useMemo(() => {
-    return Boolean(getAdminSession()) || 
-      currentUser?.role === 'admin' || 
-      currentUser?.email?.toLowerCase() === 'admin@eduhunters.com' || 
-      currentUser?.email?.toLowerCase() === 'admin@eduhunters.com.bd' ||
-      currentUser?.name === 'EduHunters Admin';
+    return Boolean(
+      currentUser && (
+        currentUser.role === 'admin' || 
+        currentUser.email?.toLowerCase() === 'admin@eduhunters.com' || 
+        currentUser.email?.toLowerCase() === 'admin@eduhunters.com.bd' ||
+        currentUser.name === 'EduHunters Admin'
+      )
+    );
   }, [currentUser]);
   const isCourseEnrolled = useEnrollmentStatus(course, currentUser, data);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -884,29 +886,9 @@ export default function BiologyCoursePage({
 
     const handleLessonPdfClick = (e) => {
       e.stopPropagation();
-      if (!isUnlocked) {
+      if (!isCourseEnrolled && !isAdmin) {
         handleOpenCheckout();
         return;
-      }
-      if (isFree && !isCourseEnrolled) {
-        if (!currentUser) {
-          if (onLoginClick) onLoginClick();
-          triggerToast('ফ্রি নোট দেখতে প্রথমে লগইন করুন');
-          return;
-        }
-        if (!isStudentProfileComplete(currentUser)) {
-          const targetLessonInfo = {
-            title: displayTitle,
-            videoUrl: videoUrl || course.previewVideoUrl,
-            pdfUrl,
-            duration,
-            lessonIdx: lIdx,
-            activeTab: 'notes'
-          };
-          setPendingFreeLesson(targetLessonInfo);
-          setShowProfileCompleteModal(true);
-          return;
-        }
       }
       setActivePdfLesson({
         title: displayTitle,
@@ -1010,7 +992,7 @@ export default function BiologyCoursePage({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                if (!isUnlocked) {
+                if (!isCourseEnrolled && !isAdmin) {
                   handleOpenCheckout();
                   return;
                 }
