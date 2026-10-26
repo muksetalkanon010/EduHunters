@@ -16,6 +16,7 @@ export default function ExamEngine({ exam, onClose }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [result, setResult] = useState(null);
   const [tabSwitchWarnings, setTabSwitchWarnings] = useState(0);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   // Anti-cheating & Content Security listeners
   useEffect(() => {
@@ -168,7 +169,14 @@ export default function ExamEngine({ exam, onClose }) {
       <div className="exam-container">
         {/* Exam Header */}
         <div className="exam-header">
-          <button className="btn-icon" onClick={onClose}>
+          <button 
+            className="btn-icon" 
+            onClick={() => {
+              if (!isSubmitted) setShowExitConfirm(true);
+              else onClose();
+            }}
+            title="Exit / বের হন"
+          >
             <ArrowLeft size={20} />
           </button>
           
@@ -369,6 +377,68 @@ export default function ExamEngine({ exam, onClose }) {
           </div>
         )}
       </div>
+
+      {/* Mid-Exam Exit Confirmation Modal */}
+      {showExitConfirm && (
+        <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#140306] border border-red-500/30 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl text-white">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                <ShieldAlert size={22} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">পরীক্ষা থেকে বের হতে চান?</h3>
+                <p className="text-xs text-red-400">সাবমিট না করে বের হওয়ার সতর্কতা</p>
+              </div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-red-950/40 border border-red-500/30 text-xs text-red-200 leading-relaxed">
+              <p className="font-bold mb-1">⚠️ সতর্কবার্তা: এটি আপনার ১ম অফিসিয়াল প্রচেষ্টা!</p>
+              <p>সাবমিট না করে বের হয়ে গেলে মেধা তালিকায় ০ মার্ক জমা হবে। পরবর্তীতে পরীক্ষা দিলে তা কেবল প্র্যাকটিস হিসেবে গণ্য হবে।</p>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowExitConfirm(false)}
+                className="px-4 py-2 rounded-xl border border-white/20 text-xs font-semibold text-gray-300 hover:bg-white/5 cursor-pointer"
+              >
+                না, পরীক্ষা চালিয়ে যান
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowExitConfirm(false);
+                  setIsSubmitted(true);
+                  try {
+                    const resolvedStudent = getResolvedStudent(currentUser);
+                    recordQuizSubmission({
+                      student: resolvedStudent,
+                      course: { id: exam?.courseId || 'exam_batch', title: exam?.courseName || exam?.title || 'Exam' },
+                      lesson: { id: exam?.id || `exam_${Date.now()}`, title: exam?.title || 'Exam' },
+                      quiz: exam,
+                      result: {
+                        score: 0,
+                        finalScore: 0,
+                        totalPossible: questions.length,
+                        totalQuestions: questions.length,
+                        correctCount: 0,
+                        wrongCount: 0,
+                        skippedCount: questions.length,
+                        percentage: 0,
+                        isAbandoned: true
+                      },
+                      timeTakenSeconds: 1
+                    });
+                  } catch (e) {}
+                  onClose();
+                }}
+                className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold border-none cursor-pointer"
+              >
+                হ্যাঁ, বের হয়ে যান (০ মার্ক সহ)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

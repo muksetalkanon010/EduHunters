@@ -20,7 +20,7 @@ import MasterEnglishCurriculumView from './MasterEnglishCurriculumView';
 import { stripEmoji } from '../utils/textUtils';
 import { getMergedExamManifest, loadExamQuestions, getQuestionCorrectIndex, cleanExplanation, getUserAnswer } from '../utils/examBatchStorage';
 import { getStoredEnrolledBatches, isItemEnrolled } from '../utils/enrollmentService';
-import { recordQuizSubmission, fetchLessonLeaderboard } from '../services/quizService';
+import { recordQuizSubmission, fetchLessonLeaderboard, checkStudentExamAttemptStatus } from '../services/quizService';
 import { getResolvedStudent } from '../utils/studentProfile';
 
 
@@ -593,6 +593,8 @@ export default function SureShotExamSystem({
     return null;
   });
   const [submitWarningModal, setSubmitWarningModal] = useState(false);
+  const [exitWarningModal, setExitWarningModal] = useState(false);
+  const [attemptStatus, setAttemptStatus] = useState({ hasAttempted: false, isFirstAttempt: true, attemptCount: 0 });
   const [questionPaletteOpen, setQuestionPaletteOpen] = useState(false);
 
   // Result Review Filter state: 'all' | 'wrong' | 'correct' | 'skipped'
@@ -743,6 +745,188 @@ export default function SureShotExamSystem({
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [step, isSubmitted, examMode]);
+
+  // Check student attempt status for current exam (enforces 1st attempt official vs retake practice)
+  useEffect(() => {
+    let isMounted = true;
+    const activeExamId = selectedExamMeta?.id || examData?.exam_id;
+    if (!activeExamId) return;
+
+    checkStudentExamAttemptStatus(currentUser, activeExamId, selectedCategory)
+      .then(status => {
+        if (isMounted && status) {
+          setAttemptStatus(status);
+        }
+      })
+      .catch(() => {});
+
+    return () => { isMounted = false; };
+  }, [selectedExamMeta?.id, examData?.exam_id, currentUser, guestStudentName, selectedCategory]);
+
+  // Unsubmitted exam crash/refresh recovery: if student force-closed or refreshed during live exam without submitting
+  useEffect(() => {
+    try {
+      const activeLiveSession = sessionStorage.getItem('eh_active_live_exam');
+      if (activeLiveSession) {
+        sessionStorage.removeItem('eh_active_live_exam');
+        const parsed = JSON.parse(activeLiveSession);
+        if (parsed && parsed.examId && parsed.examMode === 'real') {
+          const resolvedStudent = getResolvedStudent(currentUser);
+          checkStudentExamAttemptStatus(resolvedStudent, parsed.examId, parsed.category).then(st => {
+            if (st.isFirstAttempt) {
+              const totalQs = Number(parsed.totalQuestions || 100);
+              recordQuizSubmission({
+                student: resolvedStudent,
+                course: { id: parsed.category || 'exam_batch', title: parsed.categoryName || 'Exam Batch' },
+                lesson: { id: parsed.examId, title: parsed.examTitle || 'Exam' },
+                quiz: { id: parsed.examId, total_marks: totalQs, total_questions: totalQs },
+                result: {
+                  score: 0,
+                  finalScore: 0,
+                  totalPossible: totalQs,
+                  totalQuestions: totalQs,
+                  correctCount: 0,
+                  wrongCount: 0,
+                  skippedCount: totalQs,
+                  percentage: 0,
+                  isAbandoned: true
+                },
+                timeTakenSeconds: parsed.startTime ? Math.max(1, Math.round((Date.now() - parsed.startTime) / 1000)) : 1
+              });
+            }
+          });
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  // Intercept browser back button (popstate) and window closing/reloading during live exam
+  useEffect(() => {
+    if (step !== 'exam_live' || isSubmitted) return;
+
+    // Track active live exam in sessionStorage
+    const activeExamId = selectedExamMeta?.id || examData?.exam_id || Date.now().toString();
+    const catToUse = selectedCategory || examData?.category || 'sureshot';
+    const totalQuestions = examData?.questions?.length || selectedExamMeta?.totalQuestions || 100;
+    try {
+      sessionStorage.setItem('eh_active_live_exam', JSON.stringify({
+        examId: activeExamId,
+        category: catToUse,
+        categoryName: examData?.categoryName || selectedCategory,
+        examTitle: examData?.title || selectedExamMeta?.title || 'Exam',
+        examMode: examMode,
+        startTime: examStartTimeRef.current || Date.now(),
+        totalQuestions: totalQuestions
+      }));
+    } catch (e) {}
+
+    // Intercept browser back button
+    window.history.pushState({ inLiveExam: true }, '', window.location.href);
+    const handlePopState = (e) => {
+      window.history.pushState({ inLiveExam: true }, '', window.location.href);
+      setExitWarningModal(true);
+    };
+
+    // Warn on window close or reload
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = 'পরীক্ষা শেষ না করে বের হয়ে গেলে মেধা তালিকায় ০ মার্ক জমা হতে পারে।';
+      return e.returnValue;
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [step, isSubmitted, selectedExamMeta?.id, examData?.exam_id, selectedCategory, examMode]);
+
+  // Handle student confirming exit from active exam (records 0 marks on leaderboard if 1st attempt)
+  const handleConfirmExitExam = async () => {
+    setExitWarningModal(false);
+    setIsSubmitted(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    const activeExamId = selectedExamMeta?.id || examData?.exam_id || Date.now().toString();
+    const catToUse = selectedCategory || examData?.category || 'sureshot';
+    const totalQuestions = examData?.questions?.length || selectedExamMeta?.totalQuestions || 100;
+    const durMins = examData?.duration_minutes || selectedExamMeta?.durationMinutes || 40;
+    const totalDurationSecs = durMins * 60;
+    const elapsedSecs = examStartTimeRef.current
+      ? Math.min(totalDurationSecs, Math.max(1, Math.round((Date.now() - examStartTimeRef.current) / 1000)))
+      : Math.max(1, totalDurationSecs - (timeLeft || 0));
+
+    // Clear active in-exam markers
+    try {
+      sessionStorage.removeItem('eh_active_live_exam');
+      sessionStorage.removeItem('eduhunters_active_exam_result');
+      sessionStorage.removeItem('eduhunters_active_user_answers');
+    } catch (e) {}
+
+    // If real mode and first attempt, submit 0 marks to official leaderboard
+    if (examMode === 'real') {
+      try {
+        let directWriteInName = (guestStudentName || '').trim();
+        if (!directWriteInName) {
+          try {
+            directWriteInName = (localStorage.getItem('eh_guest_student_name') || '').trim();
+          } catch (e) {}
+        }
+        const resolvedStudent = getResolvedStudent(currentUser, directWriteInName);
+
+        // Record 0 marks submission
+        await recordQuizSubmission({
+          student: resolvedStudent,
+          course: {
+            id: catToUse,
+            title: examData?.categoryName || selectedCategory || 'Exam Batch'
+          },
+          lesson: {
+            id: activeExamId,
+            title: examData?.title || selectedExamMeta?.title || 'Exam'
+          },
+          quiz: examData,
+          result: {
+            score: 0,
+            finalScore: 0,
+            totalPossible: totalQuestions,
+            totalQuestions: totalQuestions,
+            correctCount: 0,
+            wrongCount: 0,
+            skippedCount: totalQuestions,
+            percentage: 0,
+            isAbandoned: true,
+            answers: []
+          },
+          timeTakenSeconds: elapsedSecs
+        });
+
+        // Update local attempt status so subsequent tries are strictly practice
+        setAttemptStatus({
+          hasAttempted: true,
+          isFirstAttempt: false,
+          attemptCount: 2,
+          firstAttempt: null
+        });
+
+        // Refresh live leaderboard
+        loadLiveExamLeaderboard(catToUse, activeExamId);
+      } catch (err) {
+        console.warn('[SureShot] Exit exam leaderboard record notice:', err);
+      }
+    }
+
+    // Return to previous view
+    if (isCourseQuiz) {
+      handleBackToClass();
+    } else if (onBackToCourses) {
+      onBackToCourses();
+    } else {
+      updateExamStep('category_detail', catToUse);
+    }
+  };
 
   // Available Subcategories for currently selected Category
   const availableSubCategories = useMemo(() => {
@@ -904,11 +1088,23 @@ export default function SureShotExamSystem({
       return;
     }
 
-    setExamMode(mode);
+    const effectiveMode = (attemptStatus?.hasAttempted && mode === 'real') ? 'practice' : mode;
+    setExamMode(effectiveMode);
     setUserAnswers({});
     try {
       sessionStorage.removeItem('eduhunters_active_user_answers');
       sessionStorage.removeItem('eduhunters_active_exam_result');
+      const activeExamId = selectedExamMeta?.id || examData?.exam_id || Date.now().toString();
+      const catToUse = selectedCategory || examData?.category || 'sureshot';
+      sessionStorage.setItem('eh_active_live_exam', JSON.stringify({
+        examId: activeExamId,
+        category: catToUse,
+        categoryName: examData?.categoryName || selectedCategory,
+        examTitle: examData?.title || selectedExamMeta?.title || 'Exam',
+        examMode: effectiveMode,
+        startTime: Date.now(),
+        totalQuestions: questions.length
+      }));
     } catch (e) {}
     setFlaggedQuestions({});
     setPracticeRevealed({});
@@ -1071,9 +1267,17 @@ export default function SureShotExamSystem({
       if (selectedExamMeta) {
         sessionStorage.setItem('eduhunters_active_exam_meta', JSON.stringify(selectedExamMeta));
       }
+      sessionStorage.removeItem('eh_active_live_exam');
       localStorage.setItem(`eduhunters_result_${resultObj.examId}`, JSON.stringify(resultObj));
       localStorage.setItem('eduhunters_latest_result', JSON.stringify(resultObj));
     } catch (e) {}
+
+    setAttemptStatus(prev => ({
+      ...prev,
+      hasAttempted: true,
+      isFirstAttempt: false,
+      attemptCount: (prev?.attemptCount || 1) + 1
+    }));
 
     // Save to Exam History in localStorage
     try {
@@ -2243,6 +2447,37 @@ export default function SureShotExamSystem({
             </div>
           )}
 
+          {/* Official 1st Attempt vs Practice Mode Rule Banner */}
+          {attemptStatus?.hasAttempted ? (
+            <div className={`p-3 rounded-2xl border text-xs flex items-center gap-3 transition-all ${
+              isDark ? 'bg-blue-950/30 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-900'
+            }`}>
+              <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                <RefreshCw size={16} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold">📝 প্র্যাকটিস মোড (Practice Mode)</p>
+                <p className="text-[11px] opacity-80 leading-snug mt-0.5">
+                  আপনি ইতিপূর্বে এই পরীক্ষাটি দিয়েছেন। ১ম প্রচেষ্টার স্কোর মেধা তালিকায় সংরক্ষিত আছে। এই প্রচেষ্টাটি প্র্যাকটিস হিসেবে গণ্য হবে।
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className={`p-3 rounded-2xl border text-xs flex items-center gap-3 transition-all ${
+              isDark ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+            }`}>
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <Trophy size={16} className="text-amber-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold">🏆 ১ম অফিসিয়াল প্রচেষ্টা (Leaderboard Ranked)</p>
+                <p className="text-[11px] opacity-80 leading-snug mt-0.5">
+                  এই পরীক্ষার ফলাফল সরাসরি মেধা তালিকায় যুক্ত হবে। পরীক্ষা চলাকালীন সাবমিট না করে বের হয়ে গেলে মেধা তালিকায় ০ মার্ক যুক্ত হবে।
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Action Button: Start Exam */}
           <button
             onClick={() => handleStartExam(examMode)}
@@ -2252,7 +2487,7 @@ export default function SureShotExamSystem({
             {isLoadingExam ? (
               <span>⏳ প্রশ্ন লোড হচ্ছে...</span>
             ) : (
-              <span>🚀 Start Exam</span>
+              <span>{attemptStatus?.hasAttempted ? '🚀 Start Practice Exam' : '🚀 Start Exam'}</span>
             )}
           </button>
 
@@ -2295,8 +2530,22 @@ export default function SureShotExamSystem({
         }`}>
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             
-            {/* Left: Progress Pill + Palette Trigger */}
+            {/* Left: Exit Button + Progress Pill + Palette Trigger */}
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setExitWarningModal(true)}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+                  isDark 
+                    ? 'bg-red-950/40 hover:bg-red-950/70 border-red-500/30 text-red-400 hover:text-red-300' 
+                    : 'bg-red-50 hover:bg-red-100 border-red-200 text-red-600 hover:text-red-700'
+                }`}
+                title="Exit Exam (পরীক্ষা থেকে বের হন)"
+              >
+                <ArrowLeft size={14} />
+                <span className="hidden xs:inline">Return / বের হন</span>
+              </button>
+
               <button
                 onClick={() => setQuestionPaletteOpen(true)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs sm:text-sm font-mono font-bold transition-all cursor-pointer ${
@@ -2690,6 +2939,71 @@ export default function SureShotExamSystem({
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white text-sm font-bold cursor-pointer border-none shadow-lg shadow-emerald-950/40 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   Yes, Submit
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Exit / Abandon Confirmation Modal */}
+        {exitWarningModal && typeof document !== 'undefined' && createPortal(
+          <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className={`border rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl transition-all animate-exam-intro ${
+              isDark ? 'bg-[#140306] border-[#e11438]/25 shadow-[0_20px_60px_rgba(0,0,0,0.8)]' : 'bg-white border-gray-200 shadow-2xl'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500 shrink-0">
+                  <AlertTriangle size={22} />
+                </div>
+                <div>
+                  <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                    {examMode === 'real' && (!attemptStatus?.hasAttempted || attemptStatus?.isFirstAttempt)
+                      ? 'পরীক্ষা থেকে বের হতে চান?'
+                      : 'প্র্যাকটিস পরীক্ষা বন্ধ করতে চান?'}
+                  </h3>
+                  <p className="text-xs text-red-400 font-medium">সাবমিট না করে বের হওয়ার সতর্কতা</p>
+                </div>
+              </div>
+
+              {examMode === 'real' && (!attemptStatus?.hasAttempted || attemptStatus?.isFirstAttempt) ? (
+                <div className="space-y-2.5">
+                  <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed ${
+                    isDark ? 'bg-red-950/30 border-red-500/30 text-red-200' : 'bg-red-50 border-red-200 text-red-900'
+                  }`}>
+                    <p className="font-bold mb-1">⚠️ সতর্কবার্তা: এটি আপনার ১ম অফিসিয়াল প্রচেষ্টা!</p>
+                    <p>
+                      যেহেতু আপনি পরীক্ষা সাবমিট না করেই বের হয়ে যাচ্ছেন, তাই মেধা তালিকায় (Leaderboard) আপনার স্কোর <strong>০ মার্ক (Zero Mark)</strong> যুক্ত হবে।
+                    </p>
+                    <p className="mt-1.5 text-[11px] opacity-80">
+                      পরবর্তীতে এই পরীক্ষাটি পুনরায় দিলে তা কেবল প্র্যাকটিস এক্সাম হিসেবে গণ্য হবে এবং লিডারবোর্ডের ০ মার্ক পরিবর্তন হবে না।
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  আপনি কি নিশ্চিত যে এই প্র্যাকটিস পরীক্ষা থেকে বের হতে চান? আপনার বর্তমান উত্তরগুলো সংরক্ষিত হবে না।
+                </p>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-inherit">
+                <button
+                  type="button"
+                  onClick={() => setExitWarningModal(false)}
+                  className={`px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold cursor-pointer transition-colors ${
+                    isDark ? 'bg-transparent border-white/15 text-gray-300 hover:bg-white/5' : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  না, পরীক্ষা চালিয়ে যান
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmExitExam}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs sm:text-sm font-bold cursor-pointer border-none shadow-lg shadow-red-950/40 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  {examMode === 'real' && (!attemptStatus?.hasAttempted || attemptStatus?.isFirstAttempt)
+                    ? 'হ্যাঁ, বের হয়ে যান (০ মার্ক সহ)'
+                    : 'হ্যাঁ, বের হয়ে যান'}
                 </button>
               </div>
             </div>

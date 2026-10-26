@@ -131,6 +131,86 @@ export async function fetchAllSubmissions() {
 }
 
 /**
+ * Check if a student has already attempted a specific exam/lesson
+ * Returns attempt status and count to enforce first-attempt leaderboard rule
+ */
+export async function checkStudentExamAttemptStatus(student, lessonId, courseId = null) {
+  if (!lessonId) return { hasAttempted: false, isFirstAttempt: true, attemptCount: 0, firstAttempt: null };
+
+  const resolved = getResolvedStudent(student);
+  const studentId = resolved.id || resolved.uid;
+  const rawPhone = (resolved.phone || student?.phone || '').replace(/[^0-9]/g, '');
+  const cleanEmail = (resolved.email || student?.email || '').trim().toLowerCase();
+  const cleanName = (resolved.name || '').trim().toLowerCase();
+  const cleanLesson = String(lessonId).trim().toLowerCase().replace(/^lesson-exam-/, '');
+
+  // 1. Fast check against persistent local storage markers
+  const keysToCheck = [
+    `eh_quiz_attempt_${studentId}_${lessonId}`,
+    `eh_quiz_attempt_${studentId}_${cleanLesson}`,
+    rawPhone ? `eh_quiz_attempt_${rawPhone}_${cleanLesson}` : null,
+    cleanEmail ? `eh_quiz_attempt_${cleanEmail}_${cleanLesson}` : null,
+    cleanName ? `eh_quiz_attempt_name_${cleanName}_${cleanLesson}` : null
+  ].filter(Boolean);
+
+  for (const k of keysToCheck) {
+    try {
+      const val = localStorage.getItem(k);
+      if (val && Number(val) >= 1) {
+        return {
+          hasAttempted: true,
+          isFirstAttempt: false,
+          attemptCount: Number(val),
+          firstAttempt: null
+        };
+      }
+    } catch (e) {}
+  }
+
+  // 2. Multi-tier submissions check (Supabase + local)
+  try {
+    const allSubmissions = await fetchAllSubmissions();
+    const matched = allSubmissions.filter(s => {
+      if (isDemoSubmission(s)) return false;
+      const sLesson = String(s.lesson_id || '').trim().toLowerCase().replace(/^lesson-exam-/, '');
+      const lessonMatch = sLesson === cleanLesson || (sLesson && cleanLesson && (sLesson.includes(cleanLesson) || cleanLesson.includes(sLesson)));
+      if (!lessonMatch) return false;
+
+      const sId = String(s.student_id || '');
+      const sPhone = (s.student_phone || '').replace(/[^0-9]/g, '');
+      const sEmail = (s.student_email || '').trim().toLowerCase();
+      const sName = (s.student_name || '').trim().toLowerCase();
+
+      const idMatch = sId && (sId === String(studentId) || (resolved?.uid && sId === String(resolved?.uid)));
+      const phoneMatch = rawPhone && sPhone && (rawPhone === sPhone || (rawPhone.length >= 10 && sPhone.includes(rawPhone.slice(-10))));
+      const emailMatch = cleanEmail && sEmail && cleanEmail === sEmail;
+      const nameMatch = !cleanEmail && !rawPhone && cleanName && sName && cleanName === sName;
+
+      return idMatch || phoneMatch || emailMatch || nameMatch;
+    });
+
+    if (matched.length > 0) {
+      matched.sort((a, b) => new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0));
+      return {
+        hasAttempted: true,
+        isFirstAttempt: false,
+        attemptCount: matched.length,
+        firstAttempt: matched[0]
+      };
+    }
+  } catch (e) {
+    console.warn('[QuizService] checkStudentExamAttemptStatus error:', e);
+  }
+
+  return {
+    hasAttempted: false,
+    isFirstAttempt: true,
+    attemptCount: 0,
+    firstAttempt: null
+  };
+}
+
+/**
  * Record a student quiz attempt
  */
 export async function recordQuizSubmission({
@@ -158,17 +238,27 @@ export async function recordQuizSubmission({
   const lessonId = String(lesson?.id || `lesson_${Date.now()}`);
   const lessonTitle = lesson?.title || 'Class Lesson';
   const quizId = quiz?.id || `quiz_${lessonId}`;
+  const cleanLesson = String(lessonId).trim().toLowerCase().replace(/^lesson-exam-/, '');
 
-  // Check previous attempts across studentId, UID, Phone, Email, and local attempts cache
+  // Check previous attempts across studentId, UID, Phone, Email, Name, and local attempts cache
   const allSubmissions = await fetchAllSubmissions();
 
-  // Deduplication check: if a submission for the same student & lesson was made within last 6 seconds, return it
+  // Strict marks precision & Abandon check (0 mark for leaving without submit)
+  const isAbandoned = Boolean(result.isAbandoned || result.is_abandoned);
+  const score = isAbandoned ? 0 : +(Number(result.score ?? result.finalScore ?? 0).toFixed(2));
+  const totalMarks = +(Number(result.totalPossible ?? result.totalQuestions ?? 0).toFixed(2));
+  const percentage = (isAbandoned || totalMarks <= 0) ? 0 : Math.round((Math.max(0, score) / totalMarks) * 100);
+  const finalTimeTaken = Math.max(1, Math.round(Number(timeTakenSeconds || result.timeTakenSeconds || 0)));
+
+  // Deduplication check: if an identical rapid submission (same score) was made within last 3 seconds, return it
   const recentDuplicate = allSubmissions.find(s => {
-    if (String(s.lesson_id) !== String(lessonId)) return false;
+    const sLesson = String(s.lesson_id || '').trim().toLowerCase().replace(/^lesson-exam-/, '');
+    if (sLesson !== cleanLesson && String(s.lesson_id) !== String(lessonId)) return false;
     const isSameStudent = (String(s.student_id) === String(studentId)) || (cleanEmail && s.student_email === cleanEmail);
     if (!isSameStudent) return false;
+    const isSameScore = Number(s.score) === score;
     const timeDiff = Math.abs(Date.now() - new Date(s.submitted_at || 0).getTime());
-    return timeDiff < 6000;
+    return timeDiff < 3000 && isSameScore;
   });
   if (recentDuplicate) {
     return {
@@ -181,38 +271,54 @@ export async function recordQuizSubmission({
     const sId = String(s.student_id || '');
     const sPhone = (s.student_phone || '').replace(/[^0-9]/g, '');
     const sEmail = (s.student_email || '').trim().toLowerCase();
+    const sName = (s.student_name || '').trim().toLowerCase();
 
     const idMatch = sId && (sId === String(studentId) || (resolved?.uid && sId === String(resolved?.uid)));
     const phoneMatch = rawPhone && sPhone && (rawPhone === sPhone || (rawPhone.length >= 10 && sPhone.includes(rawPhone.slice(-10))));
     const emailMatch = cleanEmail && sEmail && cleanEmail === sEmail;
+    const nameMatch = !cleanEmail && !rawPhone && studentName && sName && studentName.trim().toLowerCase() === sName;
 
-    const studentMatch = idMatch || phoneMatch || emailMatch;
-    const lessonMatch = String(s.lesson_id) === String(lessonId);
+    const studentMatch = idMatch || phoneMatch || emailMatch || nameMatch;
+
+    const sLesson = String(s.lesson_id || '').trim().toLowerCase().replace(/^lesson-exam-/, '');
+    const lessonMatch = sLesson === cleanLesson || 
+      String(s.lesson_id) === String(lessonId) ||
+      (sLesson && cleanLesson && (sLesson.includes(cleanLesson) || cleanLesson.includes(sLesson)));
 
     return studentMatch && lessonMatch;
   });
 
   const localAttemptKey = `eh_quiz_attempt_${studentId}_${lessonId}`;
   let hasLocalAttempt = false;
-  try {
-    hasLocalAttempt = Boolean(localStorage.getItem(localAttemptKey));
-  } catch (e) {}
+  const localKeysToCheck = [
+    localAttemptKey,
+    `eh_quiz_attempt_${studentId}_${cleanLesson}`,
+    rawPhone ? `eh_quiz_attempt_${rawPhone}_${cleanLesson}` : null,
+    cleanEmail ? `eh_quiz_attempt_${cleanEmail}_${cleanLesson}` : null,
+    studentName ? `eh_quiz_attempt_name_${studentName.trim().toLowerCase()}_${cleanLesson}` : null
+  ].filter(Boolean);
+
+  for (const k of localKeysToCheck) {
+    try {
+      if (localStorage.getItem(k)) {
+        hasLocalAttempt = true;
+        break;
+      }
+    } catch (e) {}
+  }
 
   const attemptNumber = Math.max(existingAttempts.length + 1, hasLocalAttempt ? 2 : 1);
   const isFirstAttempt = existingAttempts.length === 0 && !hasLocalAttempt;
 
-  try {
-    localStorage.setItem(localAttemptKey, String(attemptNumber));
-  } catch (e) {}
+  // Persist attempt marker across all keys for future calls
+  for (const k of localKeysToCheck) {
+    try {
+      localStorage.setItem(k, String(attemptNumber));
+    } catch (e) {}
+  }
 
   const liveStatus = checkQuizLiveStatus(quiz);
   const isLiveWindow = liveStatus.isLive;
-
-  // Strict marks precision
-  const score = +(Number(result.score ?? result.finalScore ?? 0).toFixed(2));
-  const totalMarks = +(Number(result.totalPossible ?? result.totalQuestions ?? 0).toFixed(2));
-  const percentage = totalMarks > 0 ? Math.round((score / totalMarks) * 100) : 0;
-  const finalTimeTaken = Math.max(1, Math.round(Number(timeTakenSeconds || result.timeTakenSeconds || 0)));
 
   const submissionPayload = {
     id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -232,14 +338,15 @@ export async function recordQuizSubmission({
     score: score,
     total_marks: totalMarks,
     percentage: percentage,
-    correct_count: Number(result.correctCount ?? result.correct ?? 0),
-    wrong_count: Number(result.wrongCount ?? result.wrong ?? 0),
-    skipped_count: Number(result.skippedCount ?? result.skipped ?? 0),
+    correct_count: isAbandoned ? 0 : Number(result.correctCount ?? result.correct ?? 0),
+    wrong_count: isAbandoned ? 0 : Number(result.wrongCount ?? result.wrong ?? 0),
+    skipped_count: isAbandoned ? totalMarks : Number(result.skippedCount ?? result.skipped ?? 0),
     time_taken_seconds: finalTimeTaken,
     is_first_attempt: isFirstAttempt,
     is_live_window: isLiveWindow,
     attempt_number: attemptNumber,
-    raw_answers: result.answers || result.userAnswers || [],
+    is_abandoned: isAbandoned,
+    raw_answers: isAbandoned ? [] : (result.answers || result.userAnswers || []),
     submitted_at: new Date().toISOString()
   };
 
@@ -274,7 +381,6 @@ export async function recordQuizSubmission({
           time_taken_seconds: submissionPayload.time_taken_seconds,
           is_first_attempt: submissionPayload.is_first_attempt,
           is_live_window: submissionPayload.is_live_window,
-          attempt_number: submissionPayload.attempt_number,
           raw_answers: submissionPayload.raw_answers,
           submitted_at: submissionPayload.submitted_at
         };
@@ -378,16 +484,17 @@ export async function fetchLessonLeaderboard(courseId, lessonId) {
   // Sort chronologically so earliest submission per student is prioritized
   filtered.sort((a, b) => new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0));
 
-  // Deduplicate strictly across student ID, phone, and email to ensure exactly 1 rank per student
+  // Deduplicate strictly across student ID, phone, email, and name to ensure exactly 1 rank per student
   const studentBestMap = new Map();
   for (const item of filtered) {
     const sId = String(item.student_id || '');
     const sPhone = (item.student_phone || '').replace(/[^0-9]/g, '');
     const sEmail = (item.student_email || '').trim().toLowerCase();
+    const sName = (item.student_name || '').trim().toLowerCase();
 
     const key = sPhone && sPhone.length >= 8 
       ? `phone_${sPhone.slice(-10)}` 
-      : (sEmail ? `email_${sEmail}` : `id_${sId}`);
+      : (sEmail ? `email_${sEmail}` : (sId ? `id_${sId}` : `name_${sName}`));
 
     if (!studentBestMap.has(key)) {
       studentBestMap.set(key, item);
@@ -468,9 +575,10 @@ export async function fetchCourseLeaderboard(courseId, courseTitle = '') {
   courseSubmissions.forEach(sub => {
     const sPhone = (sub.student_phone || '').replace(/[^0-9]/g, '');
     const sEmail = (sub.student_email || '').trim().toLowerCase();
+    const sName = (sub.student_name || '').trim().toLowerCase();
     const studentKey = sPhone && sPhone.length >= 8 
       ? `p_${sPhone.slice(-10)}` 
-      : (sEmail ? `e_${sEmail}` : `id_${sub.student_id}`);
+      : (sEmail ? `e_${sEmail}` : (sub.student_id ? `id_${sub.student_id}` : `n_${sName}`));
 
     const key = `${studentKey}_${sub.lesson_id}`;
     if (!studentLessonMap.has(key)) {

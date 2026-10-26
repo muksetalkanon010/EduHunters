@@ -3,8 +3,8 @@
  * Central utility to load, customize, reorder, and persist Exam Batches,
  * Quizzes, Categories/Subcategories, and individual Exam Questions.
  */
-import { supabase, isSupabaseConfigured } from '../supabase/config';
-import { db, isFirebaseConfigured } from '../firebase/config';
+import { supabase, isSupabaseConfigured } from '../supabase/config.js';
+import { db, isFirebaseConfigured } from '../firebase/config.js';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const MANIFEST_OVERRIDE_KEY = 'eduhunters_exam_manifest_overrides';
@@ -426,21 +426,39 @@ export function normalizeExamQuestions(examData, fallbackMeta = {}) {
   const rawQuestions = examData.questions || (Array.isArray(examData) ? examData : []);
   const latinLetters = ['A', 'B', 'C', 'D', 'E'];
 
-  const normalized = rawQuestions.map((q, idx) => {
-    const options = Array.isArray(q.options)
+  // Robust safeguard: filter out broken stubs (e.g. 0 options or voice question placeholder)
+  const validQuestions = rawQuestions.filter(q => {
+    if (!q) return false;
+    if (q.question && String(q.question).includes('Type your question here')) return false;
+    if (Array.isArray(q.options) && q.options.length < 2 && !q.question) return false;
+    return true;
+  });
+
+  const normalized = validQuestions.map((q, idx) => {
+    const rawOptions = Array.isArray(q.options) && q.options.length >= 2
       ? q.options.map(opt => typeof opt === 'string' ? opt.trim() : String(opt))
       : ['অপশন ক', 'অপশন খ', 'অপশন গ', 'অপশন ঘ'];
 
-    const qWithOptions = { ...q, options };
+    const qWithOptions = { ...q, options: rawOptions };
     const cIdx = getQuestionCorrectIndex(qWithOptions);
     const sanitizedExplanation = cleanExplanation(q.explanation, qWithOptions);
+
+    // Ensure clean question text so students never see a blank question
+    let questionText = (q.question && String(q.question).trim()) ? String(q.question).trim() : '';
+    if (!questionText) {
+      if (sanitizedExplanation && sanitizedExplanation.length > 5) {
+        questionText = `সঠিক উত্তরটি চিহ্নিত করুন (${sanitizedExplanation.slice(0, 60)}...)`;
+      } else {
+        questionText = 'নিচের বিকল্পগুলো থেকে সঠিক উত্তরটি নির্বাচন করুন';
+      }
+    }
 
     return {
       ...q,
       id: q.id !== undefined ? q.id : `q-${idx + 1}`,
       question_no: q.question_no || (idx + 1),
-      question: q.question || '',
-      options,
+      question: questionText,
+      options: rawOptions,
       correct_index: cIdx,
       correctIndex: cIdx,
       correct_answer: latinLetters[cIdx] || 'A',
