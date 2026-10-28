@@ -5,83 +5,83 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { stripEmoji } from '../utils/textUtils';
 
-// 7 Root Categories matching RTDS Unlimited screenshot exact styling
+// Root Categories for RTDS
 const RTDS_ROOT_CATEGORIES = [
   {
     key: 'BCS Question Exams',
     title: 'BCS Question Exams',
-    iconEmoji: '🏛️',
-    iconColor: 'text-red-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'Board Question Exams',
     title: 'Board Question Exams',
-    iconEmoji: '🅰️',
-    iconColor: 'text-red-500'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন',
     title: 'জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন',
-    iconEmoji: '📕',
-    iconColor: 'text-red-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন',
     title: 'পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন',
-    iconEmoji: '📕',
-    iconColor: 'text-red-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'রসায়ন অনুশীলনীর MCQ',
     title: 'রসায়ন অনুশীলনীর MCQ',
-    iconEmoji: '📕',
-    iconColor: 'text-red-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'Medical & Dental Questions',
     title: 'Medical & Dental Questions',
-    iconEmoji: '⚕️',
-    iconColor: 'text-emerald-700'
+    iconEmoji: null,
+    iconColor: ''
   }
 ];
 
-// 6 Root Categories for GK Full Course matching RTDS Unlimited styling
+// 6 Root Categories for GK Full Course
 export const GK_ROOT_CATEGORIES = [
   {
     key: 'বাংলাদেশ বিষয়াবলি (টপিকওয়াইজ)',
     title: 'বাংলাদেশ বিষয়াবলি (টপিকওয়াইজ এক্সাম)',
-    iconEmoji: '🇧🇩',
-    iconColor: 'text-emerald-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'আন্তর্জাতিক বিষয়াবলি (টপিকওয়াইজ)',
     title: 'আন্তর্জাতিক বিষয়াবলি (টপিকওয়াইজ এক্সাম)',
-    iconEmoji: '🌍',
-    iconColor: 'text-blue-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'বিসিএস প্রশ্নব্যাংক (GK BCS)',
     title: 'বিসিএস প্রশ্নব্যাংক এক্সাম (১০ম - ৫০তম)',
-    iconEmoji: '🏛️',
-    iconColor: 'text-red-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'ঢাকা বিশ্ববিদ্যালয় (DU) প্রশ্নব্যাংক',
     title: 'ঢাকা বিশ্ববিদ্যালয় (DU) প্রশ্নব্যাংক',
-    iconEmoji: '🎓',
-    iconColor: 'text-purple-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'বাংলাদেশ মানচিত্র প্রশ্নব্যাংক',
     title: 'বাংলাদেশ মানচিত্র প্রশ্নব্যাংক',
-    iconEmoji: '🗺️',
-    iconColor: 'text-amber-600'
+    iconEmoji: null,
+    iconColor: ''
   },
   {
     key: 'আনলিমিটেড মডেল টেস্ট',
     title: 'সাধারণ জ্ঞান আনলিমিটেড মডেল টেস্ট',
-    iconEmoji: '⚡',
-    iconColor: 'text-yellow-600'
+    iconEmoji: null,
+    iconColor: ''
   }
 ];
 
@@ -466,8 +466,8 @@ export default function RtdsCurriculumView({
           meta: {
             key: rootKey,
             title: rootKey,
-            iconEmoji: isGk ? '🌍' : '📕',
-            iconColor: 'text-red-600'
+            iconEmoji: null,
+            iconColor: ''
           },
           subCategories: isGk ? { 'সকল পরীক্ষা': [] } : {},
           totalExamsCount: 0
