@@ -587,20 +587,28 @@ export default function App() {
         if (Array.isArray(parsed.examBatches)) {
           let batchChanged = false;
           parsed.examBatches = parsed.examBatches.map(b => {
+            const isLive = b.key === 'sureshot' || b.key === 'anushiloni' || b.key === 'rtds' || b.key === 'english_master';
+            const nextActive = b.isActive !== undefined ? b.isActive : (isLive ? true : b.isActive);
             if (b.key === 'rtds' || b.key === 'anushiloni') {
               batchChanged = true;
               return {
                 ...b,
                 key: 'anushiloni',
+                id: 'anushiloni',
+                isActive: nextActive,
                 title: (b.title || '').replace(/\s*\(RTDS\)/gi, '').replace(/RTDS/gi, 'অনুশীলনী').trim(),
                 subtitle: (b.subtitle || '').replace(/RTDS/gi, 'অনুশীলনী').trim(),
                 image: b.image && b.image.includes('rtds_banner') ? '/exam_banners/anushiloni_banner.jpg' : b.image,
-                enrolledCount: '০',
+                enrolledCount: b.enrolledCount || '০',
                 details: {
                   ...(b.details || {}),
                   about: (b.details?.about || '').replace(/RTDS/gi, 'অনুশীলনী')
                 }
               };
+            }
+            if (isLive && b.isActive === undefined) {
+              batchChanged = true;
+              return { ...b, isActive: true };
             }
             return b;
           });
@@ -612,6 +620,7 @@ export default function App() {
           setData(prev => ({
             ...prev,
             courses: parsed.courses || prev.courses,
+            examBatches: parsed.examBatches || prev.examBatches,
             homeStats: parsed.homeStats || prev.homeStats,
             siteSettings: parsed.siteSettings || prev.siteSettings,
             instructors: parsed.instructors || prev.instructors

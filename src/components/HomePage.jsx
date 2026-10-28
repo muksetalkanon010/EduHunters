@@ -17,7 +17,7 @@ import PendingEnrollmentModal from './PendingEnrollmentModal';
 import BundleDetailModal from './BundleDetailModal';
 import Navbar from './Navbar';
 import { initialData, isZenithCopiedCourse } from '../data/mockData';
-import { EXAM_CATEGORIES_METADATA } from '../data/examCategoriesData';
+import { EXAM_CATEGORIES_METADATA, isExamBatchAndCourseMatch } from '../data/examCategoriesData';
 import { isStudentProfileComplete } from '../utils/studentProfile';
 import { getItemPendingOrder } from '../utils/enrollmentService';
 import { 
@@ -372,16 +372,18 @@ export default function HomePage({
 
     return rawBatches.filter(batch => {
       if (batch.isHidden) return false;
-      if (batch.isActive === false) return false;
+      const bKey = (batch.key || batch.id || batch.slug || '').toLowerCase();
+      const isLiveBatch = bKey === 'sureshot' || bKey === 'anushiloni' || bKey === 'rtds' || bKey === 'english_master' || bKey === 'master_english';
+
       // Cross check with homeCourses
-      const matchingCourse = homeCourses.find(c => 
-        (c.key && batch.key && c.key === batch.key) ||
-        (c.id && batch.key && c.id === batch.key) ||
-        (c.slug && batch.key && c.slug === batch.key) ||
-        (c.id && batch.id && c.id === batch.id) ||
-        (c.title && batch.title && c.title.trim().toLowerCase() === batch.title.trim().toLowerCase())
-      );
+      const matchingCourse = homeCourses.find(c => isExamBatchAndCourseMatch(batch, c));
       if (matchingCourse && matchingCourse.isActive === false) {
+        return false;
+      }
+      if (batch.isActive === false && (!matchingCourse || matchingCourse.isActive === false)) {
+        return false;
+      }
+      if (!isLiveBatch && batch.isActive === false) {
         return false;
       }
       return true;
@@ -393,12 +395,7 @@ export default function HomePage({
     .filter(course => {
       if (course.isActive === false) return false;
       if (course.isExamBatch || course.category === 'EXAM BATCH') {
-        const matchingBatch = (data?.examBatches || []).find(b => 
-          (b.key && course.key && b.key === course.key) ||
-          (b.key && course.id && b.key === course.id) ||
-          (b.id && course.id && b.id === course.id) ||
-          (b.title && course.title && b.title.trim().toLowerCase() === course.title.trim().toLowerCase())
-        );
+        const matchingBatch = (data?.examBatches || []).find(b => isExamBatchAndCourseMatch(b, course));
         if (matchingBatch && (matchingBatch.isActive === false || matchingBatch.isHidden)) {
           return false;
         }

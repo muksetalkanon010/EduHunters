@@ -70,7 +70,7 @@ import {
 import { initialData, isZenithCopiedCourse } from '../data/mockData';
 const CourseStudioPage = React.lazy(() => import('./CourseStudioPage'));
 const BundleStudioPage = React.lazy(() => import('./BundleStudioPage'));
-import { EXAM_CATEGORIES_METADATA } from '../data/examCategoriesData';
+import { EXAM_CATEGORIES_METADATA, isExamBatchAndCourseMatch } from '../data/examCategoriesData';
 import { grantCourseAccess, revokeCourseAccess, getCanonicalCourses, isPhoneMatch, isPhysicsFinishingTouchIdentifier, isAnushiloniBatchIdentifier, syncFinishingTouchStudentsWithAnushiloni } from '../utils/enrollmentService';
 import CourseSearchSelect from './CourseSearchSelect';
 import { approveOrder, revokeOrder, getUserOrders } from '../services/orderService';
@@ -1938,6 +1938,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     const currentBatches = overrides.examBatches !== undefined ? overrides.examBatches : (data?.examBatches || initialData.examBatches || []);
     const syncedBatches = currentBatches.map(b => {
       const match = currentCourses.find(c => 
+        isExamBatchAndCourseMatch(b, c) ||
         (c.key && b.key && (c.key === b.key || (b.key === 'anushiloni' && c.key === 'rtds') || (b.key === 'rtds' && c.key === 'anushiloni'))) ||
         (c.id && b.key && (c.id === b.key || (b.key === 'anushiloni' && c.id === 'rtds') || (b.key === 'rtds' && c.id === 'anushiloni'))) ||
         (c.slug && b.key && (c.slug === b.key || (b.key === 'anushiloni' && c.slug === 'rtds') || (b.key === 'rtds' && c.slug === 'anushiloni'))) ||
@@ -4179,6 +4180,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       const isMatch = (targetCourse.id && c.id && targetCourse.id === c.id) ||
                       (targetCourse.slug && c.slug && targetCourse.slug === c.slug) ||
                       (targetCourse.key && c.key && targetCourse.key === c.key) ||
+                      isExamBatchAndCourseMatch(targetCourse, c) ||
                       (targetCourse.title && c.title && targetCourse.title.trim().toLowerCase() === c.title.trim().toLowerCase()) ||
                       (i === targetIdx);
       return isMatch ? { ...c, isActive: nextActive } : c;
@@ -4187,7 +4189,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
 
     const currentBatches = (data?.examBatches && data.examBatches.length > 0) ? data.examBatches : (initialData.examBatches || EXAM_CATEGORIES_METADATA);
     const updatedBatches = currentBatches.map(b => {
-      const isMatch = (targetCourse.key && b.key && targetCourse.key === b.key) ||
+      const isMatch = isExamBatchAndCourseMatch(b, targetCourse) ||
+                      (targetCourse.key && b.key && targetCourse.key === b.key) ||
                       (targetCourse.id && b.key && targetCourse.id === b.key) ||
                       (targetCourse.id && b.id && targetCourse.id === b.id) ||
                       (targetCourse.slug && b.key && targetCourse.slug === b.key) ||

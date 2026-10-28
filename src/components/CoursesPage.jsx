@@ -7,7 +7,7 @@ import { initialData, isZenithCopiedCourse } from '../data/mockData';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { isItemEnrolled, getItemPendingOrder } from '../utils/enrollmentService';
-import { EXAM_CATEGORIES_METADATA } from '../data/examCategoriesData';
+import { EXAM_CATEGORIES_METADATA, isExamBatchAndCourseMatch } from '../data/examCategoriesData';
 import { isStudentProfileComplete } from '../utils/studentProfile';
 
 const calcDiscount = (orig, curr) => {
@@ -79,18 +79,21 @@ export default function CoursesPage({
 
   const displayedExamBatches = allExamBatches.filter(cat => {
     if (cat.isHidden) return false;
-    if (cat.isActive === false) return false;
+    const catKey = (cat.key || cat.id || cat.slug || '').toLowerCase();
+    const isLiveBatch = catKey === 'sureshot' || catKey === 'anushiloni' || catKey === 'rtds' || catKey === 'english_master' || catKey === 'master_english';
+
     // Cross check with courses
-    const matchingCourse = courses.find(c =>
-      (c.key && cat.key && c.key === cat.key) ||
-      (c.id && cat.key && c.id === cat.key) ||
-      (c.slug && cat.key && c.slug === cat.key) ||
-      (c.id && cat.id && c.id === cat.id) ||
-      (c.title && cat.title && c.title.trim().toLowerCase() === cat.title.trim().toLowerCase())
-    );
+    const matchingCourse = courses.find(c => isExamBatchAndCourseMatch(cat, c));
     if (matchingCourse && matchingCourse.isActive === false) {
       return false;
     }
+    if (cat.isActive === false && (!matchingCourse || matchingCourse.isActive === false)) {
+      return false;
+    }
+    if (!isLiveBatch && cat.isActive === false) {
+      return false;
+    }
+
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     return (cat.title || '').toLowerCase().includes(q) ||

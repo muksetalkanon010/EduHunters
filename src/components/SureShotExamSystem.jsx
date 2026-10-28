@@ -11,7 +11,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { EXAM_CATEGORIES_METADATA, EXAM_PAGE_FILTER_TABS } from '../data/examCategoriesData';
+import { EXAM_CATEGORIES_METADATA, EXAM_PAGE_FILTER_TABS, isExamBatchAndCourseMatch } from '../data/examCategoriesData';
 import CategoryDetailModal from './CategoryDetailModal';
 import ExamDetailPage from './ExamDetailPage';
 import CheckoutModal from './CheckoutModal';
@@ -115,6 +115,7 @@ export default function SureShotExamSystem({
       const cleanKey = isRtds ? 'anushiloni' : b.key;
 
       const match = (Array.isArray(courses) ? courses : []).find(c =>
+        isExamBatchAndCourseMatch(b, c) ||
         (c.key && cleanKey && (c.key === cleanKey || (cleanKey === 'anushiloni' && c.key === 'rtds'))) ||
         (c.id && cleanKey && (c.id === cleanKey || (cleanKey === 'anushiloni' && c.id === 'rtds'))) ||
         (c.slug && cleanKey && (c.slug === cleanKey || (cleanKey === 'anushiloni' && c.slug === 'rtds'))) ||
@@ -188,18 +189,19 @@ export default function SureShotExamSystem({
   const isCategoryActive = useCallback((cat) => {
     if (!cat) return false;
     if (cat.isHidden) return false;
-    if (cat.isActive === false) return false;
+    const catKey = (cat.key || cat.id || cat.slug || '').toLowerCase();
+    const isLiveBatch = catKey === 'sureshot' || catKey === 'anushiloni' || catKey === 'rtds' || catKey === 'english_master' || catKey === 'master_english';
+
+    let match = null;
     if (Array.isArray(courses) && courses.length > 0) {
-      const match = courses.find(c =>
-        (c.key && cat.key && c.key === cat.key) ||
-        (c.id && cat.key && c.id === cat.key) ||
-        (c.slug && cat.key && c.slug === cat.key) ||
-        (c.id && cat.id && c.id === cat.id) ||
-        (c.title && cat.title && c.title.trim().toLowerCase() === cat.title.trim().toLowerCase())
-      );
-      if (match && match.isActive === false) return false;
+      match = courses.find(c => isExamBatchAndCourseMatch(cat, c));
     }
-    return true;
+
+    if (match && match.isActive === false) return false;
+    if (cat.isActive === false && (!match || match.isActive === false)) return false;
+    if (isLiveBatch) return true;
+
+    return cat.isActive !== false;
   }, [courses]);
 
   const isCourseQuiz = Boolean(

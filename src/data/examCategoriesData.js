@@ -2,6 +2,7 @@
 export const EXAM_CATEGORIES_METADATA = [
   {
     key: 'sureshot',
+    isActive: true,
     badge: 'মেডিকেল ও ডেন্টাল স্পেশাল',
     badgeColor: 'bg-[#e11438]',
     ribbonText: 'সেকেন্ড টাইমার স্পেশাল',
@@ -151,6 +152,7 @@ export const EXAM_CATEGORIES_METADATA = [
   },
   {
     key: 'anushiloni',
+    isActive: true,
     badge: 'অধ্যায়ভিত্তিক অনুশীলনী MCQ',
     badgeColor: 'bg-teal-600',
     ribbonText: 'অনুশীলনীর পূর্ণ প্রশ্নব্যাংক',
@@ -215,6 +217,7 @@ export const EXAM_CATEGORIES_METADATA = [
   },
   {
     key: 'english_master',
+    isActive: true,
     badge: 'ইংলিশ গ্রামার ও ভোকাবুলারি',
     badgeColor: 'bg-indigo-600',
     ribbonText: 'ইংলিশ মাস্টার ৫০',
@@ -428,6 +431,7 @@ export const mapExamBatchToCourse = (batch) => {
     isExamBatch: true,
     isBundle: false,
     isFree: false,
+    isActive: batch.isActive !== undefined ? batch.isActive : true,
     image: batch.image,
     description: batch.subtitle || batch.details?.about || '',
     aboutText: batch.details?.about || '',
@@ -480,4 +484,32 @@ export const mapExamBatchToCourse = (batch) => {
 };
 
 export const EXAM_BATCHES_AS_COURSES = EXAM_CATEGORIES_METADATA.map(mapExamBatchToCourse);
+
+export const isExamBatchAndCourseMatch = (batch, course) => {
+  if (!batch || !course) return false;
+  const bKey = String(batch.key || batch.id || batch.slug || '').trim().toLowerCase();
+  const cKey = String(course.key || course.id || course.slug || '').trim().toLowerCase();
+
+  if (bKey && cKey) {
+    if (bKey === cKey) return true;
+    if ((bKey === 'anushiloni' || bKey === 'rtds') && (cKey === 'anushiloni' || cKey === 'rtds')) return true;
+    if ((bKey === 'english_master' || bKey === 'master_english') && (cKey === 'english_master' || cKey === 'master_english')) return true;
+    if (bKey === 'sureshot' && cKey === 'sureshot') return true;
+  }
+
+  const bTitle = String(batch.title || '').trim().toLowerCase();
+  const cTitle = String(course.title || '').trim().toLowerCase();
+  if (bTitle && cTitle) {
+    if (bTitle === cTitle) return true;
+    if (bTitle.includes('অনুশীলনী') && cTitle.includes('অনুশীলনী')) return true;
+    if (bTitle.includes('sure shot') && cTitle.includes('sure shot')) return true;
+    if (bTitle.includes('english') && cTitle.includes('english')) return true;
+    if (bTitle.includes('মেডিকেল বিগত ১১') && cTitle.includes('মেডিকেল বিগত ১১')) return true;
+    if (bTitle.includes('জিকে') && cTitle.includes('জিকে')) return true;
+    if (bTitle.includes('মেডিলজি') && cTitle.includes('মেডিলজি')) return true;
+  }
+
+  return false;
+};
+
 
