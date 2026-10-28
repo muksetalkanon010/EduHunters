@@ -327,20 +327,7 @@ export default function Navbar({
               </button>
             )}
 
-            {/* Direct Admin Portal Access for Admin User */}
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => onOpenAdmin?.('overview')}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-600/25 border-none cursor-pointer transition-all hover:scale-105 active:scale-95"
-                title="Open Admin Portal"
-              >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                <span>Admin</span>
-              </button>
-            )}
+
 
             {/* Profile Avatar Trigger Button that opens Right Side Menu Drawer */}
             <button
