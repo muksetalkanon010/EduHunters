@@ -71,7 +71,7 @@ import { initialData, isZenithCopiedCourse } from '../data/mockData';
 const CourseStudioPage = React.lazy(() => import('./CourseStudioPage'));
 const BundleStudioPage = React.lazy(() => import('./BundleStudioPage'));
 import { EXAM_CATEGORIES_METADATA } from '../data/examCategoriesData';
-import { grantCourseAccess, revokeCourseAccess, getCanonicalCourses, isPhoneMatch } from '../utils/enrollmentService';
+import { grantCourseAccess, revokeCourseAccess, getCanonicalCourses, isPhoneMatch, isPhysicsFinishingTouchIdentifier, isAnushiloniBatchIdentifier, syncFinishingTouchStudentsWithAnushiloni } from '../utils/enrollmentService';
 import CourseSearchSelect from './CourseSearchSelect';
 import { approveOrder, revokeOrder, getUserOrders } from '../services/orderService';
 import { uploadImageFile, processHighQualityImage } from '../services/cloudStorageService';
@@ -245,9 +245,38 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     return 'overview';
   });
 
+  // Curriculum & Course Studio Index State
+  const [curriculumCourseIndex, setCurriculumCourseIndex] = useState(() => {
+    try {
+      const parsed = parseAdminUrl(window.location.pathname);
+      const targetKey = initialStudioCourseId || parsed.studioCourseKey;
+      if (targetKey) {
+        const initCourses = data?.courses || initialData.courses || [];
+        const fIdx = initCourses.findIndex(c => 
+          c.id === targetKey || 
+          c.slug === targetKey ||
+          String(c.id).toLowerCase() === String(targetKey).toLowerCase() ||
+          String(c.slug).toLowerCase() === String(targetKey).toLowerCase()
+        );
+        if (fIdx >= 0) return fIdx;
+        if (!isNaN(Number(targetKey)) && initCourses[Number(targetKey)]) {
+          return Number(targetKey);
+        }
+      }
+      const params = new URLSearchParams(window.location.search);
+      const c = params.get('course');
+      if (c !== null && !isNaN(Number(c))) {
+        return Number(c);
+      }
+    } catch (e) {}
+    return null;
+  });
+
   const setActiveTab = (newTab, options = {}) => {
     setActiveTabState(newTab);
-    setCurriculumCourseIndex(null);
+    if (typeof setCurriculumCourseIndex === 'function') {
+      setCurriculumCourseIndex(null);
+    }
     const targetUrl = ADMIN_TAB_ROUTES[newTab] || `/admin/${newTab}`;
     if (!options?.skipHistory) {
       try {
@@ -457,6 +486,7 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
   const [editingTrxAmountId, setEditingTrxAmountId] = useState(null);
   const [editingTrxAmountVal, setEditingTrxAmountVal] = useState('');
   const [showNotificationPopover, setShowNotificationPopover] = useState(false);
+  const [isSyncingOrders, setIsSyncingOrders] = useState(false);
 
   // 100% Dynamic Text & Headings State
   const [sectionTexts, setSectionTexts] = useState(() => ({
@@ -578,7 +608,17 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       });
     } catch (e) {}
 
-    return deduplicateUsers(Array.from(userMap.values()));
+    const dedupedUsers = deduplicateUsers(Array.from(userMap.values()));
+    return dedupedUsers.map(u => {
+      const courses = Array.isArray(u.enrolledCourses) ? u.enrolledCourses : [];
+      if (courses.some(c => isPhysicsFinishingTouchIdentifier(c)) && !courses.some(c => isAnushiloniBatchIdentifier(c))) {
+        return {
+          ...u,
+          enrolledCourses: [...courses, 'অনুশীলনী এক্সাম ব্যাচ']
+        };
+      }
+      return u;
+    });
   });
 
   const [userSearchQuery, setUserSearchQuery] = useState('');
@@ -609,11 +649,14 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
   const isInitialAdminMountRef = useRef(true);
 
   useEffect(() => {
+    try {
+      syncFinishingTouchStudentsWithAnushiloni(data);
+    } catch (e) {}
     const timer = setTimeout(() => {
       isInitialAdminMountRef.current = false;
     }, 3500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [data]);
 
   // Audio Chime notification for instant feedback when an enrollment is submitted
   const playNotificationChime = () => {
@@ -975,7 +1018,14 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       let nextTxs;
       if (existingIndex >= 0) {
         nextTxs = [...prevTxs];
-        nextTxs[existingIndex] = { ...nextTxs[existingIndex], ...tx, id: nextTxs[existingIndex].id };
+        const prevTargetTx = prevTxs[existingIndex];
+        const wasApproved = (prevTargetTx.status || '').toLowerCase() === 'completed' || (prevTargetTx.status || '').toLowerCase() === 'paid' || Boolean(prevTargetTx.isApproved);
+        if (wasApproved && (tx.status || '').toLowerCase() === 'pending') {
+          // Preserve approved status! Never downgrade an already approved enrollment to pending
+          nextTxs[existingIndex] = { ...prevTargetTx, ...tx, status: 'Completed', isApproved: true, id: prevTargetTx.id };
+        } else {
+          nextTxs[existingIndex] = { ...prevTargetTx, ...tx, id: prevTargetTx.id };
+        }
       } else {
         nextTxs = [tx, ...prevTxs];
       }
@@ -1013,7 +1063,14 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       let nextStudents;
       if (existingIdx >= 0) {
         nextStudents = [...prev];
-        nextStudents[existingIdx] = { ...nextStudents[existingIdx], ...st, id: nextStudents[existingIdx].id };
+        const prevTargetSt = prev[existingIdx];
+        const wasActive = (prevTargetSt.status || '').toLowerCase() === 'active';
+        if (wasActive && (st.status || '').toLowerCase() === 'pending') {
+          // Preserve active status! Never downgrade an active student to pending
+          nextStudents[existingIdx] = { ...prevTargetSt, ...st, status: 'Active', id: prevTargetSt.id };
+        } else {
+          nextStudents[existingIdx] = { ...prevTargetSt, ...st, id: prevTargetSt.id };
+        }
       } else {
         nextStudents = [st, ...prev];
       }
@@ -1063,6 +1120,147 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     }
   }, []);
 
+  // Central Synchronizer: Fetch all orders from Supabase and synchronize transactions, students, and users
+  const syncLatestOrdersFromSupabase = useCallback(async (isManual = false) => {
+    if (!isSupabaseConfigured) return;
+    try {
+      const orders = await fetchSupabaseOrders();
+      if (Array.isArray(orders) && orders.length > 0) {
+        const deletedIds = getDeletedIdsSet();
+        const overrides = getAmountOverridesMap();
+        const activeOrders = orders.filter(o => !isDeletedItem(o, deletedIds));
+
+        const mappedTxs = activeOrders.map(o => mapOrderDocToTx(o.id, o)).filter(t => !isDeletedItem(t, deletedIds));
+        const mappedStudents = activeOrders.map(o => mapOrderDocToStudent(o.id, o)).filter(st => !isDeletedItem(st, deletedIds));
+
+        setAccounting(prev => {
+          const prevTxs = Array.isArray(prev?.transactions) ? prev.transactions : [];
+          const txMap = new Map();
+          prevTxs.filter(tx => !isDeletedItem(tx, deletedIds)).forEach(tx => {
+            const key = tx.orderId || tx.id || tx.trxId;
+            if (key) txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
+          });
+          mappedTxs.forEach(tx => {
+            const key = tx.orderId || tx.id || tx.trxId;
+            if (key) {
+              const existingTx = txMap.get(key);
+              if (existingTx) {
+                const prevStatus = (existingTx.status || '').toLowerCase();
+                const incomingStatus = (tx.status || '').toLowerCase();
+                const wasApproved = prevStatus === 'completed' || prevStatus === 'paid' || Boolean(existingTx.isApproved);
+                if (wasApproved && (incomingStatus === 'pending' || !tx.isApproved)) {
+                  // Safeguard: Never downgrade an already approved order back to pending
+                  txMap.set(key, { ...tx, ...existingTx, status: 'Completed', isApproved: true });
+                  return;
+                }
+              }
+              txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
+            }
+          });
+          const resetConfig = getAccountingResetConfig();
+          const allTxs = deduplicateTransactions(Array.from(txMap.values()));
+          const completedRev = allTxs
+            .filter(t => (t.status || '').toLowerCase() === 'completed' && !isHistoricalTx(t, resetConfig))
+            .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+          const totalExpenses = allTxs
+            .filter(t => (t.type || '').toUpperCase() === 'EXPENSE' && !isHistoricalTx(t, resetConfig))
+            .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+          return {
+            ...prev,
+            totalRevenue: completedRev,
+            totalExpenses: totalExpenses,
+            netProfit: completedRev - totalExpenses,
+            totalOrders: allTxs.filter(t => (t.type || '').toUpperCase() === 'INCOME' || !t.type).length,
+            transactions: allTxs
+          };
+        });
+
+        setEnrolledStudents(prev => {
+          const stMap = new Map();
+          prev.filter(st => !isDeletedItem(st, deletedIds)).forEach(st => {
+            const key = st.id || `${st.phone}_${st.courseName}`;
+            stMap.set(key, st);
+          });
+          mappedStudents.forEach(st => {
+            const key = st.id || `${st.phone}_${st.courseName}`;
+            const existingSt = stMap.get(key);
+            if (existingSt && (existingSt.status || '').toLowerCase() === 'active' && (st.status || '').toLowerCase() === 'pending') {
+              stMap.set(key, { ...st, ...existingSt, status: 'Active' });
+              return;
+            }
+            stMap.set(key, st);
+          });
+          const mergedSt = Array.from(stMap.values());
+          try {
+            localStorage.setItem('eh_enrolled_students', JSON.stringify(mergedSt));
+          } catch (e) {}
+          return mergedSt;
+        });
+
+        // Sync student profiles from orders into User Management in high-speed batch
+        const orderUsers = [];
+        activeOrders.forEach(o => {
+          const email = (o.customer_email || o.customer?.email || '').trim().toLowerCase();
+          const phone = (o.customer_phone || o.customer?.phone || '').trim();
+          const name = (o.customer_name || o.customer?.name || '').trim();
+          if (email || phone || name) {
+            const orderCreated = o.created_at || o.createdAt || new Date().toISOString();
+            const isApprovedOrder = (o.status === 'PAID' || Boolean(o.is_approved) || Boolean(o.isApproved));
+            orderUsers.push({
+              id: o.customer?.uid || o.userId || `usr-${o.id}`,
+              email: email || `${(name || 'student').toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
+              name: name || 'Student',
+              displayName: name || 'Student',
+              phone: phone,
+              whatsapp: phone,
+              role: 'Student',
+              status: isApprovedOrder ? 'Active' : 'Pending',
+              enrolledCourses: isApprovedOrder ? [o.course_name || o.course?.name || o.items?.[0]?.title].filter(Boolean) : [],
+              totalSpent: Number(o.amount || o.totalPaid || 0),
+              createdAt: orderCreated,
+              created_at: orderCreated,
+              joinedDate: new Date(orderCreated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+            });
+          }
+        });
+        if (orderUsers.length > 0) {
+          upsertUsersBatch(orderUsers);
+        }
+
+        // Sync to local orders cache so refreshing the page immediately has all orders
+        try {
+          const localOrds = JSON.parse(localStorage.getItem('eh_user_orders_v3') || '[]');
+          const ordMap = new Map();
+          localOrds.filter(o => !isDeletedItem(o, deletedIds)).forEach(o => { if (o && o.id) ordMap.set(o.id, o); });
+          activeOrders.forEach(o => { if (o && o.id) ordMap.set(o.id, o); });
+          localStorage.setItem('eh_user_orders_v3', JSON.stringify(Array.from(ordMap.values())));
+        } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('[AdminPanel] syncLatestOrders error:', e);
+    }
+  }, [upsertUsersBatch]);
+
+  // Manual Trigger for Syncing Cloud Orders from Accounting or Overview tab
+  const handleSyncOrders = async () => {
+    try {
+      setIsSyncingOrders(true);
+      await syncLatestOrdersFromSupabase(true);
+      triggerToast('✓ নতুন ট্রানজ্যাকশন ও এনরোলমেন্ট সিঙ্ক সম্পন্ন হয়েছে');
+    } catch (e) {
+      triggerToast('সিঙ্ক করতে সমস্যা হয়েছে');
+    } finally {
+      setTimeout(() => setIsSyncingOrders(false), 500);
+    }
+  };
+
+  // Re-sync instantly on active tab switches to accounting or overview
+  useEffect(() => {
+    if (isSupabaseConfigured && (activeTab === 'accounting' || activeTab === 'overview' || activeTab === 'users')) {
+      syncLatestOrdersFromSupabase();
+    }
+  }, [activeTab, syncLatestOrdersFromSupabase]);
+
   // Multi-tier Real-time Synchronizer: Supabase Realtime (CDC + Bus) + BroadcastChannel + Window Events + LocalStorage
   useEffect(() => {
 
@@ -1075,103 +1273,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       try {
         let isInitialSupabaseOrders = true;
 
-        fetchSupabaseOrders().then(orders => {
-          if (Array.isArray(orders) && orders.length > 0) {
-            const deletedIds = getDeletedIdsSet();
-            const overrides = getAmountOverridesMap();
-            const activeOrders = orders.filter(o => !isDeletedItem(o, deletedIds));
-
-            const mappedTxs = activeOrders.map(o => mapOrderDocToTx(o.id, o)).filter(t => !isDeletedItem(t, deletedIds));
-            const mappedStudents = activeOrders.map(o => mapOrderDocToStudent(o.id, o)).filter(st => !isDeletedItem(st, deletedIds));
-
-            setAccounting(prev => {
-              const prevTxs = Array.isArray(prev?.transactions) ? prev.transactions : [];
-              const txMap = new Map();
-              prevTxs.filter(tx => !isDeletedItem(tx, deletedIds)).forEach(tx => {
-                const key = tx.orderId || tx.id || tx.trxId;
-                if (key) txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
-              });
-              mappedTxs.forEach(tx => {
-                const key = tx.orderId || tx.id || tx.trxId;
-                if (key) {
-                  txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
-                }
-              });
-              const resetConfig = getAccountingResetConfig();
-              const allTxs = deduplicateTransactions(Array.from(txMap.values()));
-              const completedRev = allTxs
-                .filter(t => (t.status || '').toLowerCase() === 'completed' && !isHistoricalTx(t, resetConfig))
-                .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-              const totalExpenses = allTxs
-                .filter(t => (t.type || '').toUpperCase() === 'EXPENSE' && !isHistoricalTx(t, resetConfig))
-                .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-              return {
-                ...prev,
-                totalRevenue: completedRev,
-                totalExpenses: totalExpenses,
-                netProfit: completedRev - totalExpenses,
-                totalOrders: allTxs.filter(t => (t.type || '').toUpperCase() === 'INCOME' || !t.type).length,
-                transactions: allTxs
-              };
-            });
-
-            setEnrolledStudents(prev => {
-              const stMap = new Map();
-              prev.filter(st => !isDeletedItem(st, deletedIds)).forEach(st => {
-                const key = st.id || `${st.phone}_${st.courseName}`;
-                stMap.set(key, st);
-              });
-              mappedStudents.forEach(st => {
-                const key = st.id || `${st.phone}_${st.courseName}`;
-                stMap.set(key, st);
-              });
-              const mergedSt = Array.from(stMap.values());
-              try {
-                localStorage.setItem('eh_enrolled_students', JSON.stringify(mergedSt));
-              } catch (e) {}
-              return mergedSt;
-            });
-
-            // Sync student profiles from orders into User Management in high-speed batch
-            const orderUsers = [];
-            activeOrders.forEach(o => {
-              const email = (o.customer_email || o.customer?.email || '').trim().toLowerCase();
-              const phone = (o.customer_phone || o.customer?.phone || '').trim();
-              const name = (o.customer_name || o.customer?.name || '').trim();
-              if (email || phone || name) {
-                const orderCreated = o.created_at || o.createdAt || new Date().toISOString();
-                const isApprovedOrder = (o.status === 'PAID' || Boolean(o.is_approved) || Boolean(o.isApproved));
-                orderUsers.push({
-                  id: o.customer?.uid || o.userId || `usr-${o.id}`,
-                  email: email || `${(name || 'student').toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`,
-                  name: name || 'Student',
-                  displayName: name || 'Student',
-                  phone: phone,
-                  whatsapp: phone,
-                  role: 'Student',
-                  status: isApprovedOrder ? 'Active' : 'Pending',
-                  enrolledCourses: isApprovedOrder ? [o.course_name || o.course?.name || o.items?.[0]?.title].filter(Boolean) : [],
-                  totalSpent: Number(o.amount || o.totalPaid || 0),
-                  createdAt: orderCreated,
-                  created_at: orderCreated,
-                  joinedDate: new Date(orderCreated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                });
-              }
-            });
-            if (orderUsers.length > 0) {
-              upsertUsersBatch(orderUsers);
-            }
-
-            // Sync to local orders cache so refreshing the page immediately has all orders
-            try {
-              const localOrds = JSON.parse(localStorage.getItem('eh_user_orders_v3') || '[]');
-              const ordMap = new Map();
-              localOrds.filter(o => !isDeletedItem(o, deletedIds)).forEach(o => { if (o && o.id) ordMap.set(o.id, o); });
-              activeOrders.forEach(o => { if (o && o.id) ordMap.set(o.id, o); });
-              localStorage.setItem('eh_user_orders_v3', JSON.stringify(Array.from(ordMap.values())));
-            } catch (e) {}
-          }
-        }).catch(() => {});
+        // Initial fetch on mount
+        syncLatestOrdersFromSupabase();
 
         const refreshSupabaseUsers = () => {
           return fetchSupabaseUsers().then(users => {
@@ -1219,64 +1322,11 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
         });
         isInitialSupabaseUsers = false;
 
-        // 15-second background heartbeat poll to ensure 100% sync reliability for orders and student profiles
+        // 12-second background heartbeat poll to ensure 100% sync reliability for orders and student profiles
         const supabaseHeartbeat = setInterval(() => {
-          fetchSupabaseOrders().then(orders => {
-            if (Array.isArray(orders) && orders.length > 0) {
-              const deletedIds = getDeletedIdsSet();
-              const overrides = getAmountOverridesMap();
-              const activeOrders = orders.filter(o => !isDeletedItem(o, deletedIds));
-              const mappedTxs = activeOrders.map(o => mapOrderDocToTx(o.id, o)).filter(t => !isDeletedItem(t, deletedIds));
-              const mappedStudents = activeOrders.map(o => mapOrderDocToStudent(o.id, o)).filter(st => !isDeletedItem(st, deletedIds));
-
-              setAccounting(prev => {
-                const prevTxs = Array.isArray(prev?.transactions) ? prev.transactions : [];
-                const txMap = new Map();
-                prevTxs.filter(tx => !isDeletedItem(tx, deletedIds)).forEach(tx => {
-                  const key = tx.orderId || tx.id || tx.trxId;
-                  if (key) txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
-                });
-                mappedTxs.forEach(tx => {
-                  const key = tx.orderId || tx.id || tx.trxId;
-                  if (key) {
-                    txMap.set(key, applyAmountOverride(applyStatusOverride(tx), overrides));
-                  }
-                });
-                const resetConfig = getAccountingResetConfig();
-                const allTxs = deduplicateTransactions(Array.from(txMap.values()));
-                const completedRev = allTxs
-                  .filter(t => (t.status || '').toLowerCase() === 'completed' && !isHistoricalTx(t, resetConfig))
-                  .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-                const totalExpenses = allTxs
-                  .filter(t => (t.type || '').toUpperCase() === 'EXPENSE' && !isHistoricalTx(t, resetConfig))
-                  .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-                return {
-                  ...prev,
-                  totalRevenue: completedRev,
-                  totalExpenses: totalExpenses,
-                  netProfit: completedRev - totalExpenses,
-                  totalOrders: allTxs.filter(t => (t.type || '').toUpperCase() === 'INCOME' || !t.type).length,
-                  transactions: allTxs
-                };
-              });
-
-              setEnrolledStudents(prev => {
-                const stMap = new Map();
-                prev.filter(st => !isDeletedItem(st, deletedIds)).forEach(st => {
-                  const key = st.id || `${st.phone}_${st.courseName}`;
-                  stMap.set(key, st);
-                });
-                mappedStudents.forEach(st => {
-                  const key = st.id || `${st.phone}_${st.courseName}`;
-                  stMap.set(key, st);
-                });
-                return Array.from(stMap.values());
-              });
-            }
-          }).catch(() => {});
-
+          syncLatestOrdersFromSupabase();
           refreshSupabaseUsers();
-        }, 90000); // 90-second fallback sync (Supabase WebSocket handles real-time instantly)
+        }, 12000);
 
         unsubscribeSupabaseHeartbeat = () => clearInterval(supabaseHeartbeat);
       } catch (err) {
@@ -1824,31 +1874,6 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
 
   // Curriculum & Course Studio Modal State
   const [showCurriculumModal, setShowCurriculumModal] = useState(false);
-  const [curriculumCourseIndex, setCurriculumCourseIndex] = useState(() => {
-    try {
-      const parsed = parseAdminUrl(window.location.pathname);
-      const targetKey = initialStudioCourseId || parsed.studioCourseKey;
-      if (targetKey) {
-        const initCourses = data?.courses || initialData.courses || [];
-        const fIdx = initCourses.findIndex(c => 
-          c.id === targetKey || 
-          c.slug === targetKey ||
-          String(c.id).toLowerCase() === String(targetKey).toLowerCase() ||
-          String(c.slug).toLowerCase() === String(targetKey).toLowerCase()
-        );
-        if (fIdx >= 0) return fIdx;
-        if (!isNaN(Number(targetKey)) && initCourses[Number(targetKey)]) {
-          return Number(targetKey);
-        }
-      }
-      const params = new URLSearchParams(window.location.search);
-      const c = params.get('course');
-      if (c !== null && !isNaN(Number(c))) {
-        return Number(c);
-      }
-    } catch (e) {}
-    return null;
-  });
   const [curriculumStudioTab, setCurriculumStudioTab] = useState(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -1913,21 +1938,86 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     const currentBatches = overrides.examBatches !== undefined ? overrides.examBatches : (data?.examBatches || initialData.examBatches || []);
     const syncedBatches = currentBatches.map(b => {
       const match = currentCourses.find(c => 
-        (c.key && b.key && c.key === b.key) ||
-        (c.id && b.key && c.id === b.key) ||
-        (c.slug && b.key && c.slug === b.key) ||
+        (c.key && b.key && (c.key === b.key || (b.key === 'anushiloni' && c.key === 'rtds') || (b.key === 'rtds' && c.key === 'anushiloni'))) ||
+        (c.id && b.key && (c.id === b.key || (b.key === 'anushiloni' && c.id === 'rtds') || (b.key === 'rtds' && c.id === 'anushiloni'))) ||
+        (c.slug && b.key && (c.slug === b.key || (b.key === 'anushiloni' && c.slug === 'rtds') || (b.key === 'rtds' && c.slug === 'anushiloni'))) ||
         (c.id && b.id && c.id === b.id) ||
         (c.title && b.title && c.title.trim().toLowerCase() === b.title.trim().toLowerCase())
       );
+      const isBatchRtds = b.key === 'rtds' || b.key === 'anushiloni';
+      const cleanKey = isBatchRtds ? 'anushiloni' : b.key;
       if (match) {
+        const aboutVal = match.aboutText || match.details?.about || match.description || b.aboutText || b.details?.about || b.description;
+        const salePriceVal = match.salePrice !== undefined ? match.salePrice : (match.price !== undefined ? match.price : (b.salePrice !== undefined ? b.salePrice : b.price));
+        const regularPriceVal = match.regularPrice !== undefined ? match.regularPrice : (match.originalPrice !== undefined ? match.originalPrice : (b.regularPrice !== undefined ? b.regularPrice : b.originalPrice));
+        const badgeVal = match.badge || match.ribbonText || match.details?.badge || b.badge || b.ribbonText || '';
+        const durationVal = match.duration || match.details?.duration || b.duration || '30 mins';
+        const supportPhoneVal = match.supportPhone || match.details?.supportPhone || b.supportPhone || '01342227935';
+        const featuresVal = (Array.isArray(match.features) && match.features.length > 0) 
+          ? match.features 
+          : ((Array.isArray(match.details?.features) && match.details.features.length > 0) 
+            ? match.details.features 
+            : ((Array.isArray(b.features) && b.features.length > 0) ? b.features : (b.details?.features || [])));
+        const rulesVal = (Array.isArray(match.rules) && match.rules.length > 0) 
+          ? match.rules 
+          : ((Array.isArray(match.details?.rules) && match.details.rules.length > 0) 
+            ? match.details.rules 
+            : ((Array.isArray(b.rules) && b.rules.length > 0) ? b.rules : (b.details?.rules || [])));
+        const highlightsVal = match.highlights || match.details?.highlights || b.highlights || b.details?.highlights || [];
+        const faqsVal = match.faqs || match.details?.faqs || b.faqs || b.details?.faqs || [];
+        const imageVal = match.image || (isBatchRtds ? '/exam_banners/anushiloni_banner.jpg' : b.image);
+
         return {
           ...b,
-          title: match.title || b.title,
+          key: cleanKey,
+          id: cleanKey,
+          slug: cleanKey,
+          title: (match.title || b.title).replace(/\(RTDS\)/gi, '').replace(/RTDS/gi, '').replace(/\s{2,}/g, ' ').trim(),
           subtitle: match.subtitle || match.description || b.subtitle,
-          price: String(match.salePrice || b.price),
-          originalPrice: String(match.regularPrice || b.originalPrice),
-          image: match.image || b.image,
-          isActive: match.isActive !== undefined ? match.isActive : b.isActive
+          price: String(salePriceVal),
+          originalPrice: String(regularPriceVal),
+          salePrice: Number(salePriceVal) || 0,
+          regularPrice: Number(regularPriceVal) || 0,
+          badge: badgeVal,
+          ribbonText: badgeVal,
+          duration: durationVal,
+          supportPhone: supportPhoneVal,
+          features: featuresVal,
+          rules: rulesVal,
+          highlights: highlightsVal,
+          faqs: faqsVal,
+          image: imageVal,
+          isActive: match.isActive !== undefined ? match.isActive : b.isActive,
+          aboutText: aboutVal || b.aboutText,
+          description: match.description || aboutVal || b.description,
+          details: {
+            ...(b.details || {}),
+            ...(match.details || {}),
+            about: (aboutVal || b.details?.about || '').replace(/RTDS এক্সাম ব্যাচে/g, 'অনুশীলনী এক্সাম ব্যাচে').replace(/RTDS/g, 'অনুশীলনী'),
+            features: featuresVal,
+            rules: rulesVal,
+            highlights: highlightsVal,
+            faqs: faqsVal,
+            duration: durationVal,
+            supportPhone: supportPhoneVal,
+            badge: badgeVal,
+            price: salePriceVal,
+            originalPrice: regularPriceVal
+          }
+        };
+      }
+      if (isBatchRtds) {
+        return {
+          ...b,
+          key: 'anushiloni',
+          id: 'anushiloni',
+          slug: 'anushiloni',
+          title: (b.title || '').replace(/\(RTDS\)/gi, '').replace(/RTDS/gi, '').replace(/\s{2,}/g, ' ').trim(),
+          image: '/exam_banners/anushiloni_banner.jpg',
+          details: {
+            ...(b.details || {}),
+            about: (b.details?.about || '').replace(/RTDS এক্সাম ব্যাচে/g, 'অনুশীলনী এক্সাম ব্যাচে').replace(/RTDS/g, 'অনুশীলনী')
+          }
         };
       }
       return b;
@@ -2583,16 +2673,28 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       userId: targetUser?.id || targetUser?.uid
     });
 
-    if (selectedUserDetails?.id === userId || selectedUserDetails?.uid === userId) {
+    if (selectedUserDetails && (
+      selectedUserDetails.id === userId ||
+      selectedUserDetails.uid === userId ||
+      selectedUserDetails.email === userId ||
+      (targetUser && (selectedUserDetails.id === targetUser.id || selectedUserDetails.email === targetUser.email))
+    )) {
       setSelectedUserDetails(prev => ({
         ...prev,
+        status: 'Active',
         enrolledCourses: getCanonicalCourses([...(prev.enrolledCourses || []), ...coursesToAdd], { courses, bundles, examBatches: EXAM_CATEGORIES_METADATA })
       }));
     }
 
-    if (quickEnrollUser?.id === userId || quickEnrollUser?.uid === userId) {
+    if (quickEnrollUser && (
+      quickEnrollUser.id === userId ||
+      quickEnrollUser.uid === userId ||
+      quickEnrollUser.email === userId ||
+      (targetUser && (quickEnrollUser.id === targetUser.id || quickEnrollUser.email === targetUser.email))
+    )) {
       setQuickEnrollUser(prev => ({
         ...prev,
+        status: 'Active',
         enrolledCourses: getCanonicalCourses([...(prev.enrolledCourses || []), ...coursesToAdd], { courses, bundles, examBatches: EXAM_CATEGORIES_METADATA })
       }));
     }
@@ -2982,7 +3084,18 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
              (rawName && (uName === rawName || uName.includes(rawName)));
     });
 
-    const { courses: grantedCourses } = grantCourseAccess(itemTitle, { bundles, courses }, matchedTargetUser);
+    const effectiveTargetUser = matchedTargetUser || {
+      id: targetTx.userId || targetTx.uid || `usr-${Date.now()}`,
+      uid: targetTx.userId || targetTx.uid || `usr-${Date.now()}`,
+      name: targetTx.studentName || 'Student',
+      displayName: targetTx.studentName || 'Student',
+      email: targetTx.studentEmail || rawEmail || '',
+      phone: targetTx.studentPhone || rawPhone || '',
+      whatsapp: targetTx.studentPhone || rawPhone || '',
+      role: 'Student'
+    };
+
+    const { courses: grantedCourses } = grantCourseAccess(itemTitle, { bundles, courses }, effectiveTargetUser);
     const foundBundle = bundles.find(b => 
       b.title.toLowerCase() === itemTitle.toLowerCase() ||
       itemTitle.toLowerCase().includes(b.title.toLowerCase())
@@ -3059,10 +3172,11 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     if (!userFound && (rawPhone.length >= 6 || rawEmail || targetTx.studentName)) {
       const nowIso = new Date().toISOString();
       const newStudentUser = {
-        id: `usr-${Date.now()}`,
+        id: effectiveTargetUser.id,
+        uid: effectiveTargetUser.id,
         name: targetTx.studentName || 'Student',
         displayName: targetTx.studentName || 'Student',
-        email: targetTx.studentEmail || `${(targetTx.studentName || 'student').toLowerCase().replace(/[^a-z0-9]/g, '')}${Math.floor(100 + Math.random() * 900)}@gmail.com`,
+        email: targetTx.studentEmail || (rawEmail ? rawEmail : `${(targetTx.studentName || 'student').toLowerCase().replace(/[^a-z0-9]/g, '')}${Math.floor(100 + Math.random() * 900)}@gmail.com`),
         phone: targetTx.studentPhone || '',
         whatsapp: targetTx.studentPhone || '',
         college: '',
@@ -3084,6 +3198,19 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       savedUserRecord = newStudentUser;
     }
     setUsersList(extraUserUpdates);
+
+    if (selectedUserDetails && (
+      selectedUserDetails.id === effectiveTargetUser.id ||
+      selectedUserDetails.uid === effectiveTargetUser.id ||
+      (rawEmail && selectedUserDetails.email && selectedUserDetails.email.toLowerCase() === rawEmail) ||
+      (rawPhone && (selectedUserDetails.phone || selectedUserDetails.whatsapp) && isPhoneMatch(rawPhone, (selectedUserDetails.phone || selectedUserDetails.whatsapp).replace(/[^0-9]/g, '')))
+    )) {
+      setSelectedUserDetails(prev => ({
+        ...prev,
+        status: 'Active',
+        enrolledCourses: Array.from(new Set([...(prev.enrolledCourses || []), ...coursesToGrant]))
+      }));
+    }
 
     // CRITICAL: Always persist student user profile to Supabase eduhunters_users immediately!
     if (isSupabaseConfigured && savedUserRecord) {
@@ -4014,14 +4141,24 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     e.preventDefault();
     if (!editingCourseData) return;
     const { index, title, category, salePrice, regularPrice, isBundle, image } = editingCourseData;
+    const sPrice = Number(salePrice) || 0;
+    const rPrice = Number(regularPrice) || 0;
     const updated = courses.map((c, i) => i === index ? {
       ...c,
       title: title.trim(),
       category,
-      salePrice: Number(salePrice) || 0,
-      regularPrice: Number(regularPrice) || 0,
+      salePrice: sPrice,
+      price: sPrice,
+      regularPrice: rPrice,
+      originalPrice: rPrice,
+      isFree: sPrice === 0,
       isBundle: Boolean(isBundle),
-      image: image || c.image
+      image: image || c.image,
+      details: {
+        ...(c.details || {}),
+        price: sPrice,
+        originalPrice: rPrice
+      }
     } : c);
     setCourses(updated);
     persistAll({ courses: updated });
@@ -4316,7 +4453,18 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
              (rawName && (uName === rawName || uName.includes(rawName)));
     });
 
-    const { courses: grantedCourses } = grantCourseAccess(itemTitle, { bundles, courses }, matchedTargetUser);
+    const effectiveTargetUser = matchedTargetUser || {
+      id: tx.userId || tx.uid || `usr-${Date.now()}`,
+      uid: tx.userId || tx.uid || `usr-${Date.now()}`,
+      name: studentName,
+      displayName: studentName,
+      email: studentEmail || '',
+      phone: cleanPhone || '',
+      whatsapp: cleanPhone || '',
+      role: 'Student'
+    };
+
+    const { courses: grantedCourses } = grantCourseAccess(itemTitle, { bundles, courses }, effectiveTargetUser);
 
     // 3. Check if student already in enrolledStudents or create new active student
     const existingStudent = enrolledStudents.find(st => 
@@ -4387,7 +4535,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
     if (!userFound && (rawPhone.length >= 6 || studentEmail || studentName)) {
       const nowIso = new Date().toISOString();
       const newStudentUser = {
-        id: `usr-${Date.now()}`,
+        id: effectiveTargetUser.id,
+        uid: effectiveTargetUser.id,
         name: studentName,
         displayName: studentName,
         email: studentEmail || `${studentName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'student'}${Math.floor(100 + Math.random() * 900)}@gmail.com`,
@@ -4410,6 +4559,19 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
       savedUserRecord = newStudentUser;
     }
     setUsersList(updatedUsers);
+
+    if (selectedUserDetails && (
+      selectedUserDetails.id === effectiveTargetUser.id ||
+      selectedUserDetails.uid === effectiveTargetUser.id ||
+      (studentEmail && selectedUserDetails.email && selectedUserDetails.email.toLowerCase() === studentEmail) ||
+      (rawPhone && (selectedUserDetails.phone || selectedUserDetails.whatsapp) && isPhoneMatch(rawPhone, (selectedUserDetails.phone || selectedUserDetails.whatsapp).replace(/[^0-9]/g, '')))
+    )) {
+      setSelectedUserDetails(prev => ({
+        ...prev,
+        status: 'Active',
+        enrolledCourses: Array.from(new Set([...(prev.enrolledCourses || []), courseTitle, ...grantedCourses]))
+      }));
+    }
 
     // CRITICAL: Always persist student user profile to Supabase eduhunters_users immediately!
     if (isSupabaseConfigured && savedUserRecord) {
@@ -6200,6 +6362,8 @@ export default function AdminPanel({ data, onUpdateData, onResetData, onExitAdmi
               handleRevokeTrx={handleRevokeTrx}
               handleDeleteTrx={handleDeleteTrx}
               handleCopyText={handleCopyText}
+              handleSyncOrders={handleSyncOrders}
+              isSyncingOrders={isSyncingOrders}
             />
           )}
 

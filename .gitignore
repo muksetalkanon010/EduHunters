@@ -15,6 +15,7 @@ dist-ssr/
 
 # Backups & Large Data Dumps
 backup/
+_archive_legacy/
 *.backup
 *.dump
 

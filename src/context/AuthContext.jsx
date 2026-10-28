@@ -30,7 +30,7 @@ import {
   limit,
   onSnapshot
 } from 'firebase/firestore';
-import { saveSupabaseUser, fetchUserApprovedEnrollments } from '../services/supabaseService';
+import { saveSupabaseUser, fetchUserApprovedEnrollments, subscribeToSupabaseMessage } from '../services/supabaseService';
 import { supabase, isSupabaseConfigured } from '../supabase/config';
 import { isPhoneMatch } from '../utils/enrollmentService';
 
@@ -484,6 +484,82 @@ export function AuthProvider({ children }) {
       } catch (e) {}
     };
   }, [currentUser?.uid, currentUser?.id]);
+
+  // Real-time Supabase Broadcast Listener: Instantly unlocks course access when admin approves from ANY device
+  useEffect(() => {
+    if (!isSupabaseConfigured || (!currentUser?.email && !currentUser?.phone && !currentUser?.uid)) return;
+
+    const userEmail = (currentUser.email || '').toLowerCase().trim();
+    const userPhone = String(currentUser.phone || currentUser.whatsapp || '').replace(/[^0-9]/g, '');
+    const userUid = currentUser.uid || currentUser.id;
+
+    const syncApprovedAccess = async () => {
+      try {
+        const { courses: spCourses, batches: spBatches = [], orders: spOrders } = await fetchUserApprovedEnrollments(
+          userEmail,
+          userPhone,
+          userUid
+        );
+
+        if (spCourses && spCourses.length > 0) {
+          setCurrentUser(prev => {
+            if (!prev) return prev;
+            const curEnrolled = Array.isArray(prev.enrolledCourses) ? prev.enrolledCourses : [];
+            const merged = Array.from(new Set([...curEnrolled, ...spCourses]));
+            const updated = { ...prev, enrolledCourses: merged, status: 'Active' };
+            try {
+              localStorage.setItem('eh_current_user', JSON.stringify(updated));
+              if (userUid) {
+                localStorage.setItem(`eduhunters_enrolled_courses_${userUid}`, JSON.stringify(merged));
+              }
+              const localCourses = JSON.parse(localStorage.getItem('eduhunters_enrolled_courses') || '[]');
+              localStorage.setItem('eduhunters_enrolled_courses', JSON.stringify(Array.from(new Set([...localCourses, ...merged]))));
+            } catch (e) {}
+            return updated;
+          });
+
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('eh:enrollment_updated', {
+              detail: { courses: spCourses, timestamp: Date.now() }
+            }));
+          }
+        }
+
+        if (spOrders && spOrders.length > 0) {
+          try {
+            const localOrders = JSON.parse(localStorage.getItem('eh_user_orders_v3') || '[]');
+            const ordMap = new Map();
+            localOrders.forEach(o => ordMap.set(o.id || o.invoiceNumber, o));
+            spOrders.forEach(o => ordMap.set(o.id || o.invoiceNumber, o));
+            localStorage.setItem('eh_user_orders_v3', JSON.stringify(Array.from(ordMap.values())));
+          } catch (e) {}
+        }
+      } catch (err) {
+        console.warn('[AuthContext] Real-time enrollment access sync note:', err);
+      }
+    };
+
+    const unsubOrder = subscribeToSupabaseMessage('ORDER_STATUS_CHANGED', (payload) => {
+      syncApprovedAccess();
+    });
+
+    const unsubUser = subscribeToSupabaseMessage('USER_UPDATED', (payload) => {
+      const pEmail = (payload?.email || '').toLowerCase().trim();
+      const pPhone = String(payload?.phone || '').replace(/[^0-9]/g, '');
+      const pId = payload?.id;
+      const isTarget = (userEmail && pEmail && userEmail === pEmail) ||
+                       (userPhone && pPhone && userPhone.slice(-8) === pPhone.slice(-8)) ||
+                       (userUid && pId && userUid === pId);
+      if (isTarget) {
+        syncApprovedAccess();
+      }
+    });
+
+    return () => {
+      if (typeof unsubOrder === 'function') unsubOrder();
+      if (typeof unsubUser === 'function') unsubUser();
+    };
+  }, [currentUser?.email, currentUser?.phone, currentUser?.whatsapp, currentUser?.uid, currentUser?.id]);
 
   // Real-time broadcaster for User Registration, Profile Updates, and Logout across windows & tabs
   const broadcastUserSync = (action, user) => {

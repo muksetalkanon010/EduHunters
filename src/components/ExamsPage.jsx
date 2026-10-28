@@ -71,14 +71,18 @@ export default function ExamsPage({
               } catch (e) {}
               return selectedCategory ? 'category_detail' : 'category_cards';
             })()} 
-            initialCategory={selectedCategory || (() => {
-              try {
-                return new URLSearchParams(window.location.search).get('category') || null;
-              } catch (e) {
-                return null;
+            initialCategory={(() => {
+              let cat = selectedCategory;
+              if (!cat) {
+                try {
+                  cat = new URLSearchParams(window.location.search).get('category');
+                } catch (e) {}
               }
+              if (cat === 'rtds' || cat === 'onushiloni') return 'anushiloni';
+              return cat || null;
             })()}
             siteSettings={siteSettings}
+            data={data}
             customExamBatches={data?.examBatches}
             courses={data?.courses}
             isFromBundle={isFromBundle}

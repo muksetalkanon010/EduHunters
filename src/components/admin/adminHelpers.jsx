@@ -195,6 +195,13 @@ export const getAccountingResetConfig = () => {
 
 export const isHistoricalTx = (tx, resetConfig) => {
   if (!tx) return false;
+  const s = (tx.status || '').toLowerCase();
+  // CRITICAL: Pending enrollment requests are NEVER historical.
+  // They are active incoming requests awaiting admin approval and must always be visible.
+  if (s === 'pending' || (!tx.isApproved && !tx.is_approved && s !== 'completed' && s !== 'paid' && s !== 'rejected')) {
+    return false;
+  }
+
   if (tx.isHistorical || tx.beforeReset) return true;
   const cfg = resetConfig || getAccountingResetConfig();
   if (cfg.legacyIdsSet && cfg.legacyIdsSet.size > 0) {
@@ -207,14 +214,14 @@ export const isHistoricalTx = (tx, resetConfig) => {
     if (cleanOrderId && cfg.legacyIdsSet.has(cleanOrderId)) return true;
   }
   const rTime = cfg.resetAt ? new Date(cfg.resetAt).getTime() : new Date(DEFAULT_ACCOUNTING_RESET_AT).getTime();
-  if (tx.createdAt) {
-    return new Date(tx.createdAt).getTime() <= rTime;
+  const txDateVal = tx.createdAt || tx.created_at || tx.date;
+  if (txDateVal) {
+    const txTime = new Date(txDateVal).getTime();
+    if (!isNaN(txTime) && txTime > 0) {
+      return txTime <= rTime;
+    }
   }
-  if (tx.date) {
-    const dTime = new Date(tx.date).getTime();
-    if (!isNaN(dTime)) return dTime <= rTime;
-  }
-  return true;
+  return false;
 };
 
 // File-scoped pure mappers so state initializers, listeners, and heartbeats can convert order docs reliably

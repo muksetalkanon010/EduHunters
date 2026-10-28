@@ -12,7 +12,8 @@ import {
   Trash2,
   Clock,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  RefreshCw
 } from 'lucide-react';
 import { formatOrderDateTime, getTransactionTimestamp } from '../adminHelpers';
 
@@ -32,7 +33,9 @@ export default function AdminAccountingTab({
   handleApproveTrx,
   handleRevokeTrx,
   handleDeleteTrx,
-  handleCopyText
+  handleCopyText,
+  handleSyncOrders,
+  isSyncingOrders = false
 }) {
   const [internalEditingId, setInternalEditingId] = useState(null);
   const [internalEditingVal, setInternalEditingVal] = useState('');
@@ -141,6 +144,18 @@ export default function AdminAccountingTab({
           Financial Register & Ledger
         </h2>
         <div className="flex items-center gap-2">
+          {handleSyncOrders && (
+            <button
+              type="button"
+              onClick={handleSyncOrders}
+              disabled={isSyncingOrders}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs border border-blue-200 cursor-pointer transition-all active:scale-95 shrink-0 disabled:opacity-50"
+              title="Supabase ক্লাউড থেকে নতুন ট্রানজ্যাকশন ও এনরোলমেন্ট রিকোয়েস্ট সিঙ্ক করুন"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingOrders ? 'animate-spin text-blue-600' : 'text-blue-500'}`} />
+              <span>{isSyncingOrders ? 'Syncing...' : 'Sync Cloud'}</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={handleResetAccountingTotals}
@@ -193,6 +208,37 @@ export default function AdminAccountingTab({
           </div>
         </div>
       </div>
+
+      {/* Pending Enrollments Notice Banner */}
+      {pendingCount > 0 && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <span className="flex h-3.5 w-3.5 relative shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>
+            </span>
+            <div>
+              <p className="text-xs sm:text-sm font-bold text-amber-950 leading-tight">
+                {pendingCount}টি নতুন কোর্স এনরোলমেন্ট রিকোয়েস্ট পেন্ডিং রয়েছে
+              </p>
+              <p className="text-[11px] text-amber-800 font-medium mt-0.5">
+                ফিল্টারে "Pending" ক্লিক করে যেকোনো রিকোয়েস্টে "Approve" দিলেই শিক্ষার্থীর একাউন্টে কোর্স সাথে সাথে আনলক হয়ে যাবে।
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTrxFilter && setTrxFilter(trxFilter === 'PENDING' ? 'ALL' : 'PENDING')}
+            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-all shrink-0 ${
+              trxFilter === 'PENDING'
+                ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
+                : 'bg-amber-200/80 hover:bg-amber-300 text-amber-900 border border-amber-300'
+            }`}
+          >
+            {trxFilter === 'PENDING' ? '✓ Showing Pending Requests' : '🔍 View Pending Requests'}
+          </button>
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">

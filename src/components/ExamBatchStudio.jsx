@@ -28,7 +28,11 @@ import {
   ChevronRight,
   UploadCloud,
   Hash,
-  Zap
+  Zap,
+  Save,
+  Phone,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 import {
   getMergedExamManifest,
@@ -119,6 +123,7 @@ export default function ExamBatchStudio({
 
   // Basic Details & Overview Form drafts
   const [newFeatureInput, setNewFeatureInput] = useState('');
+  const [newRuleInput, setNewRuleInput] = useState('');
 
   // Refs for smooth jumping
   const questionCardRefs = useRef({});
@@ -146,7 +151,7 @@ export default function ExamBatchStudio({
       if (exam.category === batchKey) return true;
       if (batchKey === 'sureshot' && (exam.category === 'sureshot' || exam.categoryName?.includes('শিওর শট'))) return true;
       if (batchKey === 'medical' && (exam.category === 'medical' || exam.categoryName?.includes('মেডিকেল বিগত'))) return true;
-      if (batchKey === 'rtds' && (exam.category === 'rtds' || exam.categoryName?.includes('অনুশীলনী'))) return true;
+      if ((batchKey === 'anushiloni' || batchKey === 'rtds') && (exam.category === 'anushiloni' || exam.category === 'rtds' || exam.categoryName?.includes('অনুশীলনী'))) return true;
       if (batchKey === 'gk_course' && (exam.category === 'gk_course' || exam.categoryName?.includes('সাধারণ জ্ঞান'))) return true;
       if (batchKey === 'english_master' && (exam.category === 'english_master' || exam.categoryName?.includes('ইংলিশ মাস্টার'))) return true;
       if (batchKey === 'medilogy' && (exam.category === 'medilogy' || exam.categoryName?.includes('মেডিলজি'))) return true;
@@ -227,7 +232,69 @@ export default function ExamBatchStudio({
   };
 
   const handleUpdateField = (field, value) => {
-    const updated = { ...course, [field]: value };
+    const updated = { 
+      ...course, 
+      [field]: value,
+      ...(field === 'aboutText' ? {
+        aboutText: value,
+        details: {
+          ...(course.details || {}),
+          about: value
+        }
+      } : {}),
+      ...(field === 'features' ? {
+        features: value,
+        details: {
+          ...(course.details || {}),
+          features: value
+        }
+      } : {}),
+      ...(field === 'rules' ? {
+        rules: value,
+        details: {
+          ...(course.details || {}),
+          rules: value
+        }
+      } : {}),
+      ...(field === 'salePrice' ? {
+        salePrice: Number(value) || 0,
+        price: Number(value) || 0,
+        details: {
+          ...(course.details || {}),
+          price: Number(value) || 0
+        }
+      } : {}),
+      ...(field === 'regularPrice' ? {
+        regularPrice: Number(value) || 0,
+        originalPrice: Number(value) || 0,
+        details: {
+          ...(course.details || {}),
+          originalPrice: Number(value) || 0
+        }
+      } : {}),
+      ...(field === 'badge' ? {
+        badge: value,
+        ribbonText: value,
+        details: {
+          ...(course.details || {}),
+          badge: value
+        }
+      } : {}),
+      ...(field === 'duration' ? {
+        duration: value,
+        details: {
+          ...(course.details || {}),
+          duration: value
+        }
+      } : {}),
+      ...(field === 'supportPhone' ? {
+        supportPhone: value,
+        details: {
+          ...(course.details || {}),
+          supportPhone: value
+        }
+      } : {})
+    };
     notifySave(updated);
   };
 
@@ -846,6 +913,21 @@ export default function ExamBatchStudio({
                 </>
               )}
             </div>
+
+            {/* Save All Changes Button */}
+            <button
+              type="button"
+              onClick={() => {
+                notifySave(course);
+                if (typeof triggerToast === 'function') {
+                  triggerToast(`✅ ${course.title || 'Exam batch'} changes saved live!`);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer border-none active:scale-95"
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>Save Batch</span>
+            </button>
 
             {/* Live Preview Button */}
             <button
@@ -1987,18 +2069,67 @@ export default function ExamBatchStudio({
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 outline-none focus:bg-white focus:border-[#5d5bf6]"
                 />
               </div>
+
+              {/* Cover / Banner Image */}
+              <div className="sm:col-span-2 space-y-1.5 pt-2 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-700">Exam Batch Banner Image</label>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="w-36 aspect-video rounded-2xl overflow-hidden bg-slate-100 ring-1 ring-slate-200 shrink-0">
+                    <img 
+                      src={course.image} 
+                      alt={course.title} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/sureshot_banner.jpg";
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2 flex-1 w-full">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openGalleryModal && openGalleryModal(course.image, `Select Cover for ${course.title}`, 'Banners', (newUrl) => {
+                          handleUpdateField('image', newUrl);
+                        })}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer transition-colors border border-slate-200"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Choose from Media Gallery</span>
+                      </button>
+                    </div>
+                    <input 
+                      type="text"
+                      value={course.image || ''}
+                      onChange={(e) => handleUpdateField('image', e.target.value)}
+                      placeholder="https://... or /exam_banners/..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-600 outline-none focus:bg-white focus:border-[#5d5bf6]"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Features list */}
             <div className="space-y-3 pt-4 border-t border-slate-100">
-              <label className="text-xs font-bold text-slate-700">Key Batch Features</label>
+              <label className="text-xs font-bold text-slate-700">Key Batch Features (কোর্সের বিশেষ বৈশিষ্ট্যসমূহ)</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newFeatureInput}
                   onChange={(e) => setNewFeatureInput(e.target.value)}
-                  placeholder="Enter new feature..."
+                  placeholder="Enter new feature (e.g. অধ্যায়ভিত্তিক প্র্যাকটিস ও লাইভ টেস্ট)..."
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-800 outline-none focus:bg-white focus:border-[#5d5bf6]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!newFeatureInput.trim()) return;
+                      const feats = Array.isArray(course.features) ? [...course.features] : [];
+                      feats.push({ id: Date.now(), text: newFeatureInput.trim() });
+                      handleUpdateField('features', feats);
+                      setNewFeatureInput('');
+                    }
+                  }}
                 />
                 <button
                   type="button"
@@ -2009,7 +2140,7 @@ export default function ExamBatchStudio({
                     handleUpdateField('features', feats);
                     setNewFeatureInput('');
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#5d5bf6] hover:bg-[#4e4be3] text-white text-xs font-bold cursor-pointer border-none"
+                  className="px-4 py-2 rounded-xl bg-[#5d5bf6] hover:bg-[#4e4be3] text-white text-xs font-bold cursor-pointer border-none shrink-0"
                 >
                   + Add Feature
                 </button>
@@ -2017,10 +2148,13 @@ export default function ExamBatchStudio({
 
               <div className="space-y-2">
                 {(Array.isArray(course.features) ? course.features : []).map((feat, idx) => {
-                  const featText = typeof feat === 'object' ? feat.text : feat;
+                  const featText = typeof feat === 'object' ? (feat.text || feat.title || '') : feat;
                   return (
                     <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                      <span className="text-slate-700 font-medium">{featText}</span>
+                      <div className="flex items-center gap-2 text-slate-700">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="font-medium">{featText}</span>
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
@@ -2036,6 +2170,26 @@ export default function ExamBatchStudio({
                 })}
               </div>
             </div>
+
+            {/* Save Batch Settings Action Bar */}
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[11px] text-slate-400">
+                Changes are saved to Supabase and broadcast live immediately.
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  notifySave(course);
+                  if (typeof triggerToast === 'function') {
+                    triggerToast('✅ Batch general settings & pricing saved!');
+                  }
+                }}
+                className="px-5 py-2.5 rounded-xl bg-[#5d5bf6] hover:bg-[#4b49e0] text-white font-bold text-xs shadow-md transition-all cursor-pointer border-none flex items-center gap-2 active:scale-95"
+              >
+                <Save className="w-4 h-4" />
+                <span>Save Batch Settings</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -2045,15 +2199,15 @@ export default function ExamBatchStudio({
         {activeTab === 'overview' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-6 max-w-4xl">
             <div>
-              <h3 className="text-base font-black text-slate-900">Overview & Guidelines</h3>
+              <h3 className="text-base font-black text-slate-900">Overview, Guidelines & Support</h3>
               <p className="text-xs text-slate-400 font-medium">
-                Write overview, objectives, and guidelines for students.
+                Write overview, student guidelines, rules, and hotline contact number.
               </p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">About / Overview</label>
+                <label className="text-xs font-bold text-slate-700">About / Overview Description</label>
                 <textarea
                   rows={6}
                   value={course.aboutText || course.details?.about || course.description || ''}
@@ -2073,6 +2227,86 @@ export default function ExamBatchStudio({
                   onChange={(e) => handleUpdateField('supportPhone', e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 outline-none focus:bg-white focus:border-[#5d5bf6]"
                 />
+              </div>
+
+              {/* Rules & Guidelines list */}
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-500" />
+                  <span>Exam Rules & Guidelines (পরীক্ষার নিয়মাবলী ও নির্দেশিকা)</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newRuleInput}
+                    onChange={(e) => setNewRuleInput(e.target.value)}
+                    placeholder="Enter exam guideline (e.g. প্রতিটি ভুল উত্তরের জন্য ০.২৫ নম্বর কর্তন করা হবে)..."
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-800 outline-none focus:bg-white focus:border-[#5d5bf6]"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (!newRuleInput.trim()) return;
+                        const rules = Array.isArray(course.rules) ? [...course.rules] : [];
+                        rules.push(newRuleInput.trim());
+                        handleUpdateField('rules', rules);
+                        setNewRuleInput('');
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!newRuleInput.trim()) return;
+                      const rules = Array.isArray(course.rules) ? [...course.rules] : [];
+                      rules.push(newRuleInput.trim());
+                      handleUpdateField('rules', rules);
+                      setNewRuleInput('');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#5d5bf6] hover:bg-[#4e4be3] text-white text-xs font-bold cursor-pointer border-none shrink-0"
+                  >
+                    + Add Rule
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {(Array.isArray(course.rules) ? course.rules : []).map((rule, idx) => {
+                    const ruleText = typeof rule === 'object' ? (rule.text || rule.title || '') : rule;
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                        <div className="flex items-center gap-2 text-slate-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span className="font-medium">{ruleText}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = course.rules.filter((_, i) => i !== idx);
+                            handleUpdateField('rules', updated);
+                          }}
+                          className="text-slate-400 hover:text-rose-600 border-none bg-transparent cursor-pointer p-0"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    notifySave(course);
+                    if (typeof triggerToast === 'function') {
+                      triggerToast('✅ Course overview & guidelines saved successfully!');
+                    }
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-[#5d5bf6] hover:bg-[#4b49e0] text-white font-bold text-xs shadow-md transition-all cursor-pointer border-none flex items-center gap-2 active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save Overview Changes</span>
+                </button>
               </div>
             </div>
           </div>

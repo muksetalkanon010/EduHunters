@@ -17,9 +17,9 @@ import ExamDetailPage from './ExamDetailPage';
 import CheckoutModal from './CheckoutModal';
 import RtdsCurriculumView from './RtdsCurriculumView';
 import MasterEnglishCurriculumView from './MasterEnglishCurriculumView';
-import { stripEmoji } from '../utils/textUtils';
+import { stripEmoji, toBengaliNumerals } from '../utils/textUtils';
 import { getMergedExamManifest, loadExamQuestions, getQuestionCorrectIndex, cleanExplanation, getUserAnswer } from '../utils/examBatchStorage';
-import { getStoredEnrolledBatches, isItemEnrolled } from '../utils/enrollmentService';
+import { getStoredEnrolledBatches, isItemEnrolled, getRealEnrolledCount } from '../utils/enrollmentService';
 import { recordQuizSubmission, fetchLessonLeaderboard, checkStudentExamAttemptStatus } from '../services/quizService';
 import { getResolvedStudent } from '../utils/studentProfile';
 
@@ -49,7 +49,7 @@ const CATEGORY_TABS = [
   { key: 'all', name: 'সব ক্যাটাগরি', count: '৯৭০টি', icon: '🌟' },
   { key: 'sureshot', name: 'Sure Shot Carnival', count: '১৭টি', icon: '🎯' },
   { key: 'medical', name: 'মেডিকেল বিগত ১১ বছর (MAT)', count: '১১টি', icon: '🩺' },
-  { key: 'rtds', name: 'অনুশীলনী ও মেডিকেল প্রশ্নব্যাংক', count: '৩৭৭টি', icon: '🔬' },
+  { key: 'anushiloni', name: 'অনুশীলনী ও মেডিকেল প্রশ্নব্যাংক', count: '৩৭৭টি', icon: '🔬' },
   { key: 'english_master', name: 'ইংলিশ মাস্টার ৫০', count: '২৬৭টি', icon: '🔤' },
   { key: 'gk_course', name: 'জিকে ফুল কোর্স ২৬', count: '২৫৫টি', icon: '🌍' },
   { key: 'medilogy', name: 'মেডিলজি ডেইলি প্ল্যানার', count: '৪৩টি', icon: '📖' },
@@ -99,14 +99,91 @@ export default function SureShotExamSystem({
   siteSettings, 
   customExamBatches = null,
   courses = null,
+  data = null,
   isFromBundle = false,
   onBackToBundle = null,
   onLoginClick = null
 }) {
   const { isDark } = useTheme();
-  const categoriesMetadata = (customExamBatches && customExamBatches.length > 0)
+  const rawBatches = (customExamBatches && customExamBatches.length > 0)
     ? customExamBatches
     : EXAM_CATEGORIES_METADATA;
+
+  const categoriesMetadata = useMemo(() => {
+    return rawBatches.map(b => {
+      const isRtds = b.key === 'rtds' || b.key === 'anushiloni';
+      const cleanKey = isRtds ? 'anushiloni' : b.key;
+
+      const match = (Array.isArray(courses) ? courses : []).find(c =>
+        (c.key && cleanKey && (c.key === cleanKey || (cleanKey === 'anushiloni' && c.key === 'rtds'))) ||
+        (c.id && cleanKey && (c.id === cleanKey || (cleanKey === 'anushiloni' && c.id === 'rtds'))) ||
+        (c.slug && cleanKey && (c.slug === cleanKey || (cleanKey === 'anushiloni' && c.slug === 'rtds'))) ||
+        (c.id && b.id && c.id === b.id) ||
+        (c.title && b.title && c.title.trim().toLowerCase() === b.title.trim().toLowerCase())
+      );
+
+      const title = (match?.title || b.title || '').replace(/\(RTDS\)/gi, '').replace(/RTDS/gi, '').replace(/\s{2,}/g, ' ').trim();
+      const subtitle = match?.subtitle || match?.description || b.subtitle || b.description || '';
+      const aboutVal = match?.aboutText || match?.details?.about || match?.description || b.aboutText || b.details?.about || b.description;
+      const salePrice = match?.salePrice !== undefined ? match.salePrice : (match?.price !== undefined ? match.price : (b.salePrice !== undefined ? b.salePrice : b.price));
+      const regularPrice = match?.regularPrice !== undefined ? match.regularPrice : (match?.originalPrice !== undefined ? match.originalPrice : (b.regularPrice !== undefined ? b.regularPrice : b.originalPrice));
+      const ribbonText = match?.badge || match?.ribbonText || b.badge || b.ribbonText || '';
+      const image = match?.image || (isRtds ? '/exam_banners/anushiloni_banner.jpg' : b.image);
+      const duration = match?.duration || b.duration || '30 mins';
+      const supportPhone = match?.supportPhone || b.supportPhone || '01342227935';
+      const features = (Array.isArray(match?.features) && match.features.length > 0)
+        ? match.features
+        : ((Array.isArray(match?.details?.features) && match.details.features.length > 0)
+          ? match.details.features
+          : ((Array.isArray(b.features) && b.features.length > 0) ? b.features : (b.details?.features || [])));
+      const rules = (Array.isArray(match?.rules) && match.rules.length > 0)
+        ? match.rules
+        : ((Array.isArray(match?.details?.rules) && match.details.rules.length > 0)
+          ? match.details.rules
+          : ((Array.isArray(b.rules) && b.rules.length > 0) ? b.rules : (b.details?.rules || [])));
+      const highlights = match?.highlights || match?.details?.highlights || b.highlights || [];
+      const faqs = match?.faqs || match?.details?.faqs || b.faqs || [];
+
+      return {
+        ...b,
+        key: cleanKey,
+        id: cleanKey,
+        slug: cleanKey,
+        title,
+        subtitle,
+        aboutText: aboutVal,
+        description: subtitle || aboutVal,
+        price: String(salePrice),
+        originalPrice: String(regularPrice),
+        salePrice: Number(salePrice) || 0,
+        regularPrice: Number(regularPrice) || 0,
+        ribbonText,
+        badge: ribbonText,
+        image,
+        duration,
+        supportPhone,
+        features,
+        rules,
+        highlights,
+        faqs,
+        isActive: match?.isActive !== undefined ? match.isActive : b.isActive,
+        details: {
+          ...(b.details || {}),
+          ...(match?.details || {}),
+          about: (aboutVal || '').replace(/RTDS এক্সাম ব্যাচে/g, 'অনুশীলনী এক্সাম ব্যাচে').replace(/RTDS/g, 'অনুশীলনী'),
+          price: salePrice,
+          originalPrice: regularPrice,
+          badge: ribbonText,
+          duration,
+          supportPhone,
+          features,
+          rules,
+          highlights,
+          faqs
+        }
+      };
+    });
+  }, [rawBatches, courses]);
 
   const isCategoryActive = useCallback((cat) => {
     if (!cat) return false;
@@ -263,7 +340,10 @@ export default function SureShotExamSystem({
   const isBatchEnrolled = (catKey) => {
     if (!catKey || catKey === 'all') return true;
     if (enrolledBatches.includes(catKey)) return true;
-    return isItemEnrolled(catKey, currentUser);
+    if ((catKey === 'anushiloni' || catKey === 'rtds') && isItemEnrolled('course-1791887161017', currentUser, data)) {
+      return true;
+    }
+    return isItemEnrolled(catKey, currentUser, data);
   };
 
   // Manifest data state
@@ -972,7 +1052,8 @@ export default function SureShotExamSystem({
     const catExams = allExams.filter(e => e.category === catKey);
     const catExamIndex = catExams.findIndex(e => e.id === examMeta.id);
     const isFreeExam = examMeta.isFree || examMeta.isTrial || catExamIndex === 0;
-    if (!isCurrentCatEnrolled && !isFreeExam) {
+    const isEnrolled = isBatchEnrolled(catKey);
+    if (!isEnrolled && !isFreeExam) {
       const targetCat = categoriesMetadata.find(c => c.key === catKey) || {
         key: catKey,
         title: CATEGORY_TABS.find(t => t.key === catKey)?.name || 'এক্সাম ব্যাচ',
@@ -1088,12 +1169,35 @@ export default function SureShotExamSystem({
       return;
     }
 
+    // Dynamically shuffle questions for the live session so order is always fresh
+    const shuffledQuestions = [...questions];
+    if (shuffledQuestions.length > 1) {
+      for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
+      }
+      shuffledQuestions.forEach((q, idx) => {
+        q.question_no = idx + 1;
+      });
+    }
+
     const effectiveMode = (attemptStatus?.hasAttempted && mode === 'real') ? 'practice' : mode;
     setExamMode(effectiveMode);
     setUserAnswers({});
+    const activeDur = examData?.duration_minutes || selectedExamMeta?.durationMinutes || Math.max(2, Math.round(questions.length * 0.6));
+
+    const freshWithShuffled = {
+      ...(examData || {}),
+      duration_minutes: activeDur,
+      total_questions: shuffledQuestions.length,
+      questions: shuffledQuestions
+    };
+    setExamData(freshWithShuffled);
+
     try {
       sessionStorage.removeItem('eduhunters_active_user_answers');
       sessionStorage.removeItem('eduhunters_active_exam_result');
+      sessionStorage.setItem('eduhunters_active_exam_data', JSON.stringify(freshWithShuffled));
       const activeExamId = selectedExamMeta?.id || examData?.exam_id || Date.now().toString();
       const catToUse = selectedCategory || examData?.category || 'sureshot';
       sessionStorage.setItem('eh_active_live_exam', JSON.stringify({
@@ -1103,14 +1207,13 @@ export default function SureShotExamSystem({
         examTitle: examData?.title || selectedExamMeta?.title || 'Exam',
         examMode: effectiveMode,
         startTime: Date.now(),
-        totalQuestions: questions.length
+        totalQuestions: shuffledQuestions.length
       }));
     } catch (e) {}
     setFlaggedQuestions({});
     setPracticeRevealed({});
     setIsSubmitted(false);
     setExamResult(null);
-    const activeDur = examData?.duration_minutes || selectedExamMeta?.durationMinutes || 40;
     setTimeLeft(activeDur * 60);
     examStartTimeRef.current = Date.now();
     updateExamStep('exam_live', selectedCategory, selectedExamMeta?.id);
@@ -1418,9 +1521,51 @@ export default function SureShotExamSystem({
       setStep('exam_intro');
       return null;
     }
-    const detailToUse = selectedCategoryDetail || 
-      categoriesMetadata.find(c => c.key === selectedCategory) || 
+    const baseDetail = selectedCategoryDetail || 
+      categoriesMetadata.find(c => c.key === selectedCategory || (selectedCategory === 'anushiloni' && c.key === 'rtds') || (selectedCategory === 'rtds' && c.key === 'anushiloni')) || 
       categoriesMetadata[0];
+
+    const matchedCourse = (Array.isArray(courses) ? courses : []).find(c =>
+      (c.key && baseDetail?.key && (c.key === baseDetail.key || (baseDetail.key === 'anushiloni' && c.key === 'rtds'))) ||
+      (c.id && baseDetail?.key && (c.id === baseDetail.key || (baseDetail.key === 'anushiloni' && c.id === 'rtds'))) ||
+      (c.slug && baseDetail?.key && (c.slug === baseDetail.key || (baseDetail.key === 'anushiloni' && c.slug === 'rtds'))) ||
+      (c.id && baseDetail?.id && c.id === baseDetail.id) ||
+      (c.title && baseDetail?.title && c.title.trim().toLowerCase() === baseDetail.title.trim().toLowerCase())
+    );
+
+    const detailToUse = matchedCourse ? {
+      ...baseDetail,
+      title: (matchedCourse.title || baseDetail.title).replace(/\(RTDS\)/gi, '').replace(/RTDS/gi, '').replace(/\s{2,}/g, ' ').trim(),
+      subtitle: matchedCourse.subtitle || matchedCourse.description || baseDetail.subtitle,
+      aboutText: matchedCourse.aboutText || baseDetail.aboutText,
+      description: matchedCourse.description || matchedCourse.aboutText || baseDetail.description,
+      image: matchedCourse.image || baseDetail.image,
+      price: matchedCourse.salePrice !== undefined ? String(matchedCourse.salePrice) : (matchedCourse.price !== undefined ? String(matchedCourse.price) : baseDetail.price),
+      originalPrice: matchedCourse.regularPrice !== undefined ? String(matchedCourse.regularPrice) : (matchedCourse.originalPrice !== undefined ? String(matchedCourse.originalPrice) : baseDetail.originalPrice),
+      salePrice: matchedCourse.salePrice !== undefined ? matchedCourse.salePrice : baseDetail.salePrice,
+      regularPrice: matchedCourse.regularPrice !== undefined ? matchedCourse.regularPrice : baseDetail.regularPrice,
+      badge: matchedCourse.badge || matchedCourse.ribbonText || baseDetail.badge,
+      duration: matchedCourse.duration || baseDetail.duration,
+      supportPhone: matchedCourse.supportPhone || baseDetail.supportPhone,
+      features: (Array.isArray(matchedCourse.features) && matchedCourse.features.length > 0) ? matchedCourse.features : (matchedCourse.details?.features || baseDetail.features),
+      rules: (Array.isArray(matchedCourse.rules) && matchedCourse.rules.length > 0) ? matchedCourse.rules : (matchedCourse.details?.rules || baseDetail.rules),
+      highlights: matchedCourse.highlights || matchedCourse.details?.highlights || baseDetail.highlights,
+      faqs: matchedCourse.faqs || matchedCourse.details?.faqs || baseDetail.faqs,
+      details: {
+        ...(baseDetail.details || {}),
+        ...(matchedCourse.details || {}),
+        about: (matchedCourse.aboutText || matchedCourse.details?.about || baseDetail.details?.about || '').replace(/RTDS এক্সাম ব্যাচে/g, 'অনুশীলনী এক্সাম ব্যাচে').replace(/RTDS/g, 'অনুশীলনী'),
+        features: (Array.isArray(matchedCourse.features) && matchedCourse.features.length > 0) ? matchedCourse.features : (matchedCourse.details?.features || baseDetail.details?.features || baseDetail.features),
+        rules: (Array.isArray(matchedCourse.rules) && matchedCourse.rules.length > 0) ? matchedCourse.rules : (matchedCourse.details?.rules || baseDetail.details?.rules || baseDetail.rules),
+        highlights: matchedCourse.highlights || matchedCourse.details?.highlights || baseDetail.details?.highlights || baseDetail.highlights,
+        faqs: matchedCourse.faqs || matchedCourse.details?.faqs || baseDetail.details?.faqs || baseDetail.faqs,
+        duration: matchedCourse.duration || baseDetail.duration,
+        supportPhone: matchedCourse.supportPhone || baseDetail.supportPhone,
+        badge: matchedCourse.badge || matchedCourse.ribbonText || baseDetail.badge,
+        price: matchedCourse.salePrice !== undefined ? matchedCourse.salePrice : (matchedCourse.price !== undefined ? matchedCourse.price : baseDetail.details?.price || baseDetail.price),
+        originalPrice: matchedCourse.regularPrice !== undefined ? matchedCourse.regularPrice : (matchedCourse.originalPrice !== undefined ? matchedCourse.originalPrice : baseDetail.details?.originalPrice || baseDetail.originalPrice)
+      }
+    } : baseDetail;
 
     if (detailToUse && !isCategoryActive(detailToUse)) {
       return (
@@ -1441,7 +1586,11 @@ export default function SureShotExamSystem({
     }
 
     const isEnrolled = isBatchEnrolled(detailToUse?.key);
-    const categoryExams = allExams.filter(c => c.category === detailToUse?.key);
+    const isAnushiloniMatch = detailToUse?.key === 'anushiloni' || detailToUse?.key === 'rtds';
+    const categoryExams = allExams.filter(c => 
+      c.category === detailToUse?.key ||
+      (isAnushiloniMatch && (c.category === 'rtds' || c.category === 'anushiloni'))
+    );
     let examsForDetail = categoryExams.length > 0 
       ? categoryExams 
       : (detailToUse?.key === 'sureshot' ? INITIAL_SURE_SHOT : []);
@@ -1474,6 +1623,7 @@ export default function SureShotExamSystem({
         <ExamDetailPage 
           category={detailToUse}
           exams={examsForDetail}
+          data={data}
           isFromBundle={isFromBundle}
           onBack={() => {
             if (isFromBundle && onBackToBundle) {
@@ -1589,9 +1739,7 @@ export default function SureShotExamSystem({
                       <div className="flex items-center gap-1.5 shrink-0">
                         <User size={15} className="shrink-0 text-gray-500 dark:text-gray-400" />
                         <span className="truncate">
-                          {cat.enrolledCount 
-                            ? (cat.enrolledCount.includes('জন') ? cat.enrolledCount : `${cat.enrolledCount.replace('+', '').trim()} জন`)
-                            : '৩,৪৫০ জন'}
+                          {toBengaliNumerals(getRealEnrolledCount(cat, data))} জন
                         </span>
                       </div>
 
@@ -1923,8 +2071,8 @@ export default function SureShotExamSystem({
             </div>
           </div>
 
-          {/* RTDS / GK Course Hierarchy View */}
-          {(selectedCategory === 'rtds' || selectedCategory === 'gk_course') ? (
+          {/* RTDS / Anushiloni / GK Course Hierarchy View */}
+          {(selectedCategory === 'anushiloni' || selectedCategory === 'rtds' || selectedCategory === 'gk_course') ? (
             <RtdsCurriculumView
               exams={filteredList}
               onSelectExam={handleSelectExam}

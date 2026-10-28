@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { getAdminSession } from '../services/adminAuthService';
 
 export default function Navbar({
   activePage = 'home', // 'home' | 'courses' | 'exams' | 'store' | 'about' | 'devices' | 'orders'
@@ -24,6 +25,7 @@ export default function Navbar({
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { theme, isDark } = useTheme();
   const { currentUser, logout } = useAuth();
+  const isAdmin = currentUser?.role === 'admin' || (currentUser?.email || '').toLowerCase() === 'admin@eduhunters.com' || Boolean(getAdminSession());
 
   // Close drawer on ESC key
   useEffect(() => {
@@ -325,6 +327,21 @@ export default function Navbar({
               </button>
             )}
 
+            {/* Direct Admin Portal Access for Admin User */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => onOpenAdmin?.('overview')}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-600/25 border-none cursor-pointer transition-all hover:scale-105 active:scale-95"
+                title="Open Admin Portal"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span>Admin</span>
+              </button>
+            )}
+
             {/* Profile Avatar Trigger Button that opens Right Side Menu Drawer */}
             <button
               onClick={() => setIsDrawerOpen(true)}
@@ -497,6 +514,27 @@ export default function Navbar({
 
             {/* Menu Items */}
             <div className="flex flex-col space-y-4">
+              {/* Admin Portal Shortcut for Admins */}
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => handleNav(() => onOpenAdmin?.('overview'))}
+                  className="flex items-center justify-between text-left group bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 p-2.5 rounded-xl cursor-pointer transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 flex items-center justify-center text-indigo-400">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      </svg>
+                    </div>
+                    <span className="text-[15px] font-bold text-indigo-300">এডমিন প্যানেল</span>
+                  </div>
+                  <span className="text-[10px] bg-indigo-500 text-white px-2 py-0.5 rounded-md font-black uppercase tracking-wider">
+                    Admin
+                  </span>
+                </button>
+              )}
+
               {/* 1. Home */}
               <button
                 onClick={() => handleNav(onNavigateHome)}

@@ -566,7 +566,7 @@ export default function RtdsCurriculumView({
           <h2 className={`text-base sm:text-lg font-bold tracking-tight truncate ${
             isDark ? 'text-white' : 'text-gray-900'
           }`}>
-            {selectedSub ? selectedSub : (selectedRoot ? selectedRoot : (category?.title?.split('|')[0]?.trim() || (isGk ? 'জিকে ফুল কোর্স ২৬' : 'RTDS Unlimited')))}
+            {selectedSub ? selectedSub : (selectedRoot ? selectedRoot : (category?.title?.split('|')[0]?.trim() || (isGk ? 'জিকে ফুল কোর্স ২৬' : 'অনুশীলনী ও মেডিকেল প্রশ্নব্যাংক')))}
           </h2>
         </div>
       </div>

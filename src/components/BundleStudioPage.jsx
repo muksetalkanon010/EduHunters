@@ -310,7 +310,7 @@ export default function BundleStudioPage({
                   type="text"
                   value={form.subtitle}
                   onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
-                  placeholder="e.g. SureShot + Medical Special + RTDS"
+                  placeholder="e.g. SureShot + Medical Special + অনুশীলনী"
                   className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl px-4 py-2 text-xs font-medium text-slate-800 outline-none focus:bg-white focus:border-[#5d5bf6] focus:ring-2 focus:ring-[#5d5bf6]/15 transition-all placeholder:text-slate-400"
                 />
               </div>

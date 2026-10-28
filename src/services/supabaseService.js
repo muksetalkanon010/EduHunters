@@ -9,13 +9,26 @@ import { physicsFinishingTouchCourseData } from '../data/physicsFinishingTouchDa
  * ==========================================
  */
 let liveBus = null;
+const broadcastListeners = new Map();
 
 function getLiveBus() {
   if (!isSupabaseConfigured || !supabase) return null;
   if (!liveBus) {
     liveBus = supabase.channel('eduhunters_live_bus', {
-      config: { broadcast: { self: false, ack: false } }
+      config: { broadcast: { self: true, ack: false } }
     });
+
+    // Attach master broadcast router before subscribing so all incoming events are received reliably
+    liveBus.on('broadcast', { event: '*' }, (msg) => {
+      const eventName = msg.event;
+      if (eventName && broadcastListeners.has(eventName)) {
+        const cbs = broadcastListeners.get(eventName);
+        cbs.forEach(cb => {
+          try { cb(msg.payload); } catch (e) { console.warn('[SupabaseBus] Callback note:', e); }
+        });
+      }
+    });
+
     liveBus.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         console.log('[SupabaseBus] Connected to ultra-fast real-time message bus.');
@@ -43,14 +56,16 @@ export function subscribeToSupabaseMessage(event, callback) {
     return () => {};
   }
   try {
-    const bus = getLiveBus();
-    if (bus) {
-      bus.on('broadcast', { event }, (msg) => {
-        if (msg?.payload) {
-          callback(msg.payload);
-        }
-      });
+    getLiveBus();
+    if (!broadcastListeners.has(event)) {
+      broadcastListeners.set(event, new Set());
     }
+    broadcastListeners.get(event).add(callback);
+    return () => {
+      if (broadcastListeners.has(event)) {
+        broadcastListeners.get(event).delete(callback);
+      }
+    };
   } catch (e) {}
   return () => {};
 }
@@ -682,7 +697,7 @@ export async function fetchUserApprovedEnrollments(email, phone, uid) {
 
     // 2. Fetch all approved/paid orders from eduhunters_orders
     const filterClauses = [];
-    if (cleanEmail) filterClauses.push(`customer_email.eq.${cleanEmail}`);
+    if (cleanEmail) filterClauses.push(`customer_email.ilike.${cleanEmail}`);
     if (cleanPhone && cleanPhone.length >= 6) {
       filterClauses.push(`customer_phone.eq.${cleanPhone}`);
       const raw10 = cleanPhone.slice(-10);
@@ -692,6 +707,9 @@ export async function fetchUserApprovedEnrollments(email, phone, uid) {
         filterClauses.push(`customer_phone.eq.+880${raw10}`);
       }
     }
+    if (uid && typeof uid === 'string') {
+      filterClauses.push(`id.eq.${uid}`);
+    }
 
     let ordersList = [];
     if (filterClauses.length > 0) {
@@ -699,11 +717,15 @@ export async function fetchUserApprovedEnrollments(email, phone, uid) {
         .from('eduhunters_orders')
         .select('*')
         .or(filterClauses.join(','))
-        .in('status', ['PAID', 'Completed', 'paid', 'completed', 'APPROVED', 'Approved', 'approved', 'SUCCESS', 'success'])
         .order('created_at', { ascending: false });
 
       if (!error && Array.isArray(matchedOrders)) {
-        ordersList = matchedOrders.map(row => ({
+        const approvedOrders = matchedOrders.filter(row => {
+          const st = (row.status || '').toUpperCase();
+          return Boolean(row.is_approved) || st === 'PAID' || st === 'COMPLETED' || st === 'APPROVED' || st === 'SUCCESS';
+        });
+
+        ordersList = approvedOrders.map(row => ({
           ...(row.raw_data || {}),
           id: row.id,
           invoiceNumber: row.invoice_number,

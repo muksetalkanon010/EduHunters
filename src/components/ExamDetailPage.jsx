@@ -9,7 +9,8 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import RtdsCurriculumView from './RtdsCurriculumView';
 import MasterEnglishCurriculumView from './MasterEnglishCurriculumView';
-import { stripEmoji } from '../utils/textUtils';
+import { stripEmoji, toBengaliNumerals } from '../utils/textUtils';
+import { getRealEnrolledCount } from '../utils/enrollmentService';
 
 
 export default function ExamDetailPage({ 
@@ -21,10 +22,15 @@ export default function ExamDetailPage({
   onPreviewExams, 
   onOpenEnrollModal, 
   isEnrolled = false,
-  isFromBundle = false
+  isFromBundle = false,
+  data = {}
 }) {
   const { isDark } = useTheme();
   const [openFaqIdx, setOpenFaqIdx] = useState(0);
+
+  const realEnrolledCount = useMemo(() => {
+    return getRealEnrolledCount(category, data);
+  }, [category, data]);
 
   // Multi-source detection: whether the user navigated here from a bundle
   const isFromBundleResolved = Boolean(
@@ -335,9 +341,7 @@ export default function ExamDetailPage({
                   <div className="flex items-center gap-1.5 shrink-0">
                     <User size={15} className="shrink-0 text-gray-500 dark:text-gray-400" />
                     <span>
-                      {category.enrolledCount 
-                        ? (category.enrolledCount.includes('enrolled') ? category.enrolledCount : `${category.enrolledCount.replace('+', '').replace('জন', '').trim()} enrolled`)
-                        : '3,450 enrolled'}
+                      {toBengaliNumerals(realEnrolledCount)} enrolled
                     </span>
                   </div>
 
@@ -426,8 +430,8 @@ export default function ExamDetailPage({
 
 
 
-            {/* Render Curriculum Hierarchy if category is RTDS or GK Course */}
-            {(category?.key === 'rtds' || category?.key === 'gk_course') ? (
+            {/* Render Curriculum Hierarchy if category is Anushiloni/RTDS or GK Course */}
+            {(category?.key === 'anushiloni' || category?.key === 'rtds' || category?.key === 'gk_course') ? (
               <RtdsCurriculumView
                 exams={exams}
                 onSelectExam={onSelectExam}
@@ -820,7 +824,7 @@ export default function ExamDetailPage({
             )}
 
             {/* About / Description */}
-            {category.details?.about && (
+            {(category.aboutText || category.details?.about || category.description) && (
               <div className={`p-6 sm:p-7 rounded-3xl border transition-all ${
                 isDark 
                   ? 'bg-[#140306] border-[#e11438]/20 backdrop-blur-md' 
@@ -830,8 +834,160 @@ export default function ExamDetailPage({
                   About Course
                 </h2>
                 <p className={`text-sm sm:text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {category.details.about}
+                  {category.aboutText || category.details?.about || category.description}
                 </p>
+              </div>
+            )}
+
+            {/* Batch Key Features */}
+            {((Array.isArray(category.features) && category.features.length > 0) || (Array.isArray(category.details?.features) && category.details.features.length > 0)) && (
+              <div className={`p-6 sm:p-7 rounded-3xl border transition-all ${
+                isDark 
+                  ? 'bg-[#140306] border-[#e11438]/20 backdrop-blur-md' 
+                  : 'bg-white border-gray-200'
+              }`}>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-xl bg-red-500/10 text-[#dc2626] flex items-center justify-center">
+                    <Sparkles size={18} />
+                  </div>
+                  <h2 className={`text-lg sm:text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                    কোর্সের বিশেষ বৈশিষ্ট্যসমূহ
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {(category.features || category.details?.features || []).map((feat, idx) => {
+                    const featText = typeof feat === 'object' ? (feat.text || feat.title || '') : feat;
+                    if (!featText) return null;
+                    return (
+                      <div 
+                        key={idx}
+                        className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all ${
+                          isDark 
+                            ? 'bg-white/[0.03] border-white/[0.07] text-gray-200' 
+                            : 'bg-red-50/40 border-red-100/80 text-gray-800'
+                        }`}
+                      >
+                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check size={13} strokeWidth={3} />
+                        </div>
+                        <span className="text-xs sm:text-sm font-semibold leading-snug">{featText}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Exam Rules & Guidelines */}
+            {((Array.isArray(category.rules) && category.rules.length > 0) || (Array.isArray(category.details?.rules) && category.details.rules.length > 0)) && (
+              <div className={`p-6 sm:p-7 rounded-3xl border transition-all ${
+                isDark 
+                  ? 'bg-[#140306] border-[#e11438]/20 backdrop-blur-md' 
+                  : 'bg-white border-gray-200'
+              }`}>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                    <AlertCircle size={18} />
+                  </div>
+                  <h2 className={`text-lg sm:text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                    পরীক্ষার নিয়মাবলী ও নির্দেশিকা
+                  </h2>
+                </div>
+
+                <div className="space-y-2.5">
+                  {(category.rules || category.details?.rules || []).map((rule, idx) => {
+                    const ruleText = typeof rule === 'object' ? (rule.text || rule.title || '') : rule;
+                    if (!ruleText) return null;
+                    return (
+                      <div 
+                        key={idx}
+                        className={`flex items-start gap-3 p-3 rounded-xl border text-xs sm:text-sm font-medium ${
+                          isDark 
+                            ? 'bg-white/[0.02] border-white/[0.06] text-gray-300' 
+                            : 'bg-amber-50/40 border-amber-200/60 text-amber-950'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                        <span className="leading-relaxed">{ruleText}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* FAQs Section */}
+            {((Array.isArray(category.faqs) && category.faqs.length > 0) || (Array.isArray(category.details?.faqs) && category.details.faqs.length > 0)) && (
+              <div className={`p-6 sm:p-7 rounded-3xl border transition-all ${
+                isDark 
+                  ? 'bg-[#140306] border-[#e11438]/20 backdrop-blur-md' 
+                  : 'bg-white border-gray-200'
+              }`}>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                    <HelpCircle size={18} />
+                  </div>
+                  <h2 className={`text-lg sm:text-xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                    সচরাচর জিজ্ঞাসিত প্রশ্ন (FAQ)
+                  </h2>
+                </div>
+
+                <div className="space-y-2.5">
+                  {(category.faqs || category.details?.faqs || []).map((faq, idx) => {
+                    const isOpen = openFaqIdx === idx;
+                    const qText = typeof faq === 'object' ? (faq.q || faq.question || '') : '';
+                    const aText = typeof faq === 'object' ? (faq.a || faq.answer || '') : '';
+                    if (!qText) return null;
+                    return (
+                      <div 
+                        key={idx}
+                        className={`rounded-2xl border transition-all overflow-hidden ${
+                          isDark ? 'bg-white/[0.02] border-white/[0.08]' : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleFaq(idx)}
+                          className="w-full p-4 text-left flex items-center justify-between gap-3 cursor-pointer bg-transparent border-none font-bold text-xs sm:text-sm text-slate-800 dark:text-gray-100"
+                        >
+                          <span>{qText}</span>
+                          <ChevronDown size={16} className={`transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-red-500' : 'text-gray-400'}`} />
+                        </button>
+                        {isOpen && (
+                          <div className={`px-4 pb-4 pt-1 text-xs sm:text-sm leading-relaxed border-t ${
+                            isDark ? 'border-white/[0.06] text-gray-300' : 'border-gray-200/80 text-gray-600'
+                          }`}>
+                            {aText}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Support Helpline / WhatsApp banner */}
+            {(category.supportPhone || category.details?.supportPhone) && (
+              <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                isDark ? 'bg-white/[0.03] border-white/10 text-gray-200' : 'bg-slate-50 border-gray-200 text-slate-800'
+              }`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+                    <Zap size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400">যেকোনো জিজ্ঞাসা বা টেকনিক্যাল সহায়তায়</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white">হটলাইন: {category.supportPhone || category.details?.supportPhone}</p>
+                  </div>
+                </div>
+                <a
+                  href={`tel:${category.supportPhone || category.details?.supportPhone}`}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors no-underline"
+                >
+                  কল করুন
+                </a>
               </div>
             )}
 

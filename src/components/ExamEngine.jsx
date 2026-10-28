@@ -12,7 +12,8 @@ export default function ExamEngine({ exam, onClose }) {
   const questions = Array.isArray(exam?.questions) ? exam.questions : [];
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState((exam?.durationMinutes || 15) * 60);
+  const calculatedDuration = exam?.durationMinutes || exam?.duration_minutes || (questions.length > 0 ? Math.max(2, Math.round(questions.length * 0.6)) : 15);
+  const [timeLeft, setTimeLeft] = useState(calculatedDuration * 60);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [result, setResult] = useState(null);
   const [tabSwitchWarnings, setTabSwitchWarnings] = useState(0);
@@ -106,21 +107,22 @@ export default function ExamEngine({ exam, onClose }) {
       }
     });
 
-    const negPenalty = wrongCount * (exam?.negativeMarking || 0.25);
+    const rawNeg = exam?.negativeMarking !== undefined ? exam.negativeMarking : (exam?.negative_mark !== undefined ? exam.negative_mark : 0.25);
+    const negPenalty = wrongCount * rawNeg;
     const rawScore = +(correctCount - negPenalty).toFixed(2);
     const finalScore = rawScore;
     const percentage = Math.max(0, Math.round((Math.max(0, finalScore) / questions.length) * 100));
 
     const resultPayload = {
       totalQuestions: questions.length,
-      totalPossible: exam?.totalMarks || questions.length,
+      totalPossible: exam?.totalMarks || exam?.total_marks || questions.length,
       correctCount,
       wrongCount,
       skippedCount,
       finalScore,
       score: finalScore,
       percentage,
-      isPassed: finalScore >= (exam?.passMarks || 1)
+      isPassed: finalScore >= (exam?.passMarks || exam?.pass_marks || Math.max(1, Math.round(questions.length * 0.4)))
     };
 
     setResult(resultPayload);

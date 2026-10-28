@@ -682,7 +682,7 @@
       "subject": "Biology",
       "filePath": "rtds/5.2 Final Medical Batch Exams/জীববিজ্ঞান ১ম পত্র/Biology 1st Paper Model Test 14-06-2025.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -850,7 +850,7 @@
       "subject": "Biology",
       "filePath": "rtds/5.2 Final Medical Batch Exams/জীববিজ্ঞান ২য় পত্র/Biology 2nd Paper Model Test 16-06-2025.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -948,7 +948,7 @@
       "subject": "Biology",
       "filePath": "rtds/5.2 Final Medical Batch Exams/জীববিজ্ঞান ২য় পত্র/বর্জ্য ও নিষ্কাশন.json",
       "totalQuestions": 40,
-      "durationMinutes": 30,
+      "durationMinutes": 24,
       "totalMarks": 40,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1046,7 +1046,7 @@
       "subject": "Physics",
       "filePath": "rtds/5.2 Final Medical Batch Exams/পদার্থবিজ্ঞান ১ম পত্র/Physics 1st Paper 18-06-2025.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1060,7 +1060,7 @@
       "subject": "Physics",
       "filePath": "rtds/5.2 Final Medical Batch Exams/পদার্থবিজ্ঞান ১ম পত্র/আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব.json",
       "totalQuestions": 40,
-      "durationMinutes": 30,
+      "durationMinutes": 24,
       "totalMarks": 40,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1200,7 +1200,7 @@
       "subject": "Physics",
       "filePath": "rtds/5.2 Final Medical Batch Exams/পদার্থবিজ্ঞান ২য় পত্র/Physics 2nd Paper 19-06-2025.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1270,7 +1270,7 @@
       "subject": "Physics",
       "filePath": "rtds/5.2 Final Medical Batch Exams/পদার্থবিজ্ঞান ২য় পত্র/তাপগতিবিদ্যা.json",
       "totalQuestions": 40,
-      "durationMinutes": 30,
+      "durationMinutes": 24,
       "totalMarks": 40,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1368,7 +1368,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/5.2 Final Medical Batch Exams/রসায়ন ১ম পত্র/Chemistry 1st Model Test 21-06-25.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1480,7 +1480,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/5.2 Final Medical Batch Exams/রসায়ন ২য় পত্র/Chemistry 2nd Paper Model Test 23-06-25.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1634,7 +1634,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/10th BCS IN GK.json",
       "totalQuestions": 37,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 37,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1648,7 +1648,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/11th BCS IN GK.json",
       "totalQuestions": 30,
-      "durationMinutes": 30,
+      "durationMinutes": 18,
       "totalMarks": 30,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1662,7 +1662,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/12th BCS IN GK.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1676,7 +1676,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/13th BCS IN GK.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1690,7 +1690,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/14th BCS IN GK.json",
       "totalQuestions": 17,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 17,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1704,7 +1704,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/15th BCS IN GK.json",
       "totalQuestions": 14,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 14,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1718,7 +1718,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/16th BCS IN GK.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1732,7 +1732,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/17th BCS IN GK.json",
       "totalQuestions": 18,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 18,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1746,7 +1746,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/18th BCS IN GK.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1760,7 +1760,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/19th BCS IN GK.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1774,7 +1774,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/20th BCS IN GK.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1788,7 +1788,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/21th BCS IN GK.json",
       "totalQuestions": 18,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 18,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1802,7 +1802,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/22th BCS IN GK.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1816,7 +1816,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/23th BCS IN GK.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1830,7 +1830,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/24th BCS IN GK.json",
       "totalQuestions": 25,
-      "durationMinutes": 30,
+      "durationMinutes": 15,
       "totalMarks": 25,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1844,7 +1844,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/25th BCS IN GK.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1858,7 +1858,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/26th BCS IN GK.json",
       "totalQuestions": 38,
-      "durationMinutes": 30,
+      "durationMinutes": 23,
       "totalMarks": 38,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1872,7 +1872,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/27th BCS IN GK.json",
       "totalQuestions": 18,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 18,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1886,7 +1886,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/28th BCS IN GK.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1900,7 +1900,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/29th BCS IN GK.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1914,7 +1914,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/30th BCS IN GK.json",
       "totalQuestions": 14,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 14,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1928,7 +1928,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/31th BCS IN GK.json",
       "totalQuestions": 13,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 13,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1942,7 +1942,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/32 BCS IN GK.json",
       "totalQuestions": 11,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 11,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1956,7 +1956,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/33 BCS IN GK.json",
       "totalQuestions": 11,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 11,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1970,7 +1970,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/34 BCS IN GK.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1984,7 +1984,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/35 BCS IN GK.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -1998,7 +1998,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/36 BCS IN GK.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2012,7 +2012,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/37 BCS IN GK.json",
       "totalQuestions": 25,
-      "durationMinutes": 30,
+      "durationMinutes": 15,
       "totalMarks": 25,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2026,7 +2026,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/38 BCS IN GK.json",
       "totalQuestions": 23,
-      "durationMinutes": 30,
+      "durationMinutes": 14,
       "totalMarks": 23,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2040,7 +2040,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/39 BCS IN GK.json",
       "totalQuestions": 16,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 16,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2054,7 +2054,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/40 BCS IN GK.json",
       "totalQuestions": 24,
-      "durationMinutes": 30,
+      "durationMinutes": 14,
       "totalMarks": 24,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2068,7 +2068,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/41 BCS IN GK.json",
       "totalQuestions": 34,
-      "durationMinutes": 30,
+      "durationMinutes": 20,
       "totalMarks": 34,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2082,7 +2082,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/42 BCS IN GK.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2096,7 +2096,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/43 BCS IN GK.json",
       "totalQuestions": 28,
-      "durationMinutes": 30,
+      "durationMinutes": 17,
       "totalMarks": 28,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2110,7 +2110,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/44 BCS IN GK.json",
       "totalQuestions": 30,
-      "durationMinutes": 30,
+      "durationMinutes": 18,
       "totalMarks": 30,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2124,7 +2124,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/45 BCS IN GK.json",
       "totalQuestions": 29,
-      "durationMinutes": 30,
+      "durationMinutes": 17,
       "totalMarks": 29,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2138,7 +2138,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS (BD+International) GK Exams/46 BCS IN GK.json",
       "totalQuestions": 36,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 36,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2152,7 +2152,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 17.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2166,7 +2166,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 18.json",
       "totalQuestions": 17,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 17,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2180,7 +2180,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 20.json",
       "totalQuestions": 16,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 16,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2194,7 +2194,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 21.json",
       "totalQuestions": 14,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 14,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2208,7 +2208,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 22.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2222,7 +2222,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 23.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2236,7 +2236,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 24 (SET-1).json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2250,7 +2250,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 24 (SET-2).json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2264,7 +2264,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 25.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2278,7 +2278,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 26.json",
       "totalQuestions": 38,
-      "durationMinutes": 30,
+      "durationMinutes": 23,
       "totalMarks": 38,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2292,7 +2292,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 27.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2306,7 +2306,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 28.json",
       "totalQuestions": 17,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 17,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2320,7 +2320,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 29.json",
       "totalQuestions": 18,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 18,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2334,7 +2334,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 30.json",
       "totalQuestions": 18,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 18,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2348,7 +2348,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 31.json",
       "totalQuestions": 16,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 16,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2362,7 +2362,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 32.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2376,7 +2376,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 33.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2390,7 +2390,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 34.json",
       "totalQuestions": 6,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 6,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2404,7 +2404,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 35.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2418,7 +2418,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 36.json",
       "totalQuestions": 18,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 18,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2432,7 +2432,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 37.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2446,7 +2446,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 38.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2460,7 +2460,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 39th.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2474,7 +2474,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 40th.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2488,7 +2488,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 41st.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2502,7 +2502,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS English 42nd.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2516,7 +2516,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 43.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2530,7 +2530,7 @@
       "subject": "English",
       "filePath": "rtds/BCS Question Exams/BCS English Questions/BCS ENGLISH 44th.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2544,7 +2544,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/30 BCS.json",
       "totalQuestions": 381,
-      "durationMinutes": 30,
+      "durationMinutes": 229,
       "totalMarks": 381,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2558,7 +2558,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/২৪ তম বিসিএস.json",
       "totalQuestions": 16,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 16,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2572,7 +2572,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩১ তম বিসিএস.json",
       "totalQuestions": 10,
-      "durationMinutes": 30,
+      "durationMinutes": 6,
       "totalMarks": 10,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2586,7 +2586,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩২ তম বিসিএস.json",
       "totalQuestions": 13,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 13,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2600,7 +2600,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৩ তম বিসিএস.json",
       "totalQuestions": 14,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 14,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2614,7 +2614,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৪ তম বিসিএস.json",
       "totalQuestions": 16,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 16,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2628,7 +2628,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৫ তম বিসিএস.json",
       "totalQuestions": 37,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 37,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2642,7 +2642,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৬ তম বিসিএস.json",
       "totalQuestions": 37,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 37,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2656,7 +2656,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৭ তম বিসিএস.json",
       "totalQuestions": 35,
-      "durationMinutes": 30,
+      "durationMinutes": 21,
       "totalMarks": 35,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2670,7 +2670,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৮ তম বিসিএস.json",
       "totalQuestions": 36,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 36,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2684,7 +2684,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৩৯ তম বিসিএস.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2698,7 +2698,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৪০ তম বিসিএস.json",
       "totalQuestions": 31,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 31,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2712,7 +2712,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৪১ তম বিসিএস.json",
       "totalQuestions": 38,
-      "durationMinutes": 30,
+      "durationMinutes": 23,
       "totalMarks": 38,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2726,7 +2726,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৪২তম বিসিএস.json",
       "totalQuestions": 24,
-      "durationMinutes": 30,
+      "durationMinutes": 14,
       "totalMarks": 24,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2740,7 +2740,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৪৩তম বিসিএস.json",
       "totalQuestions": 44,
-      "durationMinutes": 30,
+      "durationMinutes": 26,
       "totalMarks": 44,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2754,7 +2754,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/BCS Question Exams/BCS GK-BD Parts/৪৪তম বিসিএস.json",
       "totalQuestions": 42,
-      "durationMinutes": 30,
+      "durationMinutes": 25,
       "totalMarks": 42,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2768,7 +2768,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/অণুজীব (All Board Question).json",
       "totalQuestions": 72,
-      "durationMinutes": 30,
+      "durationMinutes": 43,
       "totalMarks": 72,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2782,7 +2782,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/উদ্ভিদ প্রজনন (All Board Question).json",
       "totalQuestions": 55,
-      "durationMinutes": 30,
+      "durationMinutes": 33,
       "totalMarks": 55,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2796,7 +2796,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/উদ্ভিদ শারীরতত্ত্ব (All Board Question).json",
       "totalQuestions": 119,
-      "durationMinutes": 30,
+      "durationMinutes": 71,
       "totalMarks": 119,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2810,7 +2810,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/কোষ ও কোষের গঠন (All Board Question).json",
       "totalQuestions": 113,
-      "durationMinutes": 30,
+      "durationMinutes": 68,
       "totalMarks": 113,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2824,7 +2824,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/কোষ বিভাজন (All Board Question).json",
       "totalQuestions": 69,
-      "durationMinutes": 30,
+      "durationMinutes": 41,
       "totalMarks": 69,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2838,7 +2838,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/কোষ রসায়ন (All Board Question).json",
       "totalQuestions": 43,
-      "durationMinutes": 30,
+      "durationMinutes": 26,
       "totalMarks": 43,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2852,7 +2852,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/জীবপ্রযুক্তি (All Board Question).json",
       "totalQuestions": 54,
-      "durationMinutes": 30,
+      "durationMinutes": 32,
       "totalMarks": 54,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2866,7 +2866,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/জীবের পরিবেশ, বিস্তার ও সংরক্ষণ (All Board Questio.json",
       "totalQuestions": 32,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 32,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2880,7 +2880,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/টিস্যু ও টিস্যুতন্ত্র (All Board Question).json",
       "totalQuestions": 75,
-      "durationMinutes": 30,
+      "durationMinutes": 45,
       "totalMarks": 75,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2894,7 +2894,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/নগ্নবীজী ও আবৃতবীজী উদ্ভিদ (All Board Question).json",
       "totalQuestions": 84,
-      "durationMinutes": 30,
+      "durationMinutes": 50,
       "totalMarks": 84,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2908,7 +2908,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/ব্রায়োফাইটা ও টেরিডোফাইটা (All Board Question).json",
       "totalQuestions": 24,
-      "durationMinutes": 30,
+      "durationMinutes": 14,
       "totalMarks": 24,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2922,7 +2922,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 1st Paper/শৈবাল ও ছত্রাক (All Board Question).json",
       "totalQuestions": 45,
-      "durationMinutes": 30,
+      "durationMinutes": 27,
       "totalMarks": 45,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2936,7 +2936,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/চলন ও অঙগচালনা (All Board Question).json",
       "totalQuestions": 73,
-      "durationMinutes": 30,
+      "durationMinutes": 44,
       "totalMarks": 73,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2950,7 +2950,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/জিনতত্ত্ব ও বিবর্তন (All Board Question).json",
       "totalQuestions": 88,
-      "durationMinutes": 30,
+      "durationMinutes": 53,
       "totalMarks": 88,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2964,7 +2964,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/পরিপাক ও শোষণ (All Board Question).json",
       "totalQuestions": 75,
-      "durationMinutes": 30,
+      "durationMinutes": 45,
       "totalMarks": 75,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2978,7 +2978,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/প্রাণীর আচরণ (All Board Question).json",
       "totalQuestions": 27,
-      "durationMinutes": 30,
+      "durationMinutes": 16,
       "totalMarks": 27,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -2992,7 +2992,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/প্রাণীর পরিচিতি (All Board Question).json",
       "totalQuestions": 162,
-      "durationMinutes": 30,
+      "durationMinutes": 97,
       "totalMarks": 162,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3006,7 +3006,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/প্রাণীর শ্রেণীবিন্যাস ও বিভিন্নতা (All Board Quest.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3020,7 +3020,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/বর্জ্য ও নিষ্কাশন (All Board Question).json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3034,7 +3034,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/মানব জীবনের ধারাবাহিকতা (All Board Question).json",
       "totalQuestions": 39,
-      "durationMinutes": 30,
+      "durationMinutes": 23,
       "totalMarks": 39,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3048,7 +3048,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/মানবদেহের প্রতিরক্ষা(All board mcq).json",
       "totalQuestions": 25,
-      "durationMinutes": 30,
+      "durationMinutes": 15,
       "totalMarks": 25,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3062,7 +3062,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/রক্ত ও সংবহন (All Board Question).json",
       "totalQuestions": 64,
-      "durationMinutes": 30,
+      "durationMinutes": 38,
       "totalMarks": 64,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3076,7 +3076,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/শ্বসন ও শ্বাসক্রিয়া (All Board Question).json",
       "totalQuestions": 46,
-      "durationMinutes": 30,
+      "durationMinutes": 28,
       "totalMarks": 46,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3090,7 +3090,7 @@
       "subject": "Biology",
       "filePath": "rtds/Board Question Exams/Biology 2nd Paper/সমন্বয় ও নিয়ন্ত্রণ (All Board Question).json",
       "totalQuestions": 51,
-      "durationMinutes": 30,
+      "durationMinutes": 31,
       "totalMarks": 51,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3104,7 +3104,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2009-10.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3118,7 +3118,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2010-11.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3132,7 +3132,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2016-17.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3146,7 +3146,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2017-18.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3160,7 +3160,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2018-19.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3174,7 +3174,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2019-20.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3188,7 +3188,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2020-21.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3202,7 +3202,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2021-22.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3216,7 +3216,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2022-23.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3230,7 +3230,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Dental English Questions/BDS 2023-24.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3244,7 +3244,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 05-06.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3258,7 +3258,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 06-07.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3272,7 +3272,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 07-08.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3286,7 +3286,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 08-09.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3300,7 +3300,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 09-10.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3314,7 +3314,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 10-11.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3328,7 +3328,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 11-12.json",
       "totalQuestions": 14,
-      "durationMinutes": 30,
+      "durationMinutes": 8,
       "totalMarks": 14,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3342,7 +3342,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 12-13.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3356,7 +3356,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 13-14.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3370,7 +3370,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 14-15.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3384,7 +3384,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 15-16.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3398,7 +3398,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 16-17.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3412,7 +3412,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 17-18.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3426,7 +3426,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 18-19.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3440,7 +3440,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 19-20.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3454,7 +3454,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 20-21.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3468,7 +3468,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 21-22.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3482,7 +3482,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 22-23.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3496,7 +3496,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 23-24.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3510,7 +3510,7 @@
       "subject": "English",
       "filePath": "rtds/Medical & Dental Questions/Medical English Question/Medical English 24-25.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3524,7 +3524,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল আন্তর্জাতিক বিষয়াবলি ২০১১-১২.json",
       "totalQuestions": 4,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 4,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3538,7 +3538,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল আন্তর্জাতিক বিষয়াবলি ২০১২-১৩.json",
       "totalQuestions": 3,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 3,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3552,7 +3552,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল আন্তর্জাতিক বিষয়াবলি ২০১৩-১৪.json",
       "totalQuestions": 4,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 4,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3566,7 +3566,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল আন্তর্জাতিক বিষয়াবলি ২০১৪-১৫.json",
       "totalQuestions": 4,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 4,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3580,7 +3580,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০১-০২.json",
       "totalQuestions": 3,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 3,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3594,7 +3594,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০২-০৩.json",
       "totalQuestions": 4,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 4,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3608,7 +3608,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৩-০৪.json",
       "totalQuestions": 15,
-      "durationMinutes": 30,
+      "durationMinutes": 9,
       "totalMarks": 15,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3622,7 +3622,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৪-০৫.json",
       "totalQuestions": 10,
-      "durationMinutes": 30,
+      "durationMinutes": 6,
       "totalMarks": 10,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3636,7 +3636,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৫-০৬.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3650,7 +3650,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৬-০৭.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3664,7 +3664,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৭-০৮.json",
       "totalQuestions": 9,
-      "durationMinutes": 30,
+      "durationMinutes": 5,
       "totalMarks": 9,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3678,7 +3678,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৮-০৯.json",
       "totalQuestions": 5,
-      "durationMinutes": 30,
+      "durationMinutes": 3,
       "totalMarks": 5,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3692,7 +3692,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০০৯-১০.json",
       "totalQuestions": 5,
-      "durationMinutes": 30,
+      "durationMinutes": 3,
       "totalMarks": 5,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3706,7 +3706,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০১০-১১.json",
       "totalQuestions": 5,
-      "durationMinutes": 30,
+      "durationMinutes": 3,
       "totalMarks": 5,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3720,7 +3720,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০১৫-১৬.json",
       "totalQuestions": 6,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 6,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3734,7 +3734,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০১৬-১৭.json",
       "totalQuestions": 9,
-      "durationMinutes": 30,
+      "durationMinutes": 5,
       "totalMarks": 9,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3748,7 +3748,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০১৭-১৮.json",
       "totalQuestions": 5,
-      "durationMinutes": 30,
+      "durationMinutes": 3,
       "totalMarks": 5,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3762,7 +3762,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি/মেডিকেল-ডেন্টাল আন্তর্জাতিক বিষয়াবলি ২০১৮-১৯.json",
       "totalQuestions": 9,
-      "durationMinutes": 30,
+      "durationMinutes": 5,
       "totalMarks": 9,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3776,7 +3776,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৩-০৪.json",
       "totalQuestions": 3,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 3,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3790,7 +3790,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৪-০৫.json",
       "totalQuestions": 3,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 3,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3804,7 +3804,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৫-০৬.json",
       "totalQuestions": 10,
-      "durationMinutes": 30,
+      "durationMinutes": 6,
       "totalMarks": 10,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3818,7 +3818,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৬-০৭.json",
       "totalQuestions": 4,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 4,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3832,7 +3832,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৭-০৮.json",
       "totalQuestions": 9,
-      "durationMinutes": 30,
+      "durationMinutes": 5,
       "totalMarks": 9,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3846,7 +3846,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৮-০৯.json",
       "totalQuestions": 10,
-      "durationMinutes": 30,
+      "durationMinutes": 6,
       "totalMarks": 10,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3860,7 +3860,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ০৯-১০.json",
       "totalQuestions": 8,
-      "durationMinutes": 30,
+      "durationMinutes": 5,
       "totalMarks": 8,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3874,7 +3874,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ১০-১১.json",
       "totalQuestions": 6,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 6,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3888,7 +3888,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ১১-১২.json",
       "totalQuestions": 6,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 6,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3902,7 +3902,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ১২-১৩.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3916,7 +3916,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণ জ্ঞান ১৩-১৪.json",
       "totalQuestions": 5,
-      "durationMinutes": 30,
+      "durationMinutes": 3,
       "totalMarks": 5,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3930,7 +3930,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণজ্ঞান ১৪-১৫.json",
       "totalQuestions": 4,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 4,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3944,7 +3944,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল সাধারণজ্ঞান ১৫-১৬.json",
       "totalQuestions": 5,
-      "durationMinutes": 30,
+      "durationMinutes": 3,
       "totalMarks": 5,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3958,7 +3958,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান 20-21.json",
       "totalQuestions": 19,
-      "durationMinutes": 30,
+      "durationMinutes": 11,
       "totalMarks": 19,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3972,7 +3972,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান 21-22.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -3986,7 +3986,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান ১৬-১৭.json",
       "totalQuestions": 8,
-      "durationMinutes": 30,
+      "durationMinutes": 5,
       "totalMarks": 8,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4000,7 +4000,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান ১৮-১৯.json",
       "totalQuestions": 12,
-      "durationMinutes": 30,
+      "durationMinutes": 7,
       "totalMarks": 12,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4014,7 +4014,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান ২২-২৩.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4028,7 +4028,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান ২৩-2৪.json",
       "totalQuestions": 20,
-      "durationMinutes": 30,
+      "durationMinutes": 12,
       "totalMarks": 20,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4042,7 +4042,7 @@
       "subject": "General Knowledge",
       "filePath": "rtds/Medical & Dental Questions/মেডিকেল-ডেন্টাল সাধারণ জ্ঞান- বাংলাদেশ/মেডিকেল-ডেন্টাল সাধারণজ্ঞান- 19-20.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4056,7 +4056,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/অণুজীব.json",
       "totalQuestions": 57,
-      "durationMinutes": 30,
+      "durationMinutes": 34,
       "totalMarks": 57,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4070,7 +4070,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/উদ্ভিদ প্রজনন.json",
       "totalQuestions": 63,
-      "durationMinutes": 30,
+      "durationMinutes": 38,
       "totalMarks": 63,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4084,7 +4084,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/উদ্ভিদ শারীরতত্ত্ব.json",
       "totalQuestions": 85,
-      "durationMinutes": 30,
+      "durationMinutes": 51,
       "totalMarks": 85,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4098,7 +4098,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/কোষ ও এর গঠন.json",
       "totalQuestions": 75,
-      "durationMinutes": 30,
+      "durationMinutes": 45,
       "totalMarks": 75,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4112,7 +4112,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/কোষ বিভাজন.json",
       "totalQuestions": 43,
-      "durationMinutes": 30,
+      "durationMinutes": 26,
       "totalMarks": 43,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4126,7 +4126,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/কোষ রসায়ন.json",
       "totalQuestions": 44,
-      "durationMinutes": 30,
+      "durationMinutes": 26,
       "totalMarks": 44,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4140,7 +4140,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/জীবপ্রযুক্তি.json",
       "totalQuestions": 60,
-      "durationMinutes": 30,
+      "durationMinutes": 36,
       "totalMarks": 60,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4154,7 +4154,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/জীবের পরিবেশ, বিস্তার ও সংরক্ষণ.json",
       "totalQuestions": 72,
-      "durationMinutes": 30,
+      "durationMinutes": 43,
       "totalMarks": 72,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4168,7 +4168,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/টিস্যু ও টিস্যুতন্ত্র.json",
       "totalQuestions": 55,
-      "durationMinutes": 30,
+      "durationMinutes": 33,
       "totalMarks": 55,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4182,7 +4182,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/নগ্নবীজী ও আবৃতবীজী উদ্ভিদ.json",
       "totalQuestions": 49,
-      "durationMinutes": 30,
+      "durationMinutes": 29,
       "totalMarks": 49,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4196,7 +4196,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/ব্রায়োফাইটা ও টেরিডোফাইটা.json",
       "totalQuestions": 37,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 37,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4210,7 +4210,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/আজিবুর স্যার জীববিজ্ঞান ১ম পত্র/শৈবাল ও ছত্রাক.json",
       "totalQuestions": 52,
-      "durationMinutes": 30,
+      "durationMinutes": 31,
       "totalMarks": 52,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4224,7 +4224,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/অনুজীব.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4238,7 +4238,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/উদ্ভিদ প্রজনন.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4252,7 +4252,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/উদ্ভিদ শারীরতত্ত্ব.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4266,7 +4266,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/কোষ ও এর গঠন.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4280,7 +4280,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/কোষ বিভাজন.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4294,7 +4294,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/কোষ রসায়ন.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4308,7 +4308,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/জীবপ্রযুক্তি.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4322,7 +4322,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/জীবের পরিবেশ বিস্তার ও সংরক্ষণ.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4336,7 +4336,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/টিস্যু ও টিস্যু তন্ত্র.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4350,7 +4350,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/নগ্নবীজী ও আবৃতবীজী উদ্ভিদ.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4364,7 +4364,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/ব্রায়োফাইটা ও টেরিডোফাইটা.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4378,7 +4378,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আবুল হাসান স্যার/শৈবাল ও ছত্রাক.json",
       "totalQuestions": 1,
-      "durationMinutes": 30,
+      "durationMinutes": 2,
       "totalMarks": 1,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4392,7 +4392,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/অণুজীব.json",
       "totalQuestions": 30,
-      "durationMinutes": 30,
+      "durationMinutes": 18,
       "totalMarks": 30,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4406,7 +4406,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/উদ্ভিদ প্রজনন.json",
       "totalQuestions": 30,
-      "durationMinutes": 30,
+      "durationMinutes": 18,
       "totalMarks": 30,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4420,7 +4420,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/উদ্ভিদ শারীরতত্ত্ব.json",
       "totalQuestions": 31,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 31,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4434,7 +4434,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/কোষ ও কোষের গঠন.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4448,7 +4448,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/কোষ বিভাজন.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4462,7 +4462,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/কোষ রসায়ন.json",
       "totalQuestions": 27,
-      "durationMinutes": 30,
+      "durationMinutes": 16,
       "totalMarks": 27,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4476,7 +4476,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/জীবপ্রযুক্তি.json",
       "totalQuestions": 26,
-      "durationMinutes": 30,
+      "durationMinutes": 16,
       "totalMarks": 26,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4490,7 +4490,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/জীবের পরিবেশ, বিস্তার ও সংরক্ষণ.json",
       "totalQuestions": 42,
-      "durationMinutes": 30,
+      "durationMinutes": 25,
       "totalMarks": 42,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4504,7 +4504,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/টিস্যু ও টিস্যুতন্ত্র.json",
       "totalQuestions": 27,
-      "durationMinutes": 30,
+      "durationMinutes": 16,
       "totalMarks": 27,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4518,7 +4518,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/নগ্নবীজী ও আবৃতবীজী উদ্ভিদ.json",
       "totalQuestions": 22,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 22,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4532,7 +4532,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/ব্রায়োফাইটা ও টেরিডোফাইটা.json",
       "totalQuestions": 17,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 17,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4546,7 +4546,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ১ম পত্র আলীম স্যার/শৈবাল ও ছত্রাক.json",
       "totalQuestions": 39,
-      "durationMinutes": 30,
+      "durationMinutes": 23,
       "totalMarks": 39,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4560,7 +4560,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/চলন ও অঙগচালনা.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4574,7 +4574,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/জিনতত্ত্ব ও বিবর্তন.json",
       "totalQuestions": 16,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 16,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4588,7 +4588,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/পরিপাক ও শোষণ.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4602,7 +4602,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/প্রাণীর আচরণ.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4616,7 +4616,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/প্রাণীর পরিচিতি.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4630,7 +4630,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/প্রাণীর শ্রেণীবিন্যাস ও বিভিন্নতা.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4644,7 +4644,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/বর্জ্য ও নিষ্কাশন.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4658,7 +4658,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/মানব জীবনের ধারাবাহিকতা.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4672,7 +4672,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/মানবদেহের প্রতিরক্ষা.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4686,7 +4686,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/রক্ত ও সংবহন.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4700,7 +4700,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/শ্বসন ও শ্বাসক্রিয়া.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4714,7 +4714,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আজমল স্যার/সমন্বয় ও নিয়ন্ত্রণ.json",
       "totalQuestions": 7,
-      "durationMinutes": 30,
+      "durationMinutes": 4,
       "totalMarks": 7,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4728,7 +4728,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/চলন ও অঙগচালনা.json",
       "totalQuestions": 32,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 32,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4742,7 +4742,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/জিনতত্ত্ব ও বিবর্তন.json",
       "totalQuestions": 48,
-      "durationMinutes": 30,
+      "durationMinutes": 29,
       "totalMarks": 48,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4756,7 +4756,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/পরিপাক ও শোষণ.json",
       "totalQuestions": 31,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 31,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4770,7 +4770,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/প্রাণীর আচরণ.json",
       "totalQuestions": 17,
-      "durationMinutes": 30,
+      "durationMinutes": 10,
       "totalMarks": 17,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4784,7 +4784,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/প্রাণীর পরিচিতি.json",
       "totalQuestions": 61,
-      "durationMinutes": 30,
+      "durationMinutes": 37,
       "totalMarks": 61,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4798,7 +4798,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/প্রাণীর শ্রেণীবিন্যাস ও বিভিন্নতা.json",
       "totalQuestions": 33,
-      "durationMinutes": 30,
+      "durationMinutes": 20,
       "totalMarks": 33,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4812,7 +4812,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/বর্জ্য ও নিষ্কাশন.json",
       "totalQuestions": 31,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 31,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4826,7 +4826,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/মানব জীবনের ধারাবাহিকতা.json",
       "totalQuestions": 32,
-      "durationMinutes": 30,
+      "durationMinutes": 19,
       "totalMarks": 32,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4840,7 +4840,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/মানবদেহের প্রতিরক্ষা.json",
       "totalQuestions": 28,
-      "durationMinutes": 30,
+      "durationMinutes": 17,
       "totalMarks": 28,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4854,7 +4854,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/রক্ত ও সংবহন.json",
       "totalQuestions": 26,
-      "durationMinutes": 30,
+      "durationMinutes": 16,
       "totalMarks": 26,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4868,7 +4868,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/শ্বসন ও শ্বাসক্রিয়া.json",
       "totalQuestions": 25,
-      "durationMinutes": 30,
+      "durationMinutes": 15,
       "totalMarks": 25,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4882,7 +4882,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র আলিম স্যার/সমন্বয় ও নিয়ন্ত্রণ.json",
       "totalQuestions": 33,
-      "durationMinutes": 30,
+      "durationMinutes": 20,
       "totalMarks": 33,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4896,7 +4896,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/চলন ও অঙগচালনা.json",
       "totalQuestions": 90,
-      "durationMinutes": 30,
+      "durationMinutes": 54,
       "totalMarks": 90,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4910,7 +4910,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/জিনতত্ত্ব ও বিবর্তন.json",
       "totalQuestions": 89,
-      "durationMinutes": 30,
+      "durationMinutes": 53,
       "totalMarks": 89,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4924,7 +4924,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/পরিপাক ও শোষণ.json",
       "totalQuestions": 106,
-      "durationMinutes": 30,
+      "durationMinutes": 64,
       "totalMarks": 106,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4938,7 +4938,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/প্রাণীর আচরণ.json",
       "totalQuestions": 21,
-      "durationMinutes": 30,
+      "durationMinutes": 13,
       "totalMarks": 21,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4952,7 +4952,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/প্রাণীর পরিচিতি.json",
       "totalQuestions": 117,
-      "durationMinutes": 30,
+      "durationMinutes": 70,
       "totalMarks": 117,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4966,7 +4966,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/প্রাণীর শ্রেণীবিন্যাস ও বিভিন্নতা.json",
       "totalQuestions": 82,
-      "durationMinutes": 30,
+      "durationMinutes": 49,
       "totalMarks": 82,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4980,7 +4980,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/বর্জ্য ও নিষ্কাশন.json",
       "totalQuestions": 37,
-      "durationMinutes": 30,
+      "durationMinutes": 22,
       "totalMarks": 37,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -4994,7 +4994,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/মানব জীবনের ধারাবাহিকতা.json",
       "totalQuestions": 39,
-      "durationMinutes": 30,
+      "durationMinutes": 23,
       "totalMarks": 39,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5008,7 +5008,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/মানবদেহের প্রতিরক্ষা.json",
       "totalQuestions": 51,
-      "durationMinutes": 30,
+      "durationMinutes": 31,
       "totalMarks": 51,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5022,7 +5022,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/রক্ত ও সংবহন.json",
       "totalQuestions": 94,
-      "durationMinutes": 30,
+      "durationMinutes": 56,
       "totalMarks": 94,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5036,7 +5036,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/শ্বসন ও শ্বাসক্রিয়া.json",
       "totalQuestions": 49,
-      "durationMinutes": 30,
+      "durationMinutes": 29,
       "totalMarks": 49,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5050,7 +5050,7 @@
       "subject": "Biology",
       "filePath": "rtds/জীববিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/জীববিজ্ঞান ২য় পত্র মাজেদা ম্যাডাম/সমন্বয় ও নিয়ন্ত্রণ.json",
       "totalQuestions": 116,
-      "durationMinutes": 30,
+      "durationMinutes": 70,
       "totalMarks": 116,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5064,7 +5064,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব.json",
       "totalQuestions": 54,
-      "durationMinutes": 30,
+      "durationMinutes": 32,
       "totalMarks": 54,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5078,7 +5078,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/কাজ শক্তি ও ক্ষমতা.json",
       "totalQuestions": 53,
-      "durationMinutes": 30,
+      "durationMinutes": 32,
       "totalMarks": 53,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5092,7 +5092,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/গতিবিদ্যা.json",
       "totalQuestions": 58,
-      "durationMinutes": 30,
+      "durationMinutes": 35,
       "totalMarks": 58,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5106,7 +5106,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/তরঙ্গ.json",
       "totalQuestions": 59,
-      "durationMinutes": 30,
+      "durationMinutes": 35,
       "totalMarks": 59,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5120,7 +5120,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/নিউটনিয়ান বলবিদ্যা.json",
       "totalQuestions": 67,
-      "durationMinutes": 30,
+      "durationMinutes": 40,
       "totalMarks": 67,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5134,7 +5134,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/পদার্থের গাঠনিক ধর্ম.json",
       "totalQuestions": 63,
-      "durationMinutes": 30,
+      "durationMinutes": 38,
       "totalMarks": 63,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5148,7 +5148,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/পর্যাবৃত্তিক গতি.json",
       "totalQuestions": 46,
-      "durationMinutes": 30,
+      "durationMinutes": 28,
       "totalMarks": 46,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5162,7 +5162,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/ভেক্টর.json",
       "totalQuestions": 72,
-      "durationMinutes": 30,
+      "durationMinutes": 43,
       "totalMarks": 72,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5176,7 +5176,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/ভৌত জগৎ ও পরিমাপ.json",
       "totalQuestions": 78,
-      "durationMinutes": 30,
+      "durationMinutes": 47,
       "totalMarks": 78,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5190,7 +5190,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll ইসহাক স্যার/মহাকর্ষ ও অভিকর্ষ.json",
       "totalQuestions": 64,
-      "durationMinutes": 30,
+      "durationMinutes": 38,
       "totalMarks": 64,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5204,7 +5204,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব.json",
       "totalQuestions": 68,
-      "durationMinutes": 30,
+      "durationMinutes": 41,
       "totalMarks": 68,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5218,7 +5218,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/কাজ শক্তি ও ক্ষমতা.json",
       "totalQuestions": 83,
-      "durationMinutes": 30,
+      "durationMinutes": 50,
       "totalMarks": 83,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5232,7 +5232,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/গতিবিদ্যা.json",
       "totalQuestions": 69,
-      "durationMinutes": 30,
+      "durationMinutes": 41,
       "totalMarks": 69,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5246,7 +5246,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/তরঙ্গ.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5260,7 +5260,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/নিউটনিয়ান বলবিদ্যা.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5274,7 +5274,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/পদার্থের গাঠনিক ধর্ম.json",
       "totalQuestions": 90,
-      "durationMinutes": 30,
+      "durationMinutes": 54,
       "totalMarks": 90,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5288,7 +5288,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/পর্যাবৃত্তিক গতি.json",
       "totalQuestions": 81,
-      "durationMinutes": 30,
+      "durationMinutes": 49,
       "totalMarks": 81,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5302,7 +5302,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/ভেক্টর.json",
       "totalQuestions": 99,
-      "durationMinutes": 30,
+      "durationMinutes": 59,
       "totalMarks": 99,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5316,7 +5316,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/ভৌত জগৎ ও পরিমাপ.json",
       "totalQuestions": 85,
-      "durationMinutes": 30,
+      "durationMinutes": 51,
       "totalMarks": 85,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5330,7 +5330,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ১ম পত্র ll শাহজাহান তপন স্যার/মহাকর্ষ ও অভিকর্ষ.json",
       "totalQuestions": 98,
-      "durationMinutes": 30,
+      "durationMinutes": 59,
       "totalMarks": 98,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5344,7 +5344,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/আধুনিক পদার্থবিজ্ঞানের সূচনা.json",
       "totalQuestions": 149,
-      "durationMinutes": 30,
+      "durationMinutes": 89,
       "totalMarks": 149,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5358,7 +5358,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/চল তড়িৎ.json",
       "totalQuestions": 115,
-      "durationMinutes": 30,
+      "durationMinutes": 69,
       "totalMarks": 115,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5372,7 +5372,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/জ্যামিতিক আলোকবিজ্ঞান.json",
       "totalQuestions": 150,
-      "durationMinutes": 30,
+      "durationMinutes": 90,
       "totalMarks": 150,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5386,7 +5386,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/জ্যোতির্বিজ্ঞান.json",
       "totalQuestions": 118,
-      "durationMinutes": 30,
+      "durationMinutes": 71,
       "totalMarks": 118,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5400,7 +5400,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/তাপগতিবিদ্যা.json",
       "totalQuestions": 97,
-      "durationMinutes": 30,
+      "durationMinutes": 58,
       "totalMarks": 97,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5414,7 +5414,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/তাড়িতচৌম্বকীয় আবেশ ও পরিবর্তী প্রবাহ.json",
       "totalQuestions": 91,
-      "durationMinutes": 30,
+      "durationMinutes": 55,
       "totalMarks": 91,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5428,7 +5428,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব.json",
       "totalQuestions": 114,
-      "durationMinutes": 30,
+      "durationMinutes": 68,
       "totalMarks": 114,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5442,7 +5442,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/পরমাণুর মডেল এবং নিউক্লিয়ার পদার্থবিজ্ঞান.json",
       "totalQuestions": 122,
-      "durationMinutes": 30,
+      "durationMinutes": 73,
       "totalMarks": 122,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5456,7 +5456,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/ভৌত আলোকবিজ্ঞান.json",
       "totalQuestions": 148,
-      "durationMinutes": 30,
+      "durationMinutes": 89,
       "totalMarks": 148,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5470,7 +5470,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/সেমিকন্ডাক্টর ও ইলেকট্রনিক্স.json",
       "totalQuestions": 103,
-      "durationMinutes": 30,
+      "durationMinutes": 62,
       "totalMarks": 103,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5484,7 +5484,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll ইসহাক স্যার/স্থির তড়িৎ.json",
       "totalQuestions": 109,
-      "durationMinutes": 30,
+      "durationMinutes": 65,
       "totalMarks": 109,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5498,7 +5498,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/আধুনিক পদার্থবিজ্ঞানের সূচনা.json",
       "totalQuestions": 97,
-      "durationMinutes": 30,
+      "durationMinutes": 58,
       "totalMarks": 97,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5512,7 +5512,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/চল তড়িৎ.json",
       "totalQuestions": 86,
-      "durationMinutes": 30,
+      "durationMinutes": 52,
       "totalMarks": 86,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5526,7 +5526,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/জ্যামিতিক আলোকবিজ্ঞান.json",
       "totalQuestions": 73,
-      "durationMinutes": 30,
+      "durationMinutes": 44,
       "totalMarks": 73,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5540,7 +5540,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/জ্যোতির্বিজ্ঞান.json",
       "totalQuestions": 56,
-      "durationMinutes": 30,
+      "durationMinutes": 34,
       "totalMarks": 56,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5554,7 +5554,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/তাপগতিবিদ্যা.json",
       "totalQuestions": 100,
-      "durationMinutes": 30,
+      "durationMinutes": 60,
       "totalMarks": 100,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5568,7 +5568,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/তাড়িতচৌম্বকীয় আবেশ ও পরিবর্তী প্রবাহ.json",
       "totalQuestions": 59,
-      "durationMinutes": 30,
+      "durationMinutes": 35,
       "totalMarks": 59,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5582,7 +5582,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/তড়িৎ প্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব.json",
       "totalQuestions": 73,
-      "durationMinutes": 30,
+      "durationMinutes": 44,
       "totalMarks": 73,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5596,7 +5596,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/পরমাণুর মডেল এবং নিউক্লিয়ার পদার্থবিজ্ঞান.json",
       "totalQuestions": 96,
-      "durationMinutes": 30,
+      "durationMinutes": 58,
       "totalMarks": 96,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5610,7 +5610,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/ভৌত আলোকবিজ্ঞান.json",
       "totalQuestions": 94,
-      "durationMinutes": 30,
+      "durationMinutes": 56,
       "totalMarks": 94,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5624,7 +5624,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/সেমিকন্ডাক্টর ও ইলেকট্রনিক্স.json",
       "totalQuestions": 84,
-      "durationMinutes": 30,
+      "durationMinutes": 50,
       "totalMarks": 84,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5638,7 +5638,7 @@
       "subject": "Physics",
       "filePath": "rtds/পদার্থবিজ্ঞান অনুশীলনীর MCQ প্রশ্ন/পদার্থবিজ্ঞান ২য় পত্র ll শাহজাহান তপন স্যার/স্থির তড়িৎ.json",
       "totalQuestions": 76,
-      "durationMinutes": 30,
+      "durationMinutes": 46,
       "totalMarks": 76,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5652,7 +5652,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/কর্মমুখী রসায়ন.json",
       "totalQuestions": 139,
-      "durationMinutes": 30,
+      "durationMinutes": 83,
       "totalMarks": 139,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5666,7 +5666,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/গুণগত রসায়ন Part 01.json",
       "totalQuestions": 143,
-      "durationMinutes": 30,
+      "durationMinutes": 86,
       "totalMarks": 143,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5680,7 +5680,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/গুণগত রসায়ন Part 02.json",
       "totalQuestions": 147,
-      "durationMinutes": 30,
+      "durationMinutes": 88,
       "totalMarks": 147,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5694,7 +5694,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন Part 01.json",
       "totalQuestions": 146,
-      "durationMinutes": 30,
+      "durationMinutes": 88,
       "totalMarks": 146,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5708,7 +5708,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/রাসায়নিক পরিবর্তন Part 01.json",
       "totalQuestions": 114,
-      "durationMinutes": 30,
+      "durationMinutes": 68,
       "totalMarks": 114,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5722,7 +5722,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/রাসায়নিক পরিবর্তন Part 02.json",
       "totalQuestions": 101,
-      "durationMinutes": 30,
+      "durationMinutes": 61,
       "totalMarks": 101,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5736,7 +5736,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র কবীর স্যার MCQ/ল্যাবরটরির নিরাপদ ব্যবহার.json",
       "totalQuestions": 86,
-      "durationMinutes": 30,
+      "durationMinutes": 52,
       "totalMarks": 86,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5750,7 +5750,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র হাজারী স্যার MCQ/কর্মমুখী রসায়ন.json",
       "totalQuestions": 73,
-      "durationMinutes": 30,
+      "durationMinutes": 44,
       "totalMarks": 73,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5764,7 +5764,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র হাজারী স্যার MCQ/গুণগত রসায়ন.json",
       "totalQuestions": 139,
-      "durationMinutes": 30,
+      "durationMinutes": 83,
       "totalMarks": 139,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5778,7 +5778,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র হাজারী স্যার MCQ/মৌলের পর্যায়বৃত্ত ধর্ম ও রাসায়নিক বন্ধন.json",
       "totalQuestions": 148,
-      "durationMinutes": 30,
+      "durationMinutes": 89,
       "totalMarks": 148,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5792,7 +5792,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র হাজারী স্যার MCQ/রাসায়নিক পরিবর্তন.json",
       "totalQuestions": 101,
-      "durationMinutes": 30,
+      "durationMinutes": 61,
       "totalMarks": 101,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5806,7 +5806,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন প্রথম পত্র হাজারী স্যার MCQ/ল্যাবরটরির নিরাপদ ব্যবহার.json",
       "totalQuestions": 63,
-      "durationMinutes": 30,
+      "durationMinutes": 38,
       "totalMarks": 63,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5820,7 +5820,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- কবীর স্যার/অর্থনৈতিক রসায়ন.json",
       "totalQuestions": 118,
-      "durationMinutes": 30,
+      "durationMinutes": 71,
       "totalMarks": 118,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5834,7 +5834,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- কবীর স্যার/জৈব রসায়ন.json",
       "totalQuestions": 364,
-      "durationMinutes": 30,
+      "durationMinutes": 218,
       "totalMarks": 364,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5848,7 +5848,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- কবীর স্যার/তড়িৎ রসায়ন.json",
       "totalQuestions": 150,
-      "durationMinutes": 30,
+      "durationMinutes": 90,
       "totalMarks": 150,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5862,7 +5862,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- কবীর স্যার/পরিবেশ রসায়ন.json",
       "totalQuestions": 268,
-      "durationMinutes": 30,
+      "durationMinutes": 161,
       "totalMarks": 268,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5876,7 +5876,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- কবীর স্যার/পরিমাণগত রসায়ন.json",
       "totalQuestions": 235,
-      "durationMinutes": 30,
+      "durationMinutes": 141,
       "totalMarks": 235,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5890,7 +5890,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- হাজারী স্যার/অর্থনৈতিক রসায়ন.json",
       "totalQuestions": 116,
-      "durationMinutes": 30,
+      "durationMinutes": 70,
       "totalMarks": 116,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5904,7 +5904,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- হাজারী স্যার/জৈব রসায়ন.json",
       "totalQuestions": 156,
-      "durationMinutes": 30,
+      "durationMinutes": 94,
       "totalMarks": 156,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5918,7 +5918,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- হাজারী স্যার/তড়িৎ রসায়ন.json",
       "totalQuestions": 168,
-      "durationMinutes": 30,
+      "durationMinutes": 101,
       "totalMarks": 168,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5932,7 +5932,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- হাজারী স্যার/পরিবেশ রসায়ন.json",
       "totalQuestions": 134,
-      "durationMinutes": 30,
+      "durationMinutes": 80,
       "totalMarks": 134,
       "negativeMark": 0.25,
       "hasExplanations": true
@@ -5946,7 +5946,7 @@
       "subject": "Chemistry",
       "filePath": "rtds/রসায়ন অনুশীলনীর MCQ/রসায়ন ২য় পত্র MCQ -- হাজারী স্যার/পরিমাণগত রসায়ন.json",
       "totalQuestions": 116,
-      "durationMinutes": 30,
+      "durationMinutes": 70,
       "totalMarks": 116,
       "negativeMark": 0.25,
       "hasExplanations": true

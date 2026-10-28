@@ -331,9 +331,9 @@ export default function CourseStudioPage({
     course?.isExamBatch ||
     course?.category === 'EXAM BATCH' ||
     course?.category === 'exam batch' ||
-    ['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy'].includes(course?.id) ||
-    ['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy'].includes(course?.key) ||
-    ['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy'].includes(course?.slug)
+    ['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy'].includes(course?.id) ||
+    ['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy'].includes(course?.key) ||
+    ['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy'].includes(course?.slug)
   );
 
   if (isExamBatch) {
@@ -384,7 +384,48 @@ export default function CourseStudioPage({
   const fieldDebounceRef = useRef(null);
   // Field updater with 250ms debounce
   const handleUpdateField = (field, value) => {
-    const updated = { ...course, [field]: value };
+    const updated = { 
+      ...course, 
+      [field]: value,
+      ...(field === 'aboutText' ? {
+        aboutText: value,
+        details: {
+          ...(course.details || {}),
+          about: value
+        }
+      } : {}),
+      ...(field === 'salePrice' ? {
+        salePrice: Number(value) || 0,
+        price: Number(value) || 0,
+        isFree: (Number(value) || 0) === 0,
+        details: {
+          ...(course.details || {}),
+          price: Number(value) || 0
+        }
+      } : {}),
+      ...(field === 'regularPrice' ? {
+        regularPrice: Number(value) || 0,
+        originalPrice: Number(value) || 0,
+        details: {
+          ...(course.details || {}),
+          originalPrice: Number(value) || 0
+        }
+      } : {}),
+      ...(field === 'features' ? {
+        features: value,
+        details: {
+          ...(course.details || {}),
+          features: value
+        }
+      } : {}),
+      ...(field === 'supportPhone' ? {
+        supportPhone: value,
+        details: {
+          ...(course.details || {}),
+          supportPhone: value
+        }
+      } : {})
+    };
     if (fieldDebounceRef.current) clearTimeout(fieldDebounceRef.current);
     fieldDebounceRef.current = setTimeout(() => {
       notifySave(updated);

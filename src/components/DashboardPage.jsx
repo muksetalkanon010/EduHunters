@@ -13,7 +13,8 @@ const ENGLISH_TITLES = {
   'english_master': 'Master English 50 • Medical & University Complete English Batch',
   'sureshot': 'SureShot Carnival • Final Medical & University Model Test Series',
   'medical': 'Medical Past 11 Years Question Bank (MAT) • Real Exam Experience',
-  'rtds': 'RTDS • Rapid Test Delivery System for Medical Prep',
+  'anushiloni': 'অনুশীলনী ও মেডিকেল প্রশ্নব্যাংক • Textbook MCQ Bank for Medical Prep',
+  'rtds': 'অনুশীলনী ও মেডিকেল প্রশ্নব্যাংক • Textbook MCQ Bank for Medical Prep',
   'gk_course': 'GK Master Series • General Knowledge & Current Affairs',
   'medilogy': 'Medilogy Biology Intensive • Rapid Problem Bank',
   'master-english-30-days': 'Master English in 30 Days • Complete Grammar & Vocab',
@@ -29,6 +30,7 @@ const ENGLISH_SUBTITLES = {
   'english_master': 'Comprehensive English preparation for Medical, University Admission & BCS exams.',
   'sureshot': 'Complete final model test series for Medical & Dental Admission test.',
   'medical': 'Authentic past medical admission test papers from 2013 to 2024 with detailed analytics.',
+  'anushiloni': 'Rapid subject-wise daily mock tests with instant national leaderboard ranking.',
   'rtds': 'Rapid subject-wise daily mock tests with instant national leaderboard ranking.',
   'gk_course': 'Complete Bangladesh & International general knowledge with regular updates.',
   'medilogy': 'Targeted biology high-yield questions for top medical admission scores.',
@@ -38,7 +40,7 @@ const ENGLISH_SUBTITLES = {
   'chemistry-1st-dagano-line': 'Line-by-line textbook analysis and high-yield topic breakdown for board and admission.',
   'zoology-dagano-line-medical': 'Comprehensive zoology textbook marking with memory hacks and medical questions.',
   'hsc-26-27-step-by-step-guideline': 'Essential roadmap and preparation strategy for HSC 2026 and 2027 science students.',
-  'bundle-medical-mega-combo': 'Full access to SureShot, Medical Past Papers, RTDS, and Medilogy in one bundle.'
+  'bundle-medical-mega-combo': 'Full access to SureShot, Medical Past Papers, Anushiloni Textbook Bank, and Medilogy in one bundle.'
 };
 
 function formatEnglishTitle(item) {
@@ -117,7 +119,7 @@ export default function DashboardPage({
   const [orders, setOrders] = useState(() => getUserOrders());
   const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
 
-  const EXAM_BATCH_KEYS = useMemo(() => new Set(['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy']), []);
+  const EXAM_BATCH_KEYS = useMemo(() => new Set(['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy']), []);
 
   // Synchronize orders across events & cross-tab BroadcastChannel
   useEffect(() => {

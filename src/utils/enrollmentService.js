@@ -232,6 +232,17 @@ export function resolveAllAssociatedKeys(itemOrTitle, data = {}) {
     if (foundCourse.name) keysToGrant.add(foundCourse.name);
   }
 
+  // Cross-enrollment privilege: Physics Finishing Touch Series auto-bundles Anushiloni Exam Batch for free
+  if (isPhysicsFinishingTouchIdentifier(rawStr) || (foundCourse && isPhysicsFinishingTouchIdentifier(foundCourse.title || foundCourse.id || foundCourse.slug))) {
+    batchesToGrant.add('anushiloni');
+    batchesToGrant.add('rtds');
+    keysToGrant.add('anushiloni');
+    keysToGrant.add('rtds');
+    keysToGrant.add('অনুশীলনী এক্সাম ব্যাচ');
+    keysToGrant.add('Anushiloni Exam Batch');
+    keysToGrant.add('RTDS Exam Batch');
+  }
+
   return {
     courses: Array.from(keysToGrant),
     batches: Array.from(batchesToGrant)
@@ -565,28 +576,245 @@ export function revokeCourseAccess(itemOrTitle, data = {}, targetUser = null) {
 }
 
 /**
+ * Identifies if a string or course corresponds to Physics Finishing Touch Series
+ */
+export function isPhysicsFinishingTouchIdentifier(val) {
+  if (!val) return false;
+  const s = String(val).toLowerCase();
+  return (
+    s.includes('1791887161017') ||
+    s.includes('physics-finishing') ||
+    (s.includes('physics') && (s.includes('finishing') || s.includes('touch') || s.includes('টাস্ক') || s.includes('টাচ'))) ||
+    (s.includes('ফিনিশিং') && (s.includes('টাচ') || s.includes('টাস্ক') || s.includes('সিরিজ') || s.includes('ফিজিক্স')))
+  );
+}
+
+/**
+ * Identifies if a string or batch corresponds to Anushiloni Exam Batch (RTDS)
+ */
+export function isAnushiloniBatchIdentifier(val) {
+  if (!val) return false;
+  const s = String(val).toLowerCase();
+  return (
+    s === 'anushiloni' ||
+    s === 'rtds' ||
+    s.includes('anushiloni') ||
+    s.includes('onushiloni') ||
+    s.includes('rtds') ||
+    s.includes('অনুশীলনী')
+  );
+}
+
+/**
+ * Checks if a user is enrolled in Physics Finishing Touch Series across all storage & order layers
+ */
+export function isUserEnrolledInPhysicsFinishing(currentUser, data = null) {
+  if (!currentUser) {
+    try {
+      const stored = getStoredEnrolledCourses();
+      if (Array.isArray(stored) && stored.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+        return true;
+      }
+      const rawCur = localStorage.getItem('eh_current_user');
+      if (rawCur) {
+        const parsed = JSON.parse(rawCur);
+        if (parsed && isUserEnrolledInPhysicsFinishing(parsed, data)) {
+          return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // 1. Check currentUser.enrolledCourses
+  if (Array.isArray(currentUser.enrolledCourses)) {
+    if (currentUser.enrolledCourses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+      return true;
+    }
+  }
+
+  // 2. Check user-scoped localStorage
+  const userUid = currentUser.uid || currentUser.id;
+  const userPhone = (currentUser.phoneNumber || currentUser.phone || currentUser.whatsapp || '').replace(/[^0-9]/g, '');
+  if (userUid) {
+    try {
+      const uCourses = JSON.parse(localStorage.getItem(`eduhunters_enrolled_courses_${userUid}`) || '[]');
+      if (Array.isArray(uCourses) && uCourses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+        return true;
+      }
+    } catch (e) {}
+  }
+  if (userPhone && userPhone.length >= 10) {
+    try {
+      const pCourses = JSON.parse(localStorage.getItem(`eduhunters_enrolled_courses_${userPhone.slice(-10)}`) || '[]');
+      if (Array.isArray(pCourses) && pCourses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+        return true;
+      }
+    } catch (e) {}
+  }
+
+  // 3. Check paid / approved orders in orderService
+  try {
+    const orders = getUserOrders();
+    const userEmail = (currentUser.email || '').toLowerCase().trim();
+    for (const ord of orders) {
+      const isPaid = ord.status === 'PAID' || ord.status === 'Completed' || ord.isApproved === true;
+      if (!isPaid) continue;
+      const ordEmail = (ord.customer?.email || ord.customer_email || '').toLowerCase().trim();
+      const ordPhone = (ord.customer?.phone || ord.customer_phone || '').replace(/[^0-9]/g, '');
+      const ordUid = ord.userId || ord.customer?.uid;
+      const isOwner = (userEmail && ordEmail === userEmail) ||
+                      isPhoneMatch(userPhone, ordPhone) ||
+                      (userUid && ordUid && ordUid === userUid);
+      if (!isOwner) continue;
+
+      const orderTitles = [
+        ord.course?.id,
+        ord.course?.slug,
+        ord.course?.title,
+        ord.course?.name,
+        ord.course_name,
+        ord.course_slug,
+        ord.items?.[0]?.title,
+        ord.items?.[0]?.id,
+        ord.items?.[0]?.slug
+      ];
+      if (orderTitles.some(t => isPhysicsFinishingTouchIdentifier(t))) {
+        return true;
+      }
+    }
+  } catch (e) {}
+
+  // 4. Check data.users
+  if (data?.users && Array.isArray(data.users)) {
+    const userEmail = (currentUser.email || '').toLowerCase().trim();
+    for (const u of data.users) {
+      const uEmail = (u.email || '').toLowerCase().trim();
+      const uPhone = (u.phone || '').replace(/[^0-9]/g, '');
+      const isMatch = (userEmail && uEmail === userEmail) ||
+                      isPhoneMatch(userPhone, uPhone) ||
+                      (userUid && u.id === userUid);
+      if (isMatch && Array.isArray(u.enrolledCourses)) {
+        if (u.enrolledCourses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Automatically enrolls any user who has Physics Finishing Touch Series into Anushiloni Exam Batch
+ */
+export function syncFinishingTouchStudentsWithAnushiloni(data = null) {
+  try {
+    let hasChanges = false;
+
+    // 1. Sync current browser localStorage: eduhunters_enrolled_courses & eduhunters_enrolled_batches
+    const storedCourses = getStoredEnrolledCourses();
+    if (storedCourses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+      const storedBatches = getStoredEnrolledBatches();
+      if (!storedBatches.includes('anushiloni')) {
+        const nextBatches = Array.from(new Set([...storedBatches, 'anushiloni', 'rtds']));
+        localStorage.setItem(ENROLLED_BATCHES_KEY, JSON.stringify(nextBatches));
+      }
+      if (!storedCourses.includes('anushiloni') || !storedCourses.includes('অনুশীলনী এক্সাম ব্যাচ')) {
+        const nextCourses = Array.from(new Set([...storedCourses, 'anushiloni', 'rtds', 'অনুশীলনী এক্সাম ব্যাচ']));
+        localStorage.setItem(ENROLLED_COURSES_KEY, JSON.stringify(nextCourses));
+      }
+    }
+
+    // 2. Sync eh_current_user in localStorage
+    const rawCurUser = localStorage.getItem('eh_current_user');
+    if (rawCurUser) {
+      const curUser = JSON.parse(rawCurUser);
+      const curCourses = Array.isArray(curUser.enrolledCourses) ? curUser.enrolledCourses : [];
+      if (curCourses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+        if (!curCourses.some(c => isAnushiloniBatchIdentifier(c))) {
+          curUser.enrolledCourses = Array.from(new Set([...curCourses, 'অনুশীলনী এক্সাম ব্যাচ']));
+          localStorage.setItem('eh_current_user', JSON.stringify(curUser));
+          hasChanges = true;
+        }
+      }
+    }
+
+    // 3. Sync eh_registered_users in localStorage
+    const rawReg = localStorage.getItem('eh_registered_users');
+    if (rawReg) {
+      const regUsers = JSON.parse(rawReg);
+      if (Array.isArray(regUsers)) {
+        let updatedReg = false;
+        const nextReg = regUsers.map(u => {
+          const courses = Array.isArray(u.enrolledCourses) ? u.enrolledCourses : [];
+          if (courses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+            if (!courses.some(c => isAnushiloniBatchIdentifier(c))) {
+              updatedReg = true;
+              return {
+                ...u,
+                enrolledCourses: Array.from(new Set([...courses, 'অনুশীলনী এক্সাম ব্যাচ']))
+              };
+            }
+          }
+          return u;
+        });
+        if (updatedReg) {
+          localStorage.setItem('eh_registered_users', JSON.stringify(nextReg));
+          hasChanges = true;
+        }
+      }
+    }
+
+    // 4. Sync data.users if provided
+    if (data?.users && Array.isArray(data.users)) {
+      data.users.forEach(u => {
+        const courses = Array.isArray(u.enrolledCourses) ? u.enrolledCourses : [];
+        if (courses.some(c => isPhysicsFinishingTouchIdentifier(c))) {
+          if (!courses.some(c => isAnushiloniBatchIdentifier(c))) {
+            courses.push('অনুশীলনী এক্সাম ব্যাচ');
+            u.enrolledCourses = Array.from(new Set(courses));
+            hasChanges = true;
+          }
+        }
+      });
+    }
+
+    return hasChanges;
+  } catch (err) {
+    console.warn('[enrollmentService] Note during finishing touch auto-enroll sync:', err);
+    return false;
+  }
+}
+
+/**
  * Cleans up unverified legacy 'sureshot' from localStorage if not backed by a paid order
  */
 export function cleanUnverifiedLegacyBatches() {
   try {
     const rawBatches = localStorage.getItem(ENROLLED_BATCHES_KEY);
-    const legacyBatches = localStorage.getItem('enrolled_exam_batches');
-    if (rawBatches || legacyBatches) {
-      const orders = JSON.parse(localStorage.getItem('eh_user_orders_v3') || '[]');
-      const hasPaidSureshot = orders.some(o => 
-        (o.status === 'PAID' || o.isApproved) && 
-        (o.course?.categoryKey === 'sureshot' || o.course?.slug === 'sureshot' || o.categoryKey === 'sureshot')
-      );
-      if (!hasPaidSureshot) {
-        localStorage.removeItem(ENROLLED_BATCHES_KEY);
-        localStorage.removeItem('enrolled_exam_batches');
+    if (rawBatches) {
+      const batches = JSON.parse(rawBatches);
+      if (Array.isArray(batches) && batches.includes('sureshot')) {
+        const orders = JSON.parse(localStorage.getItem('eh_user_orders_v3') || '[]');
+        const hasPaidSureshot = orders.some(o => 
+          (o.status === 'PAID' || o.isApproved) && 
+          (o.course?.categoryKey === 'sureshot' || o.course?.slug === 'sureshot' || o.categoryKey === 'sureshot')
+        );
+        if (!hasPaidSureshot) {
+          const next = batches.filter(b => b !== 'sureshot');
+          localStorage.setItem(ENROLLED_BATCHES_KEY, JSON.stringify(next));
+        }
       }
     }
   } catch (e) {}
 }
 
-// Automatically clean unverified batches on module initialization
+// Automatically clean unverified batches and sync finishing touch students on module initialization
 cleanUnverifiedLegacyBatches();
+try {
+  syncFinishingTouchStudentsWithAnushiloni();
+} catch (e) {}
 
 /**
  * Comprehensive check whether a course, exam batch, or bundle is unlocked/enrolled for the user.
@@ -669,6 +897,13 @@ export function isItemEnrolled(itemOrId, currentUser = null, data = null, option
 
   const cleanCandidates = Array.from(candidates).filter(Boolean);
   if (cleanCandidates.length === 0) return false;
+
+  // Cross-enrollment check:
+  // If the target being evaluated is Anushiloni Exam Batch, and the user is enrolled in Physics Finishing Touch Series, grant full access!
+  const isAnushiloniTarget = cleanCandidates.some(c => isAnushiloniBatchIdentifier(c));
+  if (isAnushiloniTarget && isUserEnrolledInPhysicsFinishing(currentUser, data)) {
+    return true;
+  }
 
   // Helper matcher against an array of enrolled string entries (exact ID or exact normalized string match)
   const matchesList = (list) => {
@@ -986,3 +1221,160 @@ export function useItemPending(itemOrId, currentUser) {
     return getItemPendingOrder(itemOrId, currentUser);
   }, [itemOrId, currentUser, version]);
 }
+
+/**
+ * Accurately calculate the REAL count of unique students actively enrolled in a course or exam batch.
+ * Deduplicates across users, enrolledStudents, completed orders/transactions, and local storage.
+ */
+export function getRealEnrolledCount(itemOrId, data = null) {
+  try {
+    const candidates = new Set();
+    if (typeof itemOrId === 'string') {
+      const val = itemOrId.trim();
+      if (val) {
+        candidates.add(val.toLowerCase());
+        candidates.add(normalizeStr(val));
+      }
+    } else if (typeof itemOrId === 'object' && itemOrId !== null) {
+      ['id', 'key', 'slug', 'title', 'name'].forEach(prop => {
+        if (itemOrId[prop]) {
+          const s = String(itemOrId[prop]).trim();
+          candidates.add(s.toLowerCase());
+          candidates.add(normalizeStr(s));
+        }
+      });
+    }
+
+    // Expand aliases for Anushiloni / RTDS
+    const isAnushiloni = Array.from(candidates).some(c => 
+      c.includes('anushiloni') || c.includes('onushiloni') || c.includes('rtds') || c.includes('অনুশীলনী')
+    );
+    if (isAnushiloni) {
+      ['anushiloni', 'onushiloni', 'rtds', 'অনুশীলনী', 'অনুশীলনী ও মেডিকেল প্রশ্নব্যাংক'].forEach(alias => {
+        candidates.add(alias.toLowerCase());
+        candidates.add(normalizeStr(alias));
+      });
+    }
+
+    // Expand aliases for other batches if applicable
+    if (Array.from(candidates).some(c => c.includes('sureshot') || c.includes('sure shot'))) {
+      ['sureshot', 'sure shot', 'sureshot carnival', 'sure shot carnival'].forEach(alias => {
+        candidates.add(alias.toLowerCase());
+        candidates.add(normalizeStr(alias));
+      });
+    }
+    if (Array.from(candidates).some(c => c.includes('medical') || c.includes('mat') || c.includes('বিগত ১১'))) {
+      ['medical', 'mat', 'মেডিকেল বিগত ১১ বছর'].forEach(alias => {
+        candidates.add(alias.toLowerCase());
+        candidates.add(normalizeStr(alias));
+      });
+    }
+    if (Array.from(candidates).some(c => c.includes('english') || c.includes('ইংলিশ'))) {
+      ['english_master', 'english master', 'master english 30 days', 'master-english-30-days', 'ইংলিশ মাস্টার ৫০'].forEach(alias => {
+        candidates.add(alias.toLowerCase());
+        candidates.add(normalizeStr(alias));
+      });
+    }
+    if (Array.from(candidates).some(c => c.includes('gk') || c.includes('জিকে'))) {
+      ['gk_course', 'gk course', 'জিকে ফুল কোর্স ২৬', 'gk full course'].forEach(alias => {
+        candidates.add(alias.toLowerCase());
+        candidates.add(normalizeStr(alias));
+      });
+    }
+    if (Array.from(candidates).some(c => c.includes('medilogy') || c.includes('মেডিলজি'))) {
+      ['medilogy', 'মেডিলজি ডেইলি প্ল্যানার', 'medilogy daily planner'].forEach(alias => {
+        candidates.add(alias.toLowerCase());
+        candidates.add(normalizeStr(alias));
+      });
+    }
+
+    // Also check bundles containing any candidate
+    const bundleCandidates = new Set();
+    const allBundles = Array.isArray(data?.bundles) ? data.bundles : [];
+    allBundles.forEach(b => {
+      const hasCourse = Array.isArray(b.courseIds) && b.courseIds.some(cId => {
+        const normC = normalizeStr(cId);
+        return candidates.has(normC) || candidates.has(String(cId).toLowerCase());
+      });
+      if (hasCourse) {
+        if (b.id) {
+          bundleCandidates.add(b.id.toLowerCase());
+          bundleCandidates.add(normalizeStr(b.id));
+        }
+        if (b.title) {
+          bundleCandidates.add(b.title.toLowerCase());
+          bundleCandidates.add(normalizeStr(b.title));
+        }
+      }
+    });
+
+    const allCandArray = Array.from(new Set([...candidates, ...bundleCandidates])).filter(Boolean);
+
+    const matchesAnyCandidate = (entry) => {
+      if (!entry) return false;
+      const str = typeof entry === 'string' ? entry.trim() : (entry.id || entry.slug || entry.key || entry.title || entry.name || entry.courseName || '').trim();
+      if (!str) return false;
+      const low = str.toLowerCase();
+      const norm = normalizeStr(str);
+      return allCandArray.some(c => low === c || norm === c || low.includes(c) || norm.includes(c) || c.includes(norm));
+    };
+
+    const enrolledStudentKeys = new Set();
+
+    // 1. Check data.users / registered users
+    let usersList = Array.isArray(data?.users) ? data.users : [];
+    try {
+      const stored = JSON.parse(localStorage.getItem('eh_registered_users') || '[]');
+      if (Array.isArray(stored)) {
+        usersList = [...usersList, ...stored];
+      }
+    } catch (e) {}
+
+    usersList.forEach(u => {
+      if (!u) return;
+      if (u.role === 'Admin' || u.id === 'admin_master') return; // Exclude admin staff
+      const enrolled = [
+        ...(Array.isArray(u.enrolledCourses) ? u.enrolledCourses : []),
+        ...(Array.isArray(u.enrolledBatches) ? u.enrolledBatches : [])
+      ];
+      if (enrolled.some(matchesAnyCandidate)) {
+        const studentKey = (u.email || u.phone || u.id || u.uid || '').toLowerCase().trim();
+        if (studentKey) enrolledStudentKeys.add(studentKey);
+      }
+    });
+
+    // 2. Check data.enrolledStudents / eh_enrolled_students
+    let stList = Array.isArray(data?.enrolledStudents) ? data.enrolledStudents : [];
+    try {
+      const stored = JSON.parse(localStorage.getItem('eh_enrolled_students') || '[]');
+      if (Array.isArray(stored)) {
+        stList = [...stList, ...stored];
+      }
+    } catch (e) {}
+
+    stList.forEach(st => {
+      if (!st) return;
+      if (matchesAnyCandidate(st.courseName) || matchesAnyCandidate(st.courseId) || matchesAnyCandidate(st.batch)) {
+        const studentKey = (st.email || st.phone || st.id || '').toLowerCase().trim();
+        if (studentKey) enrolledStudentKeys.add(studentKey);
+      }
+    });
+
+    // 3. Check data.accounting.transactions
+    const txList = Array.isArray(data?.accounting?.transactions) ? data.accounting.transactions : [];
+    txList.forEach(tx => {
+      if (tx && tx.type === 'INCOME' && (tx.status === 'Completed' || tx.status === 'Approved')) {
+        if (matchesAnyCandidate(tx.itemTitle) || matchesAnyCandidate(tx.category)) {
+          const studentKey = (tx.studentEmail || tx.studentPhone || tx.studentName || tx.orderId || '').toLowerCase().trim();
+          if (studentKey) enrolledStudentKeys.add(studentKey);
+        }
+      }
+    });
+
+    return enrolledStudentKeys.size;
+  } catch (err) {
+    console.error('Error calculating real enrolled count:', err);
+    return 0;
+  }
+}
+

@@ -16,24 +16,26 @@
     <!-- Tailwind CSS with class-based dark mode -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              'primary-charcoal': '#111827',
-              'neutral-text': '#4b5563',
-              'neutral-warm': '#f3f4f6',
-              'neutral-border': '#e5e7eb',
-              'primary-orange': '#ea580c',
-              'eh-crimson': '#dc2626',
-              'eh-darkred': '#991b1b',
-            },
-            fontFamily: {
-              sans: ['Hind Siliguri', 'Inter', 'sans-serif'],
+      if (typeof tailwind !== 'undefined') {
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                'primary-charcoal': '#111827',
+                'neutral-text': '#4b5563',
+                'neutral-warm': '#f3f4f6',
+                'neutral-border': '#e5e7eb',
+                'primary-orange': '#ea580c',
+                'eh-crimson': '#dc2626',
+                'eh-darkred': '#991b1b',
+              },
+              fontFamily: {
+                sans: ['Hind Siliguri', 'Inter', 'sans-serif'],
+              }
             }
           }
-        }
+        };
       }
     </script>
     <meta name="theme-color" content="#050102" />

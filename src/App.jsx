@@ -6,8 +6,7 @@ import { initialData, isZenithCopiedCourse } from './data/mockData';
 import { EXAM_CATEGORIES_METADATA } from './data/examCategoriesData';
 import { physicsFinishingTouchCourseData } from './data/physicsFinishingTouchData';
 import { fetchSupabaseSiteData, saveSupabaseSiteData, subscribeToSupabaseSiteData } from './services/supabaseService';
-import { fetchCloudData, saveCloudData, subscribeToCloudData } from './services/firestoreSyncService';
-import { grantCourseAccess } from './utils/enrollmentService';
+import { grantCourseAccess, syncFinishingTouchStudentsWithAnushiloni } from './utils/enrollmentService';
 
 // Direct eager imports for critical initial render
 import HomePage from './components/HomePage';
@@ -152,7 +151,46 @@ export default function App() {
   const { currentUser } = useAuth();
 
   // Active admin session state
-  const [adminUser, setAdminUser] = useState(() => getAdminSession());
+  const [adminUser, setAdminUser] = useState(() => {
+    const session = getAdminSession();
+    if (session) return session;
+    try {
+      const rawUser = localStorage.getItem('eh_current_user');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u && (u.role === 'admin' || (u.email || '').toLowerCase() === 'admin@eduhunters.com')) {
+          const autoAdmin = {
+            id: u.uid || u.id || 'admin_user',
+            name: u.displayName || u.name || 'Admin',
+            email: (u.email || 'admin@eduhunters.com').toLowerCase(),
+            role: 'super_admin',
+            loginAt: new Date().toISOString()
+          };
+          try { localStorage.setItem('eh_admin_session', JSON.stringify(autoAdmin)); } catch (e) {}
+          return autoAdmin;
+        }
+      }
+    } catch (e) {}
+    return null;
+  });
+
+  // Keep adminUser in sync if currentUser has admin role
+  useEffect(() => {
+    if (currentUser && (currentUser.role === 'admin' || (currentUser.email || '').toLowerCase() === 'admin@eduhunters.com')) {
+      setAdminUser(prev => {
+        if (prev) return prev;
+        const autoAdmin = {
+          id: currentUser.uid || currentUser.id || 'admin_user',
+          name: currentUser.displayName || currentUser.name || 'Admin',
+          email: (currentUser.email || 'admin@eduhunters.com').toLowerCase(),
+          role: 'super_admin',
+          loginAt: new Date().toISOString()
+        };
+        try { localStorage.setItem('eh_admin_session', JSON.stringify(autoAdmin)); } catch (e) {}
+        return autoAdmin;
+      });
+    }
+  }, [currentUser]);
 
   // URL Routing States
   const [courseId, setCourseId] = useState(() => {
@@ -188,7 +226,16 @@ export default function App() {
 
   const [selectedCategory, setSelectedCategory] = useState(() => {
     try {
-      return new URLSearchParams(window.location.search).get('category') || null;
+      let cat = new URLSearchParams(window.location.search).get('category') || null;
+      if (cat === 'rtds' || cat === 'onushiloni') {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('category', 'anushiloni');
+          window.history.replaceState(null, '', url.toString());
+        } catch (e) {}
+        return 'anushiloni';
+      }
+      return cat;
     } catch (e) {
       return null;
     }
@@ -237,6 +284,8 @@ export default function App() {
   // Preloader & Transition animation state
   const [isPreloading, setIsPreloading] = useState(() => {
     try {
+      const p = (window.location.pathname || '').toLowerCase();
+      if (p.includes('/admin')) return false;
       const shown = sessionStorage.getItem('eh_preloader_seen');
       return !shown;
     } catch (e) {
@@ -312,7 +361,11 @@ export default function App() {
         } else if (p.includes('/exams') || h.includes('exams')) {
           try {
             const sp = new URLSearchParams(window.location.search);
-            setSelectedCategory(sp.get('category') || null);
+            let cat = sp.get('category') || null;
+            if (cat === 'rtds' || cat === 'onushiloni') {
+              cat = 'anushiloni';
+            }
+            setSelectedCategory(cat);
             setFromBundle(sp.get('from') === 'bundle' || sp.get('fromBundle') === 'true' || sp.get('bundleId') ? (sp.get('bundleId') || true) : false);
           } catch (e) {
             setSelectedCategory(null);
@@ -334,8 +387,9 @@ export default function App() {
           setCurrentPage('course_player');
         } else if (p.startsWith('/courses/') && p.length > 9 && !p.includes('[object')) {
           const slug = p.split('/courses/')[1];
-          if (slug && new Set(['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy']).has(slug)) {
-            setSelectedCategory(slug);
+          if (slug && new Set(['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy']).has(slug)) {
+            const cat = (slug === 'rtds' || slug === 'onushiloni') ? 'anushiloni' : slug;
+            setSelectedCategory(cat);
             setCurrentPage('exams');
           } else if (slug) {
             setCourseId(slug);
@@ -445,6 +499,9 @@ export default function App() {
   // Local storage purification and integrity guard on startup
   useEffect(() => {
     try {
+      syncFinishingTouchStudentsWithAnushiloni(data);
+    } catch (e) {}
+    try {
       const stored = localStorage.getItem('eduhunters_data');
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -514,6 +571,30 @@ export default function App() {
         if (parsed.siteSettings && (!parsed.siteSettings.whatsappNumber || parsed.siteSettings.whatsappNumber === '01353828863')) {
           parsed.siteSettings.whatsappNumber = parsed.siteSettings.contactPhone || '01342227935';
           modified = true;
+        }
+
+        // Clean exam batches & remove RTDS mentions
+        if (Array.isArray(parsed.examBatches)) {
+          let batchChanged = false;
+          parsed.examBatches = parsed.examBatches.map(b => {
+            if (b.key === 'rtds' || b.key === 'anushiloni') {
+              batchChanged = true;
+              return {
+                ...b,
+                key: 'anushiloni',
+                title: (b.title || '').replace(/\s*\(RTDS\)/gi, '').replace(/RTDS/gi, 'অনুশীলনী').trim(),
+                subtitle: (b.subtitle || '').replace(/RTDS/gi, 'অনুশীলনী').trim(),
+                image: b.image && b.image.includes('rtds_banner') ? '/exam_banners/anushiloni_banner.jpg' : b.image,
+                enrolledCount: '০',
+                details: {
+                  ...(b.details || {}),
+                  about: (b.details?.about || '').replace(/RTDS/gi, 'অনুশীলনী')
+                }
+              };
+            }
+            return b;
+          });
+          if (batchChanged) modified = true;
         }
 
         if (modified) {
@@ -831,10 +912,11 @@ export default function App() {
         try { sessionStorage.removeItem('eduhunters_nav_from_bundle'); } catch (e) {}
       }
 
-      const examCategories = new Set(['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy']);
+      const examCategories = new Set(['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy']);
       const strKey = courseKey == null ? '' : String(courseKey).trim();
       if (strKey && examCategories.has(strKey.toLowerCase())) {
-        const cat = strKey.toLowerCase();
+        let cat = strKey.toLowerCase();
+        if (cat === 'rtds' || cat === 'onushiloni') cat = 'anushiloni';
         const targetUrl = isBundle ? `/exams?category=${cat}&from=bundle${bId ? `&bundleId=${bId}` : ''}` : `/exams?category=${cat}`;
         navigate(() => {
           setSelectedCategory(cat);
@@ -859,7 +941,7 @@ export default function App() {
     onNavigateCoursePlayer: (cId, lesson = null) => {
       setFromBundle(false);
       try { sessionStorage.removeItem('eduhunters_nav_from_bundle'); } catch (e) {}
-      if (typeof cId === 'string' && new Set(['sureshot', 'medical', 'rtds', 'english_master', 'gk_course', 'medilogy']).has(cId.trim())) {
+      if (typeof cId === 'string' && new Set(['sureshot', 'medical', 'anushiloni', 'onushiloni', 'rtds', 'english_master', 'gk_course', 'medilogy']).has(cId.trim())) {
         navHandlers.onNavigateExams(cId.trim());
         return;
       }
@@ -892,7 +974,8 @@ export default function App() {
         sessionStorage.removeItem('eduhunters_nav_from_bundle');
         sessionStorage.removeItem('eduhunters_active_exam_result');
       } catch (e) {}
-      const cat = typeof category === 'string' && category.trim().length > 0 ? category.trim() : null;
+      let cat = typeof category === 'string' && category.trim().length > 0 ? category.trim() : null;
+      if (cat === 'rtds' || cat === 'onushiloni') cat = 'anushiloni';
       navigate(() => {
         setSelectedCategory(cat);
         setCurrentPage('exams');
