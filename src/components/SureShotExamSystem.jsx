@@ -2565,21 +2565,23 @@ export default function SureShotExamSystem({
           {/* Examinee Identity Banner */}
           {currentUser ? (
             <div className={`p-3 rounded-2xl border flex items-center justify-between gap-3 ${
-              isDark ? 'bg-emerald-950/20 border-emerald-500/30 text-white' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              isDark ? 'bg-[#1a050c]/90 border-[#e11438]/30 text-white' : 'bg-red-50/90 border-red-200 text-red-950'
             }`}>
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#dc2626]/20 border border-[#dc2626]/40 text-[#ff4d6d] flex items-center justify-center font-bold text-xs shrink-0">
                   {(currentUser.displayName || currentUser.name || 'S').charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold truncate">
                     {currentUser.displayName || currentUser.name || 'Student'}
                   </p>
-                  <p className="text-[10px] text-emerald-500 font-medium">ভেরিফাইড শিক্ষার্থী • মেধা তালিকায় নাম প্রদর্শিত হবে</p>
+                  <p className="text-[10px] text-red-500 dark:text-[#ff4d6d] font-medium">
+                    Verified Examinee • Name will appear on the Live Leaderboard
+                  </p>
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0 flex items-center gap-1">
-                <Check size={14} /> লিডারবোর্ড সক্রিয়
+              <span className="text-[11px] font-bold text-red-600 dark:text-[#ff4d6d] shrink-0 flex items-center gap-1">
+                <Check size={14} className="text-[#dc2626] dark:text-[#ff4d6d]" /> Leaderboard Active
               </span>
             </div>
           ) : (
@@ -2588,7 +2590,7 @@ export default function SureShotExamSystem({
             }`}>
               <label className={`text-xs font-semibold flex items-center gap-1.5 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                 <User size={14} className="text-[#e11438]" />
-                <span>আপনার নাম (মেধাতালিকায় প্রদর্শনের জন্য):</span>
+                <span>Your Full Name (for Live Leaderboard):</span>
               </label>
               <input
                 type="text"
@@ -2597,7 +2599,7 @@ export default function SureShotExamSystem({
                   setGuestStudentName(e.target.value);
                   try { localStorage.setItem('eh_guest_student_name', e.target.value); } catch {}
                 }}
-                placeholder="আপনার পূর্ণ নাম লিখুন (যেমন: তানভীর আহমেদ)"
+                placeholder="Enter your full name (e.g. Tanvir Ahmed)"
                 className={`w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm border transition-all focus:outline-none ${
                   isDark 
                     ? 'bg-[#1b050d] border-[#e11438]/20 text-white placeholder:text-gray-500 focus:border-[#e11438]' 
@@ -2605,7 +2607,7 @@ export default function SureShotExamSystem({
                 }`}
               />
               <p className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                💡 ১ম বারের পরীক্ষায় এই নামে মেধা তালিকায় আপনার রেজাল্ট ও র‍্যাংক ১০০% নির্ভুলভাবে সংরক্ষিত হবে।
+                💡 Your 1st attempt score and ranking will be recorded under this name on the leaderboard.
               </p>
             </div>
           )}
@@ -2613,29 +2615,33 @@ export default function SureShotExamSystem({
           {/* Official 1st Attempt vs Practice Mode Rule Banner */}
           {attemptStatus?.hasAttempted ? (
             <div className={`p-3 rounded-2xl border text-xs flex items-center gap-3 transition-all ${
-              isDark ? 'bg-blue-950/30 border-blue-500/30 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-900'
+              isDark ? 'bg-[#180408]/85 border-[#e11438]/25 text-gray-200' : 'bg-red-50/60 border-red-200 text-gray-800'
             }`}>
-              <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#dc2626]/15 text-[#ff4d6d] flex items-center justify-center shrink-0">
                 <RefreshCw size={16} />
               </div>
               <div className="min-w-0">
-                <p className="font-bold">📝 প্র্যাকটিস মোড (Practice Mode)</p>
-                <p className="text-[11px] opacity-80 leading-snug mt-0.5">
-                  আপনি ইতিপূর্বে এই পরীক্ষাটি দিয়েছেন। ১ম প্রচেষ্টার স্কোর মেধা তালিকায় সংরক্ষিত আছে। এই প্রচেষ্টাটি প্র্যাকটিস হিসেবে গণ্য হবে।
+                <p className="font-bold text-xs flex items-center gap-1.5 text-gray-200">
+                  <span>📝 Practice Session (Retake Mode)</span>
+                </p>
+                <p className="text-[11px] opacity-80 leading-snug mt-0.5 text-gray-400">
+                  You have previously completed this exam. Your 1st attempt score remains official on the leaderboard. This session is for practice only.
                 </p>
               </div>
             </div>
           ) : (
             <div className={`p-3 rounded-2xl border text-xs flex items-center gap-3 transition-all ${
-              isDark ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              isDark ? 'bg-[#1e040a]/90 border-[#e11438]/35 text-red-200' : 'bg-red-50/90 border-red-200 text-red-950'
             }`}>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#dc2626]/20 to-[#991b1b]/30 border border-red-500/30 text-amber-400 flex items-center justify-center shrink-0">
                 <Trophy size={16} className="text-amber-400" />
               </div>
               <div className="min-w-0">
-                <p className="font-bold">🏆 ১ম অফিসিয়াল প্রচেষ্টা (Leaderboard Ranked)</p>
-                <p className="text-[11px] opacity-80 leading-snug mt-0.5">
-                  এই পরীক্ষার ফলাফল সরাসরি মেধা তালিকায় যুক্ত হবে। পরীক্ষা চলাকালীন সাবমিট না করে বের হয়ে গেলে মেধা তালিকায় ০ মার্ক যুক্ত হবে।
+                <p className="font-bold text-xs text-red-500 dark:text-[#ff4d6d] flex items-center gap-1.5">
+                  <span>🏆 Official 1st Attempt (Leaderboard Ranked)</span>
+                </p>
+                <p className="text-[11px] opacity-85 leading-snug mt-0.5 text-gray-300 dark:text-gray-300">
+                  Your score from this official session will be ranked directly on the National Live Leaderboard. Exiting before submission will automatically record 0 marks on the board.
                 </p>
               </div>
             </div>
@@ -2648,9 +2654,9 @@ export default function SureShotExamSystem({
             className="w-full py-3.5 px-6 text-white font-bold text-sm sm:text-base rounded-2xl flex items-center justify-center gap-2 transition-all border-none bg-gradient-to-r from-[#dc2626] to-[#b91c1c] hover:from-[#b91c1c] hover:to-[#991b1b] shadow-lg shadow-red-950/40 hover:shadow-red-900/50 hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoadingExam ? (
-              <span>⏳ প্রশ্ন লোড হচ্ছে...</span>
+              <span>⏳ Loading questions...</span>
             ) : (
-              <span>{attemptStatus?.hasAttempted ? '🚀 Start Practice Exam' : '🚀 Start Exam'}</span>
+              <span>{attemptStatus?.hasAttempted ? '🚀 Start Practice Exam' : '🚀 Start Official Exam'}</span>
             )}
           </button>
 
@@ -3122,30 +3128,30 @@ export default function SureShotExamSystem({
                 <div>
                   <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-[#111827]'}`}>
                     {examMode === 'real' && (!attemptStatus?.hasAttempted || attemptStatus?.isFirstAttempt)
-                      ? 'পরীক্ষা থেকে বের হতে চান?'
-                      : 'প্র্যাকটিস পরীক্ষা বন্ধ করতে চান?'}
+                      ? 'Exit Exam Session?'
+                      : 'Quit Practice Session?'}
                   </h3>
-                  <p className="text-xs text-red-400 font-medium">সাবমিট না করে বের হওয়ার সতর্কতা</p>
+                  <p className="text-xs text-red-400 font-medium">Early departure warning</p>
                 </div>
               </div>
 
               {examMode === 'real' && (!attemptStatus?.hasAttempted || attemptStatus?.isFirstAttempt) ? (
                 <div className="space-y-2.5">
                   <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed ${
-                    isDark ? 'bg-red-950/30 border-red-500/30 text-red-200' : 'bg-red-50 border-red-200 text-red-900'
+                    isDark ? 'bg-red-950/40 border-red-500/35 text-red-200' : 'bg-red-50 border-red-200 text-red-900'
                   }`}>
-                    <p className="font-bold mb-1">⚠️ সতর্কবার্তা: এটি আপনার ১ম অফিসিয়াল প্রচেষ্টা!</p>
+                    <p className="font-bold mb-1 text-red-400">⚠️ Warning: This is your Official 1st Attempt!</p>
                     <p>
-                      যেহেতু আপনি পরীক্ষা সাবমিট না করেই বের হয়ে যাচ্ছেন, তাই মেধা তালিকায় (Leaderboard) আপনার স্কোর <strong>০ মার্ক (Zero Mark)</strong> যুক্ত হবে।
+                      Because you are exiting before submission, a score of <strong>0 Marks</strong> will be permanently recorded on the National Live Leaderboard.
                     </p>
                     <p className="mt-1.5 text-[11px] opacity-80">
-                      পরবর্তীতে এই পরীক্ষাটি পুনরায় দিলে তা কেবল প্র্যাকটিস এক্সাম হিসেবে গণ্য হবে এবং লিডারবোর্ডের ০ মার্ক পরিবর্তন হবে না।
+                      Subsequent attempts will strictly count as practice and cannot replace your official 0 marks on the board.
                     </p>
                   </div>
                 </div>
               ) : (
                 <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  আপনি কি নিশ্চিত যে এই প্র্যাকটিস পরীক্ষা থেকে বের হতে চান? আপনার বর্তমান উত্তরগুলো সংরক্ষিত হবে না।
+                  Are you sure you want to quit this practice exam? Your active responses in this session will not be saved.
                 </p>
               )}
 
@@ -3157,7 +3163,7 @@ export default function SureShotExamSystem({
                     isDark ? 'bg-transparent border-white/15 text-gray-300 hover:bg-white/5' : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  না, পরীক্ষা চালিয়ে যান
+                  Cancel / Continue Exam
                 </button>
                 <button
                   type="button"
@@ -3165,8 +3171,8 @@ export default function SureShotExamSystem({
                   className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs sm:text-sm font-bold cursor-pointer border-none shadow-lg shadow-red-950/40 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   {examMode === 'real' && (!attemptStatus?.hasAttempted || attemptStatus?.isFirstAttempt)
-                    ? 'হ্যাঁ, বের হয়ে যান (০ মার্ক সহ)'
-                    : 'হ্যাঁ, বের হয়ে যান'}
+                    ? 'Exit Exam (Submit with 0 Marks)'
+                    : 'Quit Session'}
                 </button>
               </div>
             </div>
@@ -3341,14 +3347,14 @@ export default function SureShotExamSystem({
 
             {/* Leaderboard Policy Note / Dynamic Attempt Badge */}
             {(examResult?.isOfficialRanked || (examResult?.isFirstAttempt && (!examResult?.attemptNumber || examResult?.attemptNumber === 1))) ? (
-              <div className="p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2.5 bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+              <div className="p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2.5 bg-red-500/10 border-red-500/30 text-red-600 dark:text-[#ff4d6d]">
                 <Trophy size={18} className="text-amber-500 shrink-0" />
-                <span>🏆 ১ম অফিসিয়াল প্রচেষ্টা: আপনার স্কোর ও অবস্থান সরাসরি লাইভ মেধা তালিকায় অন্তর্ভুক্ত হয়েছে!</span>
+                <span>🏆 Official 1st Attempt: Your score and ranking are published directly on the National Live Leaderboard!</span>
               </div>
             ) : (
-              <div className="p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2.5 bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400">
-                <RefreshCw size={18} className="text-blue-500 shrink-0" />
-                <span>📝 অনুশীলন প্রচেষ্টা (Practice Mode): এটি প্র্যাকটিস হিসেবে সম্পন্ন হয়েছে। ১ম প্রচেষ্টার অফিসিয়াল মেধা তালিকা ও স্কোর অপরিবর্তিত থাকবে।</span>
+              <div className="p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2.5 bg-white/5 border-white/15 text-gray-300">
+                <RefreshCw size={18} className="text-red-400 shrink-0" />
+                <span>📝 Practice Session Completed: Your official 1st attempt score and ranking remain preserved on the leaderboard.</span>
               </div>
             )}
 
