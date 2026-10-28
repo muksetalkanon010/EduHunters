@@ -730,10 +730,15 @@ export default function SureShotExamSystem({
         setIsLoadingManifest(true);
         const data = await getMergedExamManifest();
         if (isMounted && data.exams && data.exams.length > 0) {
-          const cleanedExams = data.exams.map(e => ({
-            ...e,
-            title: stripEmoji(e.title)
-          }));
+          const cleanedExams = data.exams.map(e => {
+            const isRtdsOrAnushiloni = e.category === 'rtds' || e.category === 'anushiloni';
+            return {
+              ...e,
+              title: stripEmoji(e.title),
+              category: isRtdsOrAnushiloni ? 'anushiloni' : e.category,
+              rawCategory: e.category
+            };
+          });
           const combinedExams = [
             ...INITIAL_SURE_SHOT,
             ...cleanedExams.filter(ce => !INITIAL_SURE_SHOT.some(ise => ise.id === ce.id))
@@ -1020,8 +1025,13 @@ export default function SureShotExamSystem({
     if (selectedCategory === 'history') return [];
     return allExams.filter(exam => {
       // Category filter
-      if (selectedCategory !== 'all' && exam.category !== selectedCategory) {
-        return false;
+      if (selectedCategory !== 'all') {
+        const isAnushiloni = selectedCategory === 'anushiloni' || selectedCategory === 'rtds';
+        if (isAnushiloni) {
+          if (exam.category !== 'anushiloni' && exam.category !== 'rtds' && exam.rawCategory !== 'rtds') return false;
+        } else if (exam.category !== selectedCategory) {
+          return false;
+        }
       }
       // Subject filter
       if (selectedSubject !== 'all' && exam.subject !== selectedSubject) {
@@ -1049,7 +1059,8 @@ export default function SureShotExamSystem({
   // Load Exam JSON and smoothly navigate to next page immediately
   const handleSelectExam = (examMeta) => {
     const catKey = examMeta.category || selectedCategory;
-    const catExams = allExams.filter(e => e.category === catKey);
+    const isAnushiloni = catKey === 'anushiloni' || catKey === 'rtds';
+    const catExams = allExams.filter(e => e.category === catKey || (isAnushiloni && (e.category === 'rtds' || e.category === 'anushiloni' || e.rawCategory === 'rtds')));
     const catExamIndex = catExams.findIndex(e => e.id === examMeta.id);
     const isFreeExam = examMeta.isFree || examMeta.isTrial || catExamIndex === 0;
     const isEnrolled = isBatchEnrolled(catKey);
@@ -1849,7 +1860,11 @@ export default function SureShotExamSystem({
     const isCurrentCatEnrolled = isBatchEnrolled(currentCategoryKey);
 
     // Filter exams belonging to this category
-    let categoryExams = allExams.filter(e => e.category === currentCategoryKey);
+    const isAnushiloniKey = currentCategoryKey === 'anushiloni' || currentCategoryKey === 'rtds';
+    let categoryExams = allExams.filter(e => 
+      e.category === currentCategoryKey || 
+      (isAnushiloniKey && (e.category === 'rtds' || e.category === 'anushiloni' || e.rawCategory === 'rtds'))
+    );
     if (categoryExams.length === 0 && currentCategoryKey === 'sureshot') {
       categoryExams = INITIAL_SURE_SHOT;
     }
@@ -2072,7 +2087,7 @@ export default function SureShotExamSystem({
           </div>
 
           {/* RTDS / Anushiloni / GK Course Hierarchy View */}
-          {(selectedCategory === 'anushiloni' || selectedCategory === 'rtds' || selectedCategory === 'gk_course') ? (
+          {(selectedCategory === 'anushiloni' || selectedCategory === 'rtds' || currentCategoryKey === 'anushiloni' || currentCategoryKey === 'rtds' || selectedCategory === 'gk_course') ? (
             <RtdsCurriculumView
               exams={filteredList}
               onSelectExam={handleSelectExam}
@@ -3577,6 +3592,8 @@ export default function SureShotExamSystem({
               const isCorrect = isAnswered && Number(selectedOpt) === Number(targetCorrect);
               const isSkipped = !isAnswered;
               const cleanExp = cleanExplanation(q.explanation, q);
+              const originalIdx = questions.findIndex(origQ => (origQ.id !== undefined && origQ.id === q.id) || origQ === q);
+              const qNum = q.question_no || (originalIdx !== -1 ? originalIdx + 1 : idx + 1);
 
               return (
                 <div 
@@ -3592,11 +3609,32 @@ export default function SureShotExamSystem({
                   }`}
                 >
                   {/* Status Banner */}
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-lg bg-[#dc2626] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                      {q.question_no || idx + 1}
-                    </span>
-                    <span className={`text-sm sm:text-base font-bold flex-1 ${isDark ? 'text-white' : 'text-[#111827]'}`}>{q.question}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1">
+                      <span className="w-8 h-8 rounded-lg bg-[#dc2626] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 shadow-sm">
+                        {qNum}
+                      </span>
+                      <span className={`text-sm sm:text-base font-bold leading-relaxed flex-1 ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                        {q.question}
+                      </span>
+                    </div>
+
+                    {/* Question Status Pill */}
+                    <div className="shrink-0 self-start sm:self-center">
+                      {isCorrect ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-500 shadow-xs">
+                          <Check size={14} /> সঠিক (+১.০০)
+                        </span>
+                      ) : isSkipped ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-500/15 border border-gray-500/25 text-gray-400 shadow-xs">
+                          উত্তর করা হয়নি (০.০০)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/15 border border-red-500/30 text-red-500 shadow-xs">
+                          <X size={14} /> ভুল (-{Number(examResult?.negPerWrong !== undefined ? examResult.negPerWrong : 0.25).toFixed(2)})
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Options List */}
@@ -3633,13 +3671,13 @@ export default function SureShotExamSystem({
                           </div>
 
                           {isOptionCorrect && (
-                            <span className="text-xs text-emerald-500 dark:text-emerald-400 font-bold flex items-center gap-1 shrink-0">
-                              <Check size={14} /> Correct Answer {isUserSelected && '(Your Answer)'}
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 shrink-0 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                              <Check size={13} /> {isUserSelected ? '✓ সঠিক উত্তর (আপনার দেওয়া উত্তর)' : '✓ সঠিক উত্তর'}
                             </span>
                           )}
                           {isUserSelected && !isCorrect && (
-                            <span className="text-xs text-red-500 dark:text-red-400 font-bold flex items-center gap-1 shrink-0">
-                              <X size={14} /> Your Answer
+                            <span className="text-xs text-red-600 dark:text-red-400 font-bold flex items-center gap-1 shrink-0 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">
+                              <X size={13} /> ✗ আপনার দেওয়া উত্তর (ভুল)
                             </span>
                           )}
                         </div>
@@ -3649,21 +3687,27 @@ export default function SureShotExamSystem({
 
                   {/* Detailed Explanation or Verified Answer */}
                   {cleanExp ? (
-                    <div className={`p-3.5 rounded-xl border text-xs sm:text-sm space-y-1 ${
-                      isDark ? 'bg-[#1b050d] border-[#e11438]/20 text-gray-300' : 'bg-red-50/50 border-red-100 text-gray-700'
+                    <div className={`p-4 rounded-xl border text-xs sm:text-sm space-y-2.5 ${
+                      isDark ? 'bg-[#1b050d] border-[#e11438]/25 text-gray-200' : 'bg-red-50/60 border-red-200 text-gray-800'
                     }`}>
-                      <p className={`font-bold ${isDark ? 'text-[#ff4d6d]' : 'text-[#dc2626]'}`}>
-                        ব্যাখ্যা / Explanation:
-                      </p>
-                      <p className="leading-relaxed whitespace-pre-line">
-                        {cleanExp}
-                      </p>
+                      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold">
+                        <CheckCircle2 size={16} className="shrink-0" />
+                        <span>সঠিক উত্তর: <strong>{OPTION_LETTERS[targetCorrect] || targetCorrect + 1}) {(q.options && q.options[targetCorrect] !== undefined) ? q.options[targetCorrect] : ''}</strong></span>
+                      </div>
+                      <div className="border-t border-inherit/25 pt-2 space-y-1">
+                        <p className={`font-bold flex items-center gap-1.5 ${isDark ? 'text-[#ff4d6d]' : 'text-[#dc2626]'}`}>
+                          <span>💡 বিস্তারিত সমাধান ও ব্যাখ্যা (Explanation):</span>
+                        </p>
+                        <p className="leading-relaxed whitespace-pre-line text-xs sm:text-sm opacity-90 pl-1">
+                          {cleanExp}
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${
-                      isDark ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    <div className={`p-3 rounded-xl border text-xs sm:text-sm flex items-center gap-2 ${
+                      isDark ? 'bg-emerald-950/25 border-emerald-500/30 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
                     }`}>
-                      <Check size={14} className="text-emerald-500 shrink-0" />
+                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
                       <span>সঠিক উত্তর: <strong>{OPTION_LETTERS[targetCorrect] || targetCorrect + 1}) {(q.options && q.options[targetCorrect] !== undefined) ? q.options[targetCorrect] : ''}</strong></span>
                     </div>
                   )}

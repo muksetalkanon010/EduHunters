@@ -358,8 +358,11 @@ export default function ExamEngine({ exam, onClose }) {
                     </div>
 
                     {cleanExp ? (
-                      <div className="explanation-box">
-                        <strong>ব্যাখ্যা:</strong> {cleanExp}
+                      <div className="explanation-box" style={{ lineHeight: '1.6' }}>
+                        <div style={{ color: '#10b981', fontWeight: 'bold', marginBottom: '6px' }}>
+                          ✓ সঠিক উত্তর: {['ক', 'খ', 'গ', 'ঘ'][targetCorrect] || targetCorrect + 1}. {q.options ? q.options[targetCorrect] : ''}
+                        </div>
+                        <div><strong>💡 ব্যাখ্যা:</strong> {cleanExp}</div>
                       </div>
                     ) : (
                       <div className="explanation-box verified-box" style={{ background: 'rgba(16, 185, 129, 0.08)', borderColor: 'rgba(16, 185, 129, 0.25)' }}>
