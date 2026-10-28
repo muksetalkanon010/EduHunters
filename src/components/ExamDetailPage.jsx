@@ -261,10 +261,26 @@ export default function ExamDetailPage({
     return `${count} ${count === 1 ? 'Exam' : 'Exams'}`;
   }, [filteredExams.length, category]);
 
-  // Scroll to top on mount or when category changes
+  const categoryKey = category?.key || category?.id;
+  const prevCatKeyRef = useRef(categoryKey);
+
+  // Scroll to top only when actually switching to a different category
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [category]);
+    if (prevCatKeyRef.current !== categoryKey) {
+      prevCatKeyRef.current = categoryKey;
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [categoryKey]);
+
+  // Ensure document scroll is never locked
+  useEffect(() => {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
 
   if (!category) return null;
 

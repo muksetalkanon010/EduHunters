@@ -164,6 +164,11 @@ html.page-navigating .page-transition-container.page-animating {
   pointer-events: none;
 }
 
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 body {
   font-family: 'Hind Siliguri', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: #F8F9FA;
@@ -171,6 +176,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-y: auto;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 

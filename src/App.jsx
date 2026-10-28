@@ -315,6 +315,8 @@ export default function App() {
         } catch (e) {}
       }
       try {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       } catch (e) {}
     };
@@ -349,6 +351,14 @@ export default function App() {
       finishNav();
     }
   };
+
+  // Ensure document scroll is never locked on page changes
+  useEffect(() => {
+    try {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    } catch (e) {}
+  }, [currentPage]);
 
   // Synchronize browser forward/backward buttons
   useEffect(() => {

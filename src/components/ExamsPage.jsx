@@ -30,6 +30,16 @@ export default function ExamsPage({
   const [selectedSubject, setSelectedSubject] = useState('All Subjects');
   const [activeLiveExam, setActiveLiveExam] = useState(null);
 
+  // Ensure scroll is unlocked when entering exams page
+  React.useEffect(() => {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   const filteredExams = examsData.filter(exam => {
     if (selectedSubject === 'All Subjects') return true;
     return exam.subject === selectedSubject || exam.tag === selectedSubject;

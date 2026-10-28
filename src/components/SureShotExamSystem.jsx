@@ -289,12 +289,7 @@ export default function SureShotExamSystem({
   });
   const [liveExamLeaderboard, setLiveExamLeaderboard] = useState([]);
   const [isLoadingExamLeaderboard, setIsLoadingExamLeaderboard] = useState(false);
-  const [examClockTime, setExamClockTime] = useState(() => Date.now());
-
-  useEffect(() => {
-    const t = setInterval(() => setExamClockTime(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
+  // [Optimized] Removed continuous 1s ticker to eliminate unnecessary re-renders
 
   // Enrolled batch keys (e.g. ['sureshot', 'medical'])
   const [enrolledBatches, setEnrolledBatches] = useState(() => {
