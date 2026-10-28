@@ -42,12 +42,6 @@ const RTDS_ROOT_CATEGORIES = [
     title: 'Medical & Dental Questions',
     iconEmoji: '⚕️',
     iconColor: 'text-emerald-700'
-  },
-  {
-    key: '5.2 Final Medical Batch Exams',
-    title: '5.2 Final Medical Batch Exams',
-    iconEmoji: null, // text only as per screenshot
-    iconColor: ''
   }
 ];
 
@@ -456,6 +450,15 @@ export default function RtdsCurriculumView({
         const parts = (exam.subCategory || '').split(' > ').map(s => s.trim());
         rootKey = parts[0] || 'অন্যান্য';
         subKey = parts[1] || 'সাধারণ টেস্ট';
+      }
+
+      // Explicitly ignore 5.2 Final Medical Batch Exams
+      if (
+        rootKey.includes('5.2 Final Medical') ||
+        (exam.subCategory && exam.subCategory.includes('5.2 Final Medical')) ||
+        (exam.filePath && exam.filePath.includes('5.2 Final Medical'))
+      ) {
+        return;
       }
 
       if (!map[rootKey]) {
